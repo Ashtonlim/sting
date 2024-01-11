@@ -1,3 +1,2 @@
-console.log('hi') 
-console.log('--')
-console.log('--2')
+console.log('hi')
+console.log('added new')
