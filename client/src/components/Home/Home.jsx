@@ -1,9 +1,12 @@
+import LayoutOne from "../layouts/LayoutOne";
 const Home = () => {
   return (
-    <div>
-      <div>hi</div>
-      <h1>Vite + React</h1>
-    </div>
+    <LayoutOne>
+      <div>
+        <div>hi</div>
+        <h1>Vite + React</h1>
+      </div>
+    </LayoutOne>
   );
 };
 
