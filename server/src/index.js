@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config({ path: "config/dev.env" });
 
 import express from "express";
+import cors from "cors";
+
 import connectdb from "./config/database.js";
 
 import auth from "./routes/auth.js";
@@ -9,17 +11,26 @@ import auth from "./routes/auth.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// connect to db
-const connection = connectdb();
-
+app.use(cors());
 app.use("/api/v1/auth", auth);
 
-/** Simulated bank functionality */
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-/** App listening on port */
-app.listen(PORT, () => {
-  console.log(`MyBank app listening at http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    // connect to db
+    const connection = await connectdb();
+    console.log("connected to db");
+
+    /** App listening on port */
+    app.listen(PORT, () => {
+      console.log(`Listening at http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+startServer();
