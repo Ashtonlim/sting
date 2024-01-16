@@ -14,10 +14,10 @@ export default async () => {
     });
 
     // test connection:
-    const [rows, fields] = await connection.execute(
-      "SELECT * FROM candystore.employees"
-    );
-    console.log(rows);
+    // const [rows, fields] = await connection.execute(
+    //   "SELECT * FROM candystore.employees"
+    // );
+    // console.log(rows);
 
     return connection;
   } catch (err) {
