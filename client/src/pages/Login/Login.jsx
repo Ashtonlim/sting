@@ -1,6 +1,8 @@
 import { useState } from "react";
 import LayoutOne from "/src/components/LayoutOne";
 
+import { Button } from "antd";
+
 const Login = () => {
   const [loginstate, setloginState] = useState({ username: "", password: "" });
 
@@ -8,6 +10,11 @@ const Login = () => {
     // e.preventDefault();
     console.log(e.target.name, e.target.value);
     setloginState({ ...loginstate, [e.target.name]: e.target.value });
+  };
+
+  const handleOnClick = (e) => {
+    console.log("submit button clicked");
+    // send api
   };
 
   return (
@@ -35,7 +42,14 @@ const Login = () => {
             onChange={onChange}
             required
           />
-          <input type="submit" value="Login" />
+          <Button
+            onClick={handleOnClick}
+            type="primary"
+            value="das"
+            className="my-2 block"
+          >
+            Submit
+          </Button>
         </form>
       </div>
     </LayoutOne>

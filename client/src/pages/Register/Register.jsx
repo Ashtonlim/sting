@@ -1,45 +1,87 @@
-import { useState } from "react";
+import { Button, Checkbox, Form, Input } from "antd";
+
+import { register } from "/src/api/auth";
 import LayoutOne from "/src/components/LayoutOne";
 
+const onFinish = ({ username, password }) => {
+  console.log("Success:", username, password);
+  register({ username: username, password: password });
+};
+const onFinishFailed = (errorInfo) => {
+  console.log("Failed:", errorInfo);
+};
+
 const Register = () => {
-  const [Registerstate, setRegisterState] = useState({
-    username: "",
-    password: "",
-  });
-
-  const onChange = (e) => {
-    // e.preventDefault();
-    console.log(e.target.name, e.target.value);
-    setRegisterState({ ...Registerstate, [e.target.name]: e.target.value });
-  };
-
   return (
     <LayoutOne>
-      <div className="Register">
+      <div className="register">
         <h1>Register</h1>
-        <form action="/auth" method="post">
-          <label htmlFor="username" />
-          <input
-            type="text"
+        <Form
+          name="basic"
+          labelCol={{
+            span: 8,
+          }}
+          wrapperCol={{
+            span: 16,
+          }}
+          style={{
+            maxWidth: 600,
+          }}
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          autoComplete="off"
+        >
+          <Form.Item
+            label="Username"
             name="username"
-            placeholder="Username"
-            id="username"
-            value={Registerstate.username}
-            onChange={onChange}
-            required
-          />
-          <label htmlFor="password" />
-          <input
-            type="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
             name="password"
-            placeholder="Password"
-            id="password"
-            value={Registerstate.password}
-            onChange={onChange}
-            required
-          />
-          <input type="submit" value="Register" />
-        </form>
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            name="remember"
+            valuePropName="checked"
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
     </LayoutOne>
   );

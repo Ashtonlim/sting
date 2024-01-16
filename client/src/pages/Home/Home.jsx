@@ -3,8 +3,7 @@ const Home = () => {
   return (
     <LayoutOne>
       <div>
-        <div>hi</div>
-        {/* <h1>Vite + React</h1> */}
+        <h1>Home Page</h1>
       </div>
     </LayoutOne>
   );
