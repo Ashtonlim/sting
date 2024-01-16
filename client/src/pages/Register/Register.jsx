@@ -1,19 +1,22 @@
 import { useState } from "react";
-import LayoutOne from "../layouts/LayoutOne";
+import LayoutOne from "/src/components/LayoutOne";
 
-const Login = () => {
-  const [loginstate, setloginState] = useState({ username: "", password: "" });
+const Register = () => {
+  const [Registerstate, setRegisterState] = useState({
+    username: "",
+    password: "",
+  });
 
   const onChange = (e) => {
     // e.preventDefault();
     console.log(e.target.name, e.target.value);
-    setloginState({ ...loginstate, [e.target.name]: e.target.value });
+    setRegisterState({ ...Registerstate, [e.target.name]: e.target.value });
   };
 
   return (
     <LayoutOne>
-      <div className="login">
-        <h1>Login</h1>
+      <div className="Register">
+        <h1>Register</h1>
         <form action="/auth" method="post">
           <label htmlFor="username" />
           <input
@@ -21,7 +24,7 @@ const Login = () => {
             name="username"
             placeholder="Username"
             id="username"
-            value={loginstate.username}
+            value={Registerstate.username}
             onChange={onChange}
             required
           />
@@ -31,15 +34,15 @@ const Login = () => {
             name="password"
             placeholder="Password"
             id="password"
-            value={loginstate.password}
+            value={Registerstate.password}
             onChange={onChange}
             required
           />
-          <input type="submit" value="Login" />
+          <input type="submit" value="Register" />
         </form>
       </div>
     </LayoutOne>
   );
 };
 
-export default Login;
+export default Register;

@@ -1,4 +1,4 @@
-import LayoutOne from "../layouts/LayoutOne";
+import LayoutOne from "/src/components/LayoutOne";
 const Home = () => {
   return (
     <LayoutOne>

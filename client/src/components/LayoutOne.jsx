@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 import { Row, Col } from "antd";
 
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "./Header/Header";
+import Footer from "./Footer/Footer";
 
 const LayoutOne = ({ children, width = 22 } = {}) => (
   <>

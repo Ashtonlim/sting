@@ -14,7 +14,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         // https://vitejs.dev/config/shared-options#css-preprocessoroptions
-        additionalData: `@import "./src/index.scss";`, // Import your global variables
+        additionalData: `@import "/src/styles/index.scss";`, // Import your global variables
       },
     },
   },
