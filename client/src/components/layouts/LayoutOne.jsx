@@ -3,7 +3,6 @@ import { Row, Col } from "antd";
 
 import Header from "./Header";
 import Footer from "./Footer";
-// import Footer from "./layoutComponents/Footer";
 
 const LayoutOne = ({ children, width = 22 } = {}) => (
   <>
@@ -15,9 +14,7 @@ const LayoutOne = ({ children, width = 22 } = {}) => (
             <Fragment>{children}</Fragment>
           </main>
         </Col>
-        <Col xs={{ span: 24 }} md={{ span: 0 }}>
-          {/* <MobileNavbar /> */}
-        </Col>
+        <Col xs={{ span: 24 }} md={{ span: 0 }}></Col>
         <Col xs={{ span: 0 }} md={{ span: 24 }}>
           <Footer />
         </Col>
