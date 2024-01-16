@@ -4,7 +4,7 @@ export const registerUser = ({ username, password, email }) => {
   // how to pick id?
   console.log(username, password, email);
   sql.query(
-    `INSERT INTO accounts (username, password, email) values (${username}, ${password}, ${email});`,
+    `INSERT INTO accounts (username, password, email) values ('${username}', '${password}', '${email}');`,
     (err, results) => {
       if (err) throw err;
       console.log(results);
