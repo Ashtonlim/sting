@@ -1,10 +1,15 @@
 import axios from "axios";
 
+const BASE = "http://localhost:3000";
+
 export const register = async (credentials) => {
   try {
     console.log(credentials);
-    // const response = await axios.post("/api/v1/auth/register", credentials);
-    // return response.data;
+    const response = await axios.post(
+      `${BASE}/api/v1/auth/register`,
+      credentials
+    );
+    return response.data;
   } catch (error) {
     return error.response.data;
   }

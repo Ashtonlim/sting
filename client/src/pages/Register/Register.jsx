@@ -3,9 +3,10 @@ import { Button, Checkbox, Form, Input } from "antd";
 import { register } from "/src/api/auth";
 import LayoutOne from "/src/components/LayoutOne";
 
-const onFinish = ({ username, password }) => {
+const onFinish = async ({ username, password, email }) => {
   console.log("Success:", username, password);
-  register({ username: username, password: password });
+  const res = await register({ username, password, email });
+  console.log(res);
 };
 const onFinishFailed = (errorInfo) => {
   console.log("Failed:", errorInfo);
@@ -58,6 +59,20 @@ const Register = () => {
             ]}
           >
             <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                type: "email",
+                required: true,
+                message: "Please enter a valid email!",
+              },
+            ]}
+          >
+            <Input />
           </Form.Item>
 
           <Form.Item
