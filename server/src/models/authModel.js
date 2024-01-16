@@ -1,22 +1,53 @@
-import sql, { sqlAll, sqlAllMultiLine } from "./db.js";
+import sql, { sqlAllMultiLine } from "./db.js";
+import bcrypt from "bcrypt";
 
 export const registerUser = ({ username, password, email }) => {
   // how to pick id?
-  console.log(username, password, email);
-  sql.query(
-    `INSERT INTO accounts (username, password, email) values ('${username}', '${password}', '${email}');`,
-    (err, results) => {
+  const saltRounds = 10;
+
+  bcrypt.genSalt(saltRounds, (err, salt) => {
+    // console.log(username, password, email);
+    if (err) throw err;
+    bcrypt.hash(password, salt, (err, hash) => {
       if (err) throw err;
-      console.log(results);
-    }
-  );
+      sql.query(
+        `INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');`,
+        (err, results) => {
+          if (err) throw err;
+          console.log(results);
+        }
+      );
+    });
+  });
 };
 
-export const loginUser = () => {
-  sql.query("SELECT * FROM accounts", (err, results) => {
-    if (err) throw err;
-    console.log(results);
-  });
+export const loginUser = ({ username, password }) => {
+  console.log(username, password);
+  sql.query(
+    `SELECT * FROM accounts WHERE username='${username}'`,
+    (err, results) => {
+      if (err) throw err;
+      if (results.length === 0) {
+        console.log("no user found");
+        return false;
+      } else if (results.length > 1) {
+        console.log("Error: multiple users found");
+      } else {
+        bcrypt.compare(password, results[0].password, (err, result) => {
+          if (err) throw err;
+          console.log(result);
+          if (result) {
+            console.log("user found");
+            return true;
+          } else {
+            console.log("incorrect password");
+            return false;
+          }
+        });
+      }
+      console.log();
+    }
+  );
 };
 
 export const resetDB = () => {
