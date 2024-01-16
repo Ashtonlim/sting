@@ -1,56 +1,88 @@
-import { useState } from "react";
+import { Button, Checkbox, Form, Input } from "antd";
+
+import { login } from "/src/api/auth";
 import LayoutOne from "/src/components/LayoutOne";
 
-import { Button } from "antd";
+const onFinish = async ({ username, password, email }) => {
+  console.log("Success:", username, password);
+  const res = await login({ username, password, email });
+  console.log(res);
+};
+const onFinishFailed = (errorInfo) => {
+  console.log("Failed:", errorInfo);
+};
 
 const Login = () => {
-  const [loginstate, setloginState] = useState({ username: "", password: "" });
-
-  const onChange = (e) => {
-    // e.preventDefault();
-    console.log(e.target.name, e.target.value);
-    setloginState({ ...loginstate, [e.target.name]: e.target.value });
-  };
-
-  const handleOnClick = (e) => {
-    console.log("submit button clicked");
-    // send api
-  };
-
   return (
     <LayoutOne>
       <div className="login">
         <h1>Login</h1>
-        <form action="/auth" method="post">
-          <label htmlFor="username" />
-          <input
-            type="text"
+        <Form
+          name="basic"
+          labelCol={{
+            span: 8,
+          }}
+          wrapperCol={{
+            span: 16,
+          }}
+          style={{
+            maxWidth: 600,
+          }}
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          autoComplete="off"
+        >
+          <Form.Item
+            label="Username"
             name="username"
-            placeholder="Username"
-            id="username"
-            value={loginstate.username}
-            onChange={onChange}
-            required
-          />
-          <label htmlFor="password" />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            id="password"
-            value={loginstate.password}
-            onChange={onChange}
-            required
-          />
-          <Button
-            onClick={handleOnClick}
-            type="primary"
-            value="das"
-            className="my-2 block"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
           >
-            Submit
-          </Button>
-        </form>
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            name="remember"
+            valuePropName="checked"
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
     </LayoutOne>
   );
