@@ -25,3 +25,28 @@ IF(SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'node
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'nodelogin')
 
 DROP DATABASE IF EXISTS nodelogin
+
+
+
+use testdb
+
+create table Employees (
+    id int not null,
+    name VARCHAR(25) not null,
+    salary int not null,
+    managerId int,
+    primary key (id)
+)
+
+insert into employees (id, name, salary, managerId) values 
+(1, 'Joe', 70000, 3), (2, 'Henry', 80000, 4), (3, 'Sam', 60000, NULL), (4, 'Max', 90000, NULL);
+
+
+
+use testdb
+
+Select e1.name from employees e1 join employees e2 on e1.managerId = e2.id where e1.salary > e2.salary
+
+
+use sakila
+
