@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const log = (msg) => process.stdout.write(`${msg} `);
 
 function greet() {
@@ -57,3 +58,12 @@ const foo2 = obj2.greet2;
 
 // when call foo2, global context used, since foo2 is a property of global
 foo2();
+=======
+function greet() {
+  var a = 9;
+  console.log(this.a);
+}
+
+a = 12;
+greet();
+>>>>>>> bfe32689304b8412923ad2a6c65b3e6bc4d2272f
