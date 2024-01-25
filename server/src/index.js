@@ -15,7 +15,7 @@ app.use(express.json());
 // allows CORS requests
 app.use(cors());
 
-app.use("/api/v1/auth", auth);
+app.use("/auth", auth);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

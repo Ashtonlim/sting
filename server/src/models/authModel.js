@@ -1,24 +1,26 @@
 import sql, { sqlAllMultiLine } from "./db.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
-export const adminCreateUser = ({ username, password, email }) => {
+export const adminCreateUser = async ({ username, password, email }) => {
   // how to pick id?
-  const saltRounds = 10;
+  // 1. reject if user already exists (could be combined based on insert error)
 
-  bcrypt.genSalt(saltRounds, (err, salt) => {
-    // console.log(username, password, email);
-    if (err) throw err;
-    bcrypt.hash(password, salt, (err, hash) => {
+  // 2. create hash
+  const saltRounds = 10;
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const hash = bcrypt.hashSync(password, salt);
+
+  if (hash) {
+    const queryString = `
+      INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');
+    `;
+
+    sql.query(queryString, (err, results) => {
       if (err) throw err;
-      sql.query(
-        `INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');`,
-        (err, results) => {
-          if (err) throw err;
-          console.log(results);
-        }
-      );
+      console.log(results);
+      return { message: "user created" };
     });
-  });
+  }
 };
 
 export const loginUser = ({ username, password }) => {
@@ -31,29 +33,32 @@ export const loginUser = ({ username, password }) => {
         console.log("no user found");
         return false;
       } else if (results.length > 1) {
-        console.log("Error: multiple users found");
+        return { message: "Error: multiple users found" };
       } else {
-        bcrypt.compare(password, results[0].password, (err, result) => {
-          if (err) throw err;
-          console.log(result);
-          if (result) {
-            console.log("user found");
-            return true;
-          } else {
-            console.log("incorrect password");
-            return false;
-          }
-        });
+        const hash = results[0].password;
+        console.log(hash);
+        const isPwdCorrect = bcrypt.compareSync(password, hash);
+
+        if (isPwdCorrect) {
+          console.log("user found");
+          return true;
+        } else {
+          console.log("incorrect password");
+          return false;
+        }
       }
-      console.log();
     }
   );
 };
 
+// review: please remove, rm endpoint as well
 export const resetDB = () => {
   // https://www.rfc-editor.org/errata_search.php?rfc=3696&eid=1690
   const maxEmailLen = 320;
   const maxHashLen = 64;
+  const saltRounds = 10;
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const adminPwdHash = bcrypt.hashSync("qwe", salt);
 
   const queryString = `
                 DROP DATABASE IF EXISTS nodelogin; 
@@ -67,9 +72,9 @@ export const resetDB = () => {
                     isActive BOOLEAN DEFAULT TRUE,
                     secGrp TEXT
                 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-                INSERT INTO accounts (id, username, password, email) VALUES (1, 'admin', 'qwe', 'admin@st.co');
+                INSERT INTO accounts (id, username, password, email, secGrp) VALUES (1, 'admin', '${adminPwdHash}', 'admin@st.co', 'admin');
                 ALTER TABLE accounts ADD PRIMARY KEY (id);
-                ALTER TABLE accounts MODIFY id int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+                ALTER TABLE accounts MODIFY id int(12) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
                 `;
 
   sqlAllMultiLine.query(queryString, (err, results) => {
