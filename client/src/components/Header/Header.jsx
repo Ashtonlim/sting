@@ -4,7 +4,7 @@ import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
-const LoggedInOutView = ({ loggedIn }) => {
+const LoggedInView = ({ loggedIn }) => {
   if (loggedIn) {
     return (
       <>
@@ -14,16 +14,6 @@ const LoggedInOutView = ({ loggedIn }) => {
       </>
     );
   }
-  return (
-    <>
-      <li className="nav-item">
-        <Link to="/login">Login</Link>
-      </li>
-      <li className="nav-item">
-        <Link to="/register">Register</Link>
-      </li>
-    </>
-  );
 };
 
 const Header = () => {
@@ -43,7 +33,7 @@ const Header = () => {
         <Col xs={{ span: 0 }} md={{ span: 14 }} lg={{ span: 4 }}>
           <nav className="justify-end">
             <ul className="ruRow nav-items">
-              <LoggedInOutView loggedIn={false} />
+              <LoggedInView loggedIn={false} />
             </ul>
           </nav>
         </Col>
