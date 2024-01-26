@@ -1,26 +1,21 @@
-import axios from "axios";
-
-const BASE = "http://localhost:3000";
-
-const api = axios.create({
-  baseURL: `${BASE}`,
-});
+import api from "./const.js";
+import { resHandler } from "./utils.js";
 
 export const register = async (credentials) => {
   try {
     console.log(credentials);
-    const response = await axios.post(`${BASE}/auth/register`, credentials);
-    return response.data;
-  } catch (error) {
-    return error.response.data;
+    const res = await api.post(`auth/register`, credentials);
+    return await resHandler(res);
+  } catch (err) {
+    return err;
   }
 };
 
 export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${BASE}/auth/login`, credentials);
-    return response.data;
-  } catch (error) {
-    return error.response.data;
+    const res = await api.post(`auth/login`, credentials);
+    return await resHandler(res);
+  } catch (err) {
+    return err;
   }
 };
