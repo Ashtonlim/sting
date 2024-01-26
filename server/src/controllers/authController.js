@@ -9,16 +9,16 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   console.log(req.body);
   try {
-    const userData = await loginUser(req.body);
-    if (userData) {
-      console.log(userData);
-      return res
-        .status(200)
-        .json({ message: "auth login user route", userData });
+    const { success, data, err } = await loginUser(req.body);
+    // console.log(success, data, err);
+
+    if (success) {
+      res.status(200).json({ data });
+    } else {
+      res.status(401).json({ err });
     }
   } catch (err) {
-    console.log("login err:", err);
-    return err;
+    return res.status(500).json({ err });
   }
 };
 
