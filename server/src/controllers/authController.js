@@ -8,8 +8,18 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   console.log(req.body);
-  const dbRes = await loginUser(req.body);
-  res.status(200).json({ message: "auth login user route" });
+  try {
+    const userData = await loginUser(req.body);
+    if (userData) {
+      console.log(userData);
+      return res
+        .status(200)
+        .json({ message: "auth login user route", userData });
+    }
+  } catch (err) {
+    console.log("login err:", err);
+    return err;
+  }
 };
 
 export const reset = async (req, res) => {

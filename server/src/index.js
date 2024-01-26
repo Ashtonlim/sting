@@ -21,6 +21,12 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// app.post("/login", (req, res) => {
+//   const { username, password } = req.body;
+//   console.log(username, password);
+//   return res.status(200).json({ message: "login success" });
+// });
+
 const start = async () => {
   try {
     /** App listening on port */

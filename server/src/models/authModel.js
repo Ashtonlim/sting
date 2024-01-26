@@ -14,41 +14,49 @@ export const adminCreateUser = async ({ username, password, email }) => {
     const queryString = `
       INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');
     `;
+    const res = await sql.query(queryString);
+    console.log(res);
 
-    sql.query(queryString, (err, results) => {
-      if (err) throw err;
-      console.log(results);
-      return { message: "user created" };
-    });
+    // sql.query(queryString, (err, results) => {
+    //   if (err) throw err;
+    //   console.log(results);
+    //   return ;
+    // });
   }
 };
 
-export const loginUser = ({ username, password }) => {
+export const loginUser = async ({ username, password }) => {
   console.log(username, password);
-  sql.query(
-    `SELECT * FROM accounts WHERE username='${username}'`,
-    (err, results) => {
-      if (err) throw err;
-      if (results.length === 0) {
-        console.log("no user found");
-        return false;
-      } else if (results.length > 1) {
-        return { message: "Error: multiple users found" };
-      } else {
-        const hash = results[0].password;
-        console.log(hash);
-        const isPwdCorrect = bcrypt.compareSync(password, hash);
 
-        if (isPwdCorrect) {
-          console.log("user found");
-          return true;
-        } else {
-          console.log("incorrect password");
-          return false;
-        }
-      }
-    }
+  const [res] = await sql.query(
+    `SELECT * FROM accounts WHERE username='${username}'`
   );
+  console.log(res);
+
+  // multiple users found,
+  // something is wrong with db since username is unique
+  if (res.length > 1) {
+    return { message: "Error: multiple users found" };
+  }
+
+  // no user found
+  if (res.length < 1) {
+    return { message: "Error: no users found" };
+  }
+
+  // one user returned
+  const user = res[0];
+  // user.password is hash
+  const isPwdCorrect = bcrypt.compareSync(password, user.password);
+
+  if (!isPwdCorrect) {
+    console.log(msg);
+    return { msg };
+    // throw "incorrect password";
+  }
+
+  console.log("user found");
+  return { msg: "user found", userData: res[0] };
 };
 
 // review: please remove, rm endpoint as well
