@@ -1,21 +1,25 @@
 import api from "./const.js";
-import { resHandler } from "./utils.js";
+// import { resHandler } from "./utils.js";
 
 export const register = async (credentials) => {
   try {
     console.log(credentials);
     const res = await api.post(`auth/register`, credentials);
-    return await resHandler(res);
+    if (res.status >= 200 && res.status < 300) {
+      return res;
+    }
   } catch (err) {
-    return err;
+    throw new Error(err);
   }
 };
 
 export const login = async (credentials) => {
   try {
     const res = await api.post(`auth/login`, credentials);
-    return await resHandler(res);
+    if (res.status >= 200 && res.status < 300) {
+      return res;
+    }
   } catch (err) {
-    return err;
+    throw new Error(err);
   }
 };
