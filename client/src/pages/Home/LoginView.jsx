@@ -1,5 +1,5 @@
 import { Button, Checkbox, Form, Input } from "antd";
-
+import Cookies from "js-cookie";
 // import { login } from "/src/api/auth";
 import api from "/src/api/const.js";
 
@@ -7,11 +7,9 @@ const onFinish = async (credentials) => {
   console.log("Success:", credentials);
   try {
     const res = await api.post(`auth/login`, credentials);
-    if (res.status >= 200 && res.status < 300) {
-      // set JWT into cookies;
-    }
+    Cookies.set("token", res.data.token);
   } catch (err) {
-    alert(err);
+    console.log(err);
   }
 };
 

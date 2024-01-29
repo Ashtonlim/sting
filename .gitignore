@@ -47,10 +47,13 @@ web_modules/
 .env
 .env.*
 .env.test
-
+./server/config/*.env
+# ./config/prod.env
 
 # Gatsby files
 .cache/
+
+test.*
 
 
 # yarn v2

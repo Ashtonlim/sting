@@ -7,11 +7,8 @@ export const getAllUsers = async (req, res) => {
     if (!success) {
       res.status(401).json(err);
     }
-    const user = data;
-    console.log("user", user);
-    const token = jwt.sign({ id: user.username }, secret, { expiresIn: "1h" });
-    console.log(token);
-    res.status(200).json({ data: { token, user } });
+
+    res.status(200).json({ data });
   } catch (err) {
     res.status(500).json(err);
   }
