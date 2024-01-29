@@ -3,6 +3,7 @@ import { getAllUsers } from "../controllers/userController.js";
 
 const router = Router();
 
-router.use("/auth", getAllUsers);
+router.get("/users", getAllUsers);
+router.get("/usersaa", checkJWT, getAllUsers);
 
 export default router;

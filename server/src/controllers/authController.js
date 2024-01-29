@@ -1,8 +1,29 @@
-import { adminCreateUser, loginUser, resetDB } from "../models/authModel.js";
+import { createUser, loginUser, resetDB } from "../models/authModel.js";
+import jwt from "jsonwebtoken";
+
+const secret = process.env.JWTSECRET;
+
+if (!secret) {
+  console.log("secret not found");
+}
 
 export const register = async (req, res) => {
-  const dbRes = adminCreateUser(req.body);
-  res.status(200).json({ message: "auth register user route" });
+  try {
+    const { success, data, err } = await createUser(req.body);
+
+    const user = data;
+    const token = jwt.sign({ username: data.username }, secret, {
+      expiresIn: "1h",
+    });
+
+    if (!success) {
+      return res.status(401).json(err);
+    }
+
+    res.status(200).json({ data: { token, user } });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 export const login = async (req, res) => {
@@ -11,11 +32,15 @@ export const login = async (req, res) => {
     // console.log(success, data, err);
 
     if (!success) {
-      res.status(401).json({ err });
+      return res.status(401).json(err);
     }
-    res.status(200).json({ data });
+    const user = data;
+    const token = jwt.sign({ username: user.username }, secret, {
+      expiresIn: "1h",
+    });
+    res.status(200).json({ data: { token, user } });
   } catch (err) {
-    return res.status(500).json({ err });
+    res.status(500).json(err);
   }
 };
 

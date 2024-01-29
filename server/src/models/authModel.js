@@ -1,21 +1,62 @@
 import sql, { sqlAllMultiLine } from "./db.js";
 import bcrypt from "bcryptjs";
 
-export const adminCreateUser = async ({ username, password, email }) => {
+// defCheck;
+
+// You would need to create a function that
+// returns a value to indicate if a user is in a group.
+// userid = username
+const Checkgroup = async (userid, groupname) => {
+  const getUserByIdQry = `SELECT * FROM WHERE username='${userid}';`;
+  try {
+    const [users] = await sql.query(getUserByIdQry);
+
+    if (users.length !== 1) {
+      return 0;
+    }
+
+    return users[0].secGrp.split(",").includes(groupname);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const createUser = async ({ username, password, email }) => {
   // how to pick id?
-  // 1. reject if user already exists (could be combined based on insert error)
 
-  // 2. create hash
-  const saltRounds = 10;
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(password, salt);
+  try {
+    // 1. check if user is an admin
+    const isAdmin = await Checkgroup(username, "admin");
 
-  if (hash) {
-    const queryString = `
+    if (!isAdmin) {
+      return { success: false, err: "user is not an admin" };
+    }
+
+    // 2. reject if user already exists (could be combined based on insert error)
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username=${username};`;
+    const [users] = await sql.query(getUserByIdQry);
+    if (users.length > 0) {
+      return { success: false, err: "user already exists" };
+    }
+
+    // 3. create hash
+    const saltRounds = 10;
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
+    if (hash) {
+      const createUserQry = `
       INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');
     `;
-    const res = await sql.query(queryString);
-    console.log(res);
+      const createdUser = await sql.query(createUserQry);
+      console.log(createUser);
+      if (createdUser.affectedRows === 1) {
+        return { success: true, data: createUser };
+      }
+      return { success: false, err: "more than one row affected" };
+    }
+  } catch (err) {
+    throw new Error(err);
   }
 };
 
@@ -23,34 +64,30 @@ export const loginUser = async ({ username, password }) => {
   console.log(username, password);
 
   try {
-    const [res] = await sql.query(
-      `SELECT * FROM accounts WHERE username='${username}'`
-    );
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
     // console.log(res);
 
     // multiple users found,
     // should not happen in db as username is unique
     // fix data problem if so
-    if (res.length > 1) {
+    if (users.length > 1) {
       return { success: false, err: "multiple users found" };
-      // throw new Error("multiple users found");
     }
 
     // no user found
-    if (res.length < 1) {
+    if (users.length < 1) {
       return { success: false, err: "no users found" };
-      // throw new Error("no users found");
     }
 
     // one user returned
-    const user = res[0];
+    const user = users[0];
 
     // user.password is hash
     const isPwdCorrect = bcrypt.compareSync(password, user.password);
 
     if (!isPwdCorrect) {
       return { success: false, err: "incorrect password" };
-      // throw new Error("incorrect password");
     }
 
     delete user.password;
@@ -69,7 +106,7 @@ export const resetDB = () => {
   const salt = bcrypt.genSaltSync(saltRounds);
   const adminPwdHash = bcrypt.hashSync("qwe", salt);
 
-  const queryString = `
+  const QryString = `
                 DROP DATABASE IF EXISTS nodelogin; 
                 CREATE DATABASE IF NOT EXISTS nodelogin DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
                 USE nodelogin;
@@ -86,9 +123,31 @@ export const resetDB = () => {
                 ALTER TABLE accounts MODIFY id int(12) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
                 `;
 
-  sqlAllMultiLine.query(queryString, (err, results) => {
+  sqlAllMultiLine.Qry(QryString, (err, results) => {
     if (err) throw err;
     console.log(results);
     return true;
   });
+};
+
+// export const createFirstAdmin = async () => {
+//   // how to pick id?
+//   const saltRounds = 10;
+//   const salt = bcrypt.genSaltSync(saltRounds);
+//   const hash = bcrypt.hashSync('qwe', salt);
+
+//   if (hash) {
+//     const createUserQry = `
+//       INSERT INTO accounts (username, password, email, secGrp) values ('admin', '${hash}', 'admin@st.co', 'admin);
+//     `;
+//     const res = await sql.query(createUserQry);
+//     console.log(res);
+//   }
+// };
+
+export default {
+  Checkgroup,
+  createUser,
+  loginUser,
+  resetDB,
 };
