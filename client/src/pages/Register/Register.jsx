@@ -8,6 +8,7 @@ const onFinish = async ({ username, password, email }) => {
   const res = await register({ username, password, email });
   console.log(res);
 };
+
 const onFinishFailed = (errorInfo) => {
   console.log("Failed:", errorInfo);
 };

@@ -1,10 +1,10 @@
-
 /**
  * v0 by Vercel.
  * @see https://v0.dev/t/btero0aK9VK
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
-export default function Component() {
+
+const Kanban = () => {
   return (
     <div key="1" className="flex flex-col h-screen">
       <header className="h-[60px] flex items-center px-4 shadow-md">
@@ -22,15 +22,21 @@ export default function Component() {
             </h2>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 1</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 1.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 1.
+              </p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 2</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 2.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 2.
+              </p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 3</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 3.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 3.
+              </p>
             </div>
           </div>
           <div className="w-72">
@@ -40,11 +46,15 @@ export default function Component() {
             </h2>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 4</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 4.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 4.
+              </p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 5</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 5.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 5.
+              </p>
             </div>
           </div>
           <div className="w-72">
@@ -54,11 +64,15 @@ export default function Component() {
             </h2>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 6</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 6.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 6.
+              </p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 7</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 7.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 7.
+              </p>
             </div>
           </div>
           <div className="w-72">
@@ -68,40 +82,43 @@ export default function Component() {
             </h2>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 8</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 8.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 8.
+              </p>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
               <h3 className="text-sm font-semibold mb-1">Task 9</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">This is a description for task 9.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This is a description for task 9.
+              </p>
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-function ActivityIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-    </svg>
-  )
-}
+export default Kanban;
 
+const ActivityIcon = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </svg>
+);
 
-function BackpackIcon(props) {
+const BackpackIcon = (props) => {
   return (
     <svg
       {...props}
@@ -121,11 +138,10 @@ function BackpackIcon(props) {
       <path d="M8 10h8" />
       <path d="M8 18h8" />
     </svg>
-  )
-}
+  );
+};
 
-
-function CheckIcon(props) {
+const CheckIcon = (props) => {
   return (
     <svg
       {...props}
@@ -141,11 +157,10 @@ function CheckIcon(props) {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  )
-}
+  );
+};
 
-
-function KanbanIcon(props) {
+const KanbanIcon = (props) => {
   return (
     <svg
       {...props}
@@ -163,11 +178,10 @@ function KanbanIcon(props) {
       <path d="M12 5v6" />
       <path d="M18 5v14" />
     </svg>
-  )
-}
+  );
+};
 
-
-function ListTodoIcon(props) {
+const ListTodoIcon = (props) => {
   return (
     <svg
       {...props}
@@ -187,5 +201,5 @@ function ListTodoIcon(props) {
       <path d="M13 12h8" />
       <path d="M13 18h8" />
     </svg>
-  )
-}
+  );
+};

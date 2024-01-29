@@ -38,7 +38,15 @@ export const login = async (req, res) => {
     const token = jwt.sign({ username: user.username }, secret, {
       expiresIn: "1h",
     });
-    res.status(200).json({ token, user });
+
+    res.cookie("jwt", token, {
+      // httpOnly: true,
+      // secure: true, // Only sent over HTTPS
+      // maxAge: 3600000, // Cookie expiration time in milliseconds (1 hour)
+      // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
+    });
+    res.send("Cookie set successfully");
+    // res.status(200).json({ token, user });
   } catch (err) {
     res.status(500).json(err);
   }
