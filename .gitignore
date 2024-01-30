@@ -21,6 +21,7 @@ server/dist/
 build/Release
 build
 
+
 # Dependency directories
 node_modules/
 
@@ -44,15 +45,11 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variables file
-./server/config/*.env
-./server/config/prod.env
-./server/config/dev.env
+server/config/*.env
 
 .env
 .env.*
 .env.test
-
-# ./config/prod.env
 
 # Gatsby files
 .cache/
