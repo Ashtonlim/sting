@@ -13,10 +13,14 @@ client/dist/
 server/dist/
 ./test
 
+/ds
+/hide
+
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 build
+
 
 # Dependency directories
 node_modules/
@@ -41,13 +45,16 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variables file
+server/config/*.env
+
 .env
 .env.*
 .env.test
 
-
 # Gatsby files
 .cache/
+
+test.*
 
 
 # yarn v2

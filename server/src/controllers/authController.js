@@ -1,15 +1,56 @@
-import { registerUser, loginUser, resetDB } from "../models/authModel.js";
+import { createUser, loginUser, resetDB } from "../models/authModel.js";
+import jwt from "jsonwebtoken";
+
+const secret = process.env.JWTSECRET;
+
+if (!secret) {
+  console.log("secret not found");
+}
 
 export const register = async (req, res) => {
-  console.log(req.body);
-  const dbRes = registerUser(req.body);
-  res.status(200).json({ message: "auth register user route" });
+  try {
+    const { success, data, err } = await createUser(req.body);
+
+    const user = data;
+    const token = jwt.sign({ username: data.username }, secret, {
+      expiresIn: "1h",
+    });
+
+    if (!success) {
+      return res.status(401).json(err);
+    }
+
+    res.status(200).json({ data: { token, user } });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 export const login = async (req, res) => {
-  console.log(req.body);
-  const dbRes = await loginUser(req.body);
-  res.status(200).json({ message: "auth login user route" });
+  try {
+    console.log(req.headers);
+    const { success, data, err } = await loginUser(req.body);
+    // console.log(success, data, err);
+
+    if (!success) {
+      return res.status(401).json(err);
+    }
+    const user = data;
+    const token = jwt.sign({ username: user.username }, secret, {
+      expiresIn: "1h",
+    });
+
+    res.cookie("jwt", token, {
+      httpOnly: true, // cannot access cookie via js in client
+      // secure: true, // Only sent over HTTPS
+      maxAge: 3600000, // expiration milliseconds
+      // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
+    });
+    res.send("Cookie set successfully");
+    // res.status(200).json({ token, user });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 export const reset = async (req, res) => {
