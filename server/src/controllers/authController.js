@@ -28,6 +28,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    console.log(req.headers);
     const { success, data, err } = await loginUser(req.body);
     // console.log(success, data, err);
 
@@ -40,9 +41,9 @@ export const login = async (req, res) => {
     });
 
     res.cookie("jwt", token, {
-      // httpOnly: true,
+      httpOnly: true, // cannot access cookie via js in client
       // secure: true, // Only sent over HTTPS
-      // maxAge: 3600000, // Cookie expiration time in milliseconds (1 hour)
+      maxAge: 3600000, // expiration milliseconds
       // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
     });
     res.send("Cookie set successfully");

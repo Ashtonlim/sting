@@ -44,10 +44,14 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variables file
+./server/config/*.env
+./server/config/prod.env
+./server/config/dev.env
+
 .env
 .env.*
 .env.test
-./server/config/*.env
+
 # ./config/prod.env
 
 # Gatsby files

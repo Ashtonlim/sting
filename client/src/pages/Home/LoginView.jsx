@@ -1,5 +1,5 @@
 import { Button, Checkbox, Form, Input } from "antd";
-// import Cookies from "js-cookie";
+import Cookies from "js-cookie";
 // import { login } from "/src/api/auth";
 import api from "/src/api/const.js";
 
@@ -7,7 +7,8 @@ const onFinish = async (credentials) => {
   console.log("Success:", credentials);
   try {
     const res = await api.post(`auth/login`, credentials);
-    console.log(res);
+    console.log("res", res);
+    console.log(Cookies.get("jwt"));
     return res;
     // Cookies.set("token", res.data.token);
   } catch (err) {
