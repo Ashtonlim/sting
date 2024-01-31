@@ -10,7 +10,7 @@ import Home from "./pages/Home/Home";
 import Register from "./pages/Register/Register";
 import Kanban from "./pages/Kanban/Kanban";
 
-import { isLoggedIn } from "/src/utils/auth";
+import { useSelector } from "react-redux";
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
@@ -30,8 +30,9 @@ const App = () => {
 };
 
 const PrivateRoute = () => {
+  const loginState = useSelector((state) => state.auth.user);
   // jwt may not be legit but it will not matter as data cannot be accessed without one
-  return isLoggedIn() ? <Outlet /> : <Navigate to="login" />;
+  return loginState ? <Outlet /> : <Navigate to="login" />;
 };
 
 export default App;
