@@ -1,15 +1,28 @@
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
+
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../pages/Home/authSlice";
+
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
-const LoggedInView = ({ loggedIn }) => {
-  if (loggedIn) {
+const LoggedInView = () => {
+  const loginState = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const handleLogout = (e) => {
+    e.preventDefault();
+    dispatch(logout());
+  };
+
+  if (loginState) {
     return (
       <>
         <li className="nav-item">
-          <Link to="/logout">Logout</Link>
+          <Link onClick={handleLogout} to="/">
+            Logout
+          </Link>
         </li>
       </>
     );
@@ -33,7 +46,7 @@ const Header = () => {
         <Col xs={{ span: 0 }} md={{ span: 14 }} lg={{ span: 4 }}>
           <nav className="justify-end">
             <ul className="ruRow nav-items">
-              <LoggedInView loggedIn={false} />
+              <LoggedInView />
             </ul>
           </nav>
         </Col>

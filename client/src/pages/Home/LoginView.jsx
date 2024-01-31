@@ -1,26 +1,29 @@
 import { Button, Checkbox, Form, Input } from "antd";
-import Cookies from "js-cookie";
-// import { login } from "/src/api/auth";
-import api from "/src/api/const.js";
 
-const onFinish = async (credentials) => {
-  console.log("Success:", credentials);
-  try {
-    const res = await api.post(`auth/login`, credentials);
-    console.log("res", res);
-    console.log(Cookies.get("jwt"));
-    return res;
-    // Cookies.set("token", res.data.token);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const onFinishFailed = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "./authSlice";
 
 const Login = () => {
+  const loginState = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+
+  console.log("this is loginState", loginState);
+
+  const onFinish = async (credentials) => {
+    const { username, password } = credentials;
+    console.log("Success:", credentials);
+    try {
+      dispatch(login({ username, password }));
+
+      // Cookies.set("token", res.data.token);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
   return (
     <div className="login">
       <h1>Login</h1>

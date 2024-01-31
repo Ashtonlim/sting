@@ -1,19 +1,18 @@
 import LayoutOne from "/src/components/LayoutOne";
 import LoginView from "./LoginView";
-const Home = () => {
-  const loggedIn = false;
+import HomeView from "./HomeView";
 
-  return (
-    <LayoutOne>
-      {loggedIn ? (
-        <div>
-          <h1>Home Page</h1>
-        </div>
-      ) : (
-        <LoginView />
-      )}
-    </LayoutOne>
-  );
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+
+const Home = () => {
+  // Review: It's usually better to use redirect in loaders and actions than this hook
+  const nav = useNavigate();
+
+  const loginState = useSelector((state) => state.auth.user);
+  console.log("home loginState is now", loginState);
+
+  return <LayoutOne>{loginState ? <HomeView /> : <LoginView />}</LayoutOne>;
 };
 
 export default Home;
