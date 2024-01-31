@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 const secret = process.env.JWTSECRET;
 
 export const checkJWT = async (req, res, next) => {

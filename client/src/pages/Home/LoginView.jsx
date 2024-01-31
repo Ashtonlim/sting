@@ -1,26 +1,38 @@
+import { useState, useEffect } from "react";
 import { Button, Checkbox, Form, Input } from "antd";
 import Cookies from "js-cookie";
 // import { login } from "/src/api/auth";
 import api from "/src/api/const.js";
 
-const onFinish = async (credentials) => {
-  console.log("Success:", credentials);
-  try {
-    const res = await api.post(`auth/login`, credentials);
-    console.log("res", res);
-    console.log(Cookies.get("jwt"));
-    return res;
-    // Cookies.set("token", res.data.token);
-  } catch (err) {
-    console.log(err);
-  }
-};
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "/src/utils/auth";
 
-const onFinishFailed = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
+const Login = ({ loggedIn, setloggedIn }) => {
+  const nav = useNavigate();
 
-const Login = () => {
+  useEffect(() => {}, [loggedIn]);
+
+  const onFinish = async (credentials) => {
+    console.log("Success:", credentials);
+    try {
+      const res = await api.post(`auth/login`, credentials);
+      console.log("res", res);
+      console.log(Cookies.get("jwt"));
+      if (res.status === 200) {
+        console.log("redirect");
+        setloggedIn(true);
+        // return nav("/");/
+      }
+
+      // Cookies.set("token", res.data.token);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
   return (
     <div className="login">
       <h1>Login</h1>

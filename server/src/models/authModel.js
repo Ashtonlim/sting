@@ -1,6 +1,6 @@
 import sql, { sqlAllMultiLine } from "./db.js";
 import bcrypt from "bcryptjs";
-
+import { isAlphaNumeric } from "../utils.js";
 // defCheck;
 
 // You would need to create a function that
@@ -23,6 +23,7 @@ const Checkgroup = async (userid, groupname) => {
 
 export const createUser = async ({ username, password, email }) => {
   // how to pick id?
+  isAlphaNumeric(username);
 
   try {
     // 1. check if user is an admin

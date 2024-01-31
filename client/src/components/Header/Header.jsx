@@ -1,15 +1,37 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
+import Cookie from "js-cookie";
+
+import { isLoggedIn } from "/src/utils/auth";
+import { useNavigate } from "react-router-dom";
+
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
-const LoggedInView = ({ loggedIn }) => {
+const LoggedInView = () => {
+  const nav = useNavigate();
+  const [loggedIn, setloggedIn] = useState(false);
+
+  useEffect(() => {
+    setloggedIn(isLoggedIn());
+  }, []);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    const res = Cookie.remove("jwt");
+    nav("/login");
+    return res;
+  };
+
   if (loggedIn) {
     return (
       <>
         <li className="nav-item">
-          <Link to="/logout">Logout</Link>
+          <Link onClick={handleLogout} to="/">
+            Logout
+          </Link>
         </li>
       </>
     );
@@ -33,7 +55,7 @@ const Header = () => {
         <Col xs={{ span: 0 }} md={{ span: 14 }} lg={{ span: 4 }}>
           <nav className="justify-end">
             <ul className="ruRow nav-items">
-              <LoggedInView loggedIn={false} />
+              <LoggedInView />
             </ul>
           </nav>
         </Col>

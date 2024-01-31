@@ -1,16 +1,23 @@
+import { useState, useEffect } from "react";
 import LayoutOne from "/src/components/LayoutOne";
 import LoginView from "./LoginView";
-const Home = () => {
-  const loggedIn = false;
+import HomeView from "./HomeView";
 
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "/src/utils/auth";
+
+const Home = () => {
+  // Review: It's usually better to use redirect in loaders and actions than this hook
+  const nav = useNavigate();
+  const [loggedIn, setloggedIn] = useState(isLoggedIn());
+
+  useEffect(() => {}, [loggedIn]);
   return (
     <LayoutOne>
       {loggedIn ? (
-        <div>
-          <h1>Home Page</h1>
-        </div>
+        <HomeView />
       ) : (
-        <LoginView />
+        <LoginView loggedIn={loggedIn} setloggedIn={setloggedIn} />
       )}
     </LayoutOne>
   );
