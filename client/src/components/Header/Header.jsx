@@ -1,31 +1,22 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-import Cookie from "js-cookie";
 
-import { isLoggedIn } from "/src/utils/auth";
-import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../pages/Home/authSlice";
 
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
-  const nav = useNavigate();
-  const [loggedIn, setloggedIn] = useState(false);
-
-  useEffect(() => {
-    setloggedIn(isLoggedIn());
-  }, []);
-
+  const loginState = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const handleLogout = (e) => {
     e.preventDefault();
-    const res = Cookie.remove("jwt");
-    nav("/login");
-    return res;
+    dispatch(logout());
   };
 
-  if (loggedIn) {
+  if (loginState) {
     return (
       <>
         <li className="nav-item">

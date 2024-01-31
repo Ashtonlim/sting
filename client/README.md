@@ -12,3 +12,9 @@ Currently, two official plugins are available:
 Ref: https://youtu.be/16yMmAJSGek?si=7mb1gv-PcoJbl8zX (has solution)
 
 useContext() has a performance issue. It rerenders other components that call useContext even when it does not use the state that was changed.
+
+context priciples:
+
+1. Pure functions (data immutable and no side effeces (data calls, etc.))
+2.
+3. Reducer to describe state mutation, uses dispatch

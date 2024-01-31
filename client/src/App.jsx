@@ -1,5 +1,3 @@
-import { useReducer } from "react";
-
 import {
   BrowserRouter,
   Routes,
@@ -13,9 +11,6 @@ import Register from "./pages/Register/Register";
 import Kanban from "./pages/Kanban/Kanban";
 
 import { isLoggedIn } from "/src/utils/auth";
-// import { isLoggedIn } from "./api/auth";
-
-// element={<Home />}
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {

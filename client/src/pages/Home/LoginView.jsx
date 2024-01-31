@@ -1,28 +1,19 @@
-import { useState, useEffect } from "react";
 import { Button, Checkbox, Form, Input } from "antd";
-import Cookies from "js-cookie";
-// import { login } from "/src/api/auth";
-import api from "/src/api/const.js";
 
-import { useNavigate } from "react-router-dom";
-import { isLoggedIn } from "/src/utils/auth";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "./authSlice";
 
-const Login = ({ loggedIn, setloggedIn }) => {
-  const nav = useNavigate();
+const Login = () => {
+  const loginState = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
 
-  useEffect(() => {}, [loggedIn]);
+  console.log("this is loginState", loginState);
 
   const onFinish = async (credentials) => {
+    const { username, password } = credentials;
     console.log("Success:", credentials);
     try {
-      const res = await api.post(`auth/login`, credentials);
-      console.log("res", res);
-      console.log(Cookies.get("jwt"));
-      if (res.status === 200) {
-        console.log("redirect");
-        setloggedIn(true);
-        // return nav("/");/
-      }
+      dispatch(login({ username, password }));
 
       // Cookies.set("token", res.data.token);
     } catch (err) {
