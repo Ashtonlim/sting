@@ -29,54 +29,25 @@ export const findById = async (username) => {
       throw error;
     }
 
-    // no user found
-    if (res.length < 1) {
-      const error = new Error("no results found");
-      error.code = 400;
-      throw error;
-    }
-
     // one row returned
-    return res[0];
+    return res;
   } catch (err) {
     throw new Error(err);
   }
 };
 
 export const createUser = async ({ username, password, email }) => {
-  // how to pick id?
-  // isAlphaNumeric(username);
-
   try {
-    // 1. check if user is an admin
-    const isAdmin = await Checkgroup(username, "admin");
-
-    if (!isAdmin) {
-      return { success: false, err: "user is not an admin" };
-    }
-
-    // 2. reject if user already exists (could be combined based on insert error)
-    const getUserByIdQry = `SELECT * FROM accounts WHERE username=${username};`;
-    const [users] = await sql.query(getUserByIdQry);
-    if (users.length > 0) {
-      return { success: false, err: "user already exists" };
-    }
-
-    // 3. create hash
-    const saltRounds = 10;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hash = bcrypt.hashSync(password, salt);
-
-    if (hash) {
-      const createUserQry = `
+    const createUserQry = `
       INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');
     `;
-      const createdUser = await sql.query(createUserQry);
+    const createdUser = await sql.query(createUserQry);
 
-      return createdUser.affectedRows === 1
-        ? { success: true, data: createUser }
-        : { success: false, err: "more than one row affected" };
+    if (createdUser.affectedRows !== 1) {
+      throw new Error("more than one row affected");
     }
+
+    return createdUser;
   } catch (err) {
     throw new Error(err);
   }

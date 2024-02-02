@@ -5,12 +5,14 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
+import Cookies from "js-cookie";
 
 import Home from "./pages/Home/Home";
 import Register from "./pages/Register/Register";
 import Kanban from "./pages/Kanban/Kanban";
+import Login from "./pages/Login/Login";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
@@ -18,20 +20,29 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoute />}>
+          <Route exact path="" element={<Home />} />
           <Route path="register" element={<Register />} />
           <Route path="kanban" element={<Kanban />} />
         </Route>
 
-        <Route exact path="" element={<Home />} />
-        <Route path="login" element={<Navigate to="/" />} />
+        <Route path="login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
 };
 
 const PrivateRoute = () => {
+  // const loginState = useSelector((state) => state.auth.user);
+  const hasJWT = Cookies.get("jwt");
+  console.log("jwt", hasJWT);
+
+  // jwt may not be legit but it should not matter as data cannot be accessed without one
+  return hasJWT ? <Outlet /> : <Navigate to="login" />;
+};
+
+const AdminRoute = () => {
   const loginState = useSelector((state) => state.auth.user);
-  // jwt may not be legit but it will not matter as data cannot be accessed without one
+
   return loginState ? <Outlet /> : <Navigate to="login" />;
 };
 

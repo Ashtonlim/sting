@@ -12,8 +12,7 @@ const LoggedInView = () => {
   const loginState = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
 
-  const handleLogout = (e) => {
-    e.preventDefault();
+  const handleLogout = () => {
     dispatch(logout());
   };
 

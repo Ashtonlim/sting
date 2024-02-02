@@ -4,10 +4,11 @@ import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
 
 const secret = process.env.JWTSECRET;
-
-if (!secret) {
-  console.log("secret not found");
-}
+const expiresIn = "1h";
+// if (!secret) {
+//   console.log("WARNING: Secret for JWT not found");
+//   throw new Error("Secret for JWT not found");
+// }
 
 export const Checkgroup = async (userid, groupname) => {
   try {
@@ -28,22 +29,51 @@ export const verifyAccessGrp = async (req, res) => {
   }
 };
 
+// review: not tested yet
 export const register = async (req, res) => {
+  req.body = { username, password, email }; // user to create
+  // verify fits constraints
+  // isAlphaNumeric(username);
+
   try {
-    const { success, data, err } = await createUser(req.body);
+    // check submitted JWT is a valid admin, prob in middleware jwt check
+    const { adminUsername } = req.body;
+    const isAdmin = await Checkgroup(adminUsername, "admin");
 
-    const user = data;
-    const token = jwt.sign({ username: data.username }, secret, {
-      expiresIn: "1h",
-    });
+    if (!isAdmin) {
+      return { success: false, err: "user is not an admin" };
+    }
 
-    if (!success) {
-      return res.status(401).json(err);
+    let user = findById(username);
+
+    // 2. reject if user already exists
+    if (user.length === 1) {
+      const error = new Error("User already exists");
+      error.code = 400;
+      throw error;
+    }
+
+    // 3. create hash
+    const saltRounds = 10;
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
+    user = createUser({ username, password: hash, email });
+    const token = jwt.sign({ username }, secret, { expiresIn });
+
+    if (!token || !user) {
+      return res
+        .status(401)
+        .json({ success: false, err: "failed to create user" });
     }
 
     res.status(200).json({ data: { token, user } });
   } catch (err) {
-    res.status(500).json(err);
+    if (err.code === 400) {
+      res.status(500).json(err);
+    } else {
+      res.status(500).json(err);
+    }
   }
 };
 
