@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
+import { redirect } from "react-router-dom";
 import api from "/src/api/const.js";
 
 const initialState = {
@@ -11,13 +12,38 @@ const initialState = {
 
 export const login = createAsyncThunk("auth/loginUser", async (payload) => {
   try {
-    console.log("createAsyncThunk payload", payload);
     const res = await api.post(`auth/login`, payload);
+    console.log("createAsyncThunk res", res);
+    if (200 <= res.status && res.status < 300) {
+      return res.data;
+    }
     return res;
   } catch (err) {
-    return err;
+    if (400 <= err.status && err.status < 500) {
+      console.log(err);
+      throw new Error(err);
+    }
   }
 });
+
+export const verifyUserGrp = createAsyncThunk(
+  "auth/loginUser",
+  async (payload) => {
+    try {
+      const res = await api.post(`auth/login`, payload);
+      console.log("createAsyncThunk res", res);
+      if (200 <= res.status && res.status < 300) {
+        return res.data;
+      }
+      return res;
+    } catch (err) {
+      if (400 <= err.status && err.status < 500) {
+        console.log(err);
+        throw new Error(err);
+      }
+    }
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",
@@ -30,14 +56,9 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
-      console.log("inside builder add case fulfilled", action.payload);
-      // console.log(jwt);
-      if (action.payload.status === 200) {
-        console.log("redirect");
-        state.user = true;
-      } else {
-        state.user = false;
-      }
+      console.log("inside builder add case fulfilled", action);
+      const { username } = jwtDecode(Cookies.get("jwt"));
+      state.user = username;
     });
   },
 });
