@@ -1,11 +1,10 @@
 import sql from "./db.js";
 
-export const findAll = async ({ username, password }) => {
-  console.log(username, password);
-
+export const findAll = async () => {
+  const findAllUsersQry = `SELECT * FROM accounts;`;
   try {
-    const [res] = await sql.query(`SELECT * FROM accounts`);
-    return { success: true, data: res };
+    const [users] = await sql.query(findAllUsersQry);
+    return users;
   } catch (err) {
     throw new Error(err);
   }

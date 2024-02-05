@@ -31,7 +31,8 @@ export const verifyAccessGrp = async (req, res) => {
 
 // review: not tested yet
 export const register = async (req, res) => {
-  req.body = { username, password, email }; // user to create
+  const { username, password, email, groups } = req.body; // user to create
+  console.log(username, password, email, groups);
   // verify fits constraints
   // isAlphaNumeric(username);
 
@@ -80,12 +81,13 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   // console.log(req.body);
   const { username, password } = req.body;
+
+  const usercalled = req.byUser;
+  console.log(userCalled);
   const meetsContraints = isAlphaNumeric(username);
 
   if (!meetsContraints) {
-    return res
-      .status(401)
-      .json({ success: false, err: "username does not meet constraints" });
+    return res.status(401).json({ err: "incorrect username" });
   }
 
   console.log(username);
@@ -95,14 +97,12 @@ export const login = async (req, res) => {
     const users = await findById(username);
 
     if (users.length !== 1) {
-      return res.status(401).json({ success: false, err: "No such user" });
+      return res.status(401).json({ err: "No such user" });
     }
 
     const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
-      return res
-        .status(401)
-        .json({ success: false, err: "incorrect password" });
+      return res.status(401).json({ err: "incorrect password" });
     }
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
@@ -113,7 +113,7 @@ export const login = async (req, res) => {
       // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
     });
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ data: users[0].username });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
