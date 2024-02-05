@@ -25,7 +25,7 @@ export const findById = async (username) => {
     // fix data problem if so
     if (res.length > 1) {
       const error = new Error("multiple rows found");
-      error.code = 400;
+      error.code = 500;
       throw error;
     }
 

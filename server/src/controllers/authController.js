@@ -88,12 +88,17 @@ export const login = async (req, res) => {
       .json({ success: false, err: "username does not meet constraints" });
   }
 
-  try {
-    const user = await findById(username);
-    // console.log(user);
+  console.log(username);
 
+  try {
     // user.password is hash
-    const isPwdCorrect = bcrypt.compareSync(password, user.password);
+    const users = await findById(username);
+
+    if (users.length !== 1) {
+      return res.status(401).json({ success: false, err: "No such user" });
+    }
+
+    const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
       return res
         .status(401)
