@@ -6,6 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import Cookies from "js-cookie";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
 
 import Home from "./pages/Home/Home";
 import Register from "./pages/Register/Register";
@@ -13,7 +15,8 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
 import Login from "./pages/Login/Login";
 
-import { useSelector, useDispatch } from "react-redux";
+axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
+axios.defaults.withCredentials = true;
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {

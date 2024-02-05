@@ -19,7 +19,12 @@ const LoggedInView = () => {
   if (loginState) {
     return (
       <>
-        <li className="nav-item ">Hello, {loginState || "user"}</li>
+        <li className="nav-item">
+          <Link to="/">Hello, {loginState || "user"}</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/dashboard">user management</Link>
+        </li>
         <li className="nav-item">
           <Link onClick={handleLogout} to="/">
             Logout
@@ -38,13 +43,13 @@ const Header = () => {
         justify="center"
         align="middle"
       >
-        <Col xs={{ span: 0 }} lg={{ span: 16 }}>
+        <Col xs={{ span: 0 }} lg={{ span: 12 }}>
           <Link id="logo" to="/">
             {VITE_APP_NAME}
           </Link>
         </Col>
 
-        <Col xs={{ span: 0 }} md={{ span: 14 }} lg={{ span: 8 }}>
+        <Col xs={{ span: 0 }} md={{ span: 14 }} lg={{ span: 12 }}>
           <nav className="justify-end">
             <ul className="ruRow nav-items">
               <LoggedInView />

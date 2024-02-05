@@ -3,8 +3,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { TweenOneGroup } from "rc-tween-one";
 import { Input, Tag, theme } from "antd";
 
-const TagGroup = ({ groups }) => {
-  console.log("tags", groups);
+const TagGroup = ({ groups = [] }) => {
   const { token } = theme.useToken();
   const [tags, setTags] = useState(groups || []);
   const [inputVisible, setInputVisible] = useState(false);

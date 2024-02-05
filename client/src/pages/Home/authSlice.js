@@ -1,7 +1,8 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "/src/api/const.js";
+// import api from "/src/api/const.js";
+import axios from "axios";
 
 const jwtToken = Cookies.get("jwt");
 // console.log("jwtToken", jwtToken);
@@ -11,9 +12,9 @@ const initialState = {
   error: "null",
 };
 
-export const login = createAsyncThunk("auth/loginUser", async (payload) => {
+export const login = createAsyncThunk("auth/login", async (payload) => {
   try {
-    const res = await api.post(`auth/login`, payload);
+    const res = await axios.post(`auth/login`, payload);
     console.log("createAsyncThunk res", res);
     if (200 <= res.status && res.status < 300) {
       return res.data;
@@ -31,7 +32,7 @@ export const verifyUserGrp = createAsyncThunk(
   "auth/verifyUserGrp",
   async (payload) => {
     try {
-      const res = await api.post(`auth/login`, payload);
+      const res = await axios.post(`auth/verifyUserGrp`, payload);
       console.log("createAsyncThunk res", res);
       if (200 <= res.status && res.status < 300) {
         return res.data;
