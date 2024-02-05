@@ -9,7 +9,7 @@ import "./header.scss";
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
-  const loginState = useSelector((state) => state.auth.user);
+  const loginState = useSelector((state) => state.auth.username);
   const dispatch = useDispatch();
 
   const handleLogout = () => {

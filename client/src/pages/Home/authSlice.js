@@ -3,8 +3,10 @@ import { jwtDecode } from "jwt-decode";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "/src/api/const.js";
 
+const jwtToken = Cookies.get("jwt");
+// console.log("jwtToken", jwtToken);
 const initialState = {
-  user: Cookies.get("jwt") ? true : false,
+  username: jwtToken ? jwtDecode(jwtToken).username : false,
   status: "idle",
   error: "null",
 };
@@ -50,14 +52,14 @@ export const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       Cookies.remove("jwt");
-      state.user = false;
+      state.username = false;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
       console.log("inside builder fulfilled", action);
       const { username } = jwtDecode(Cookies.get("jwt"));
-      state.user = username;
+      state.username = username;
     });
   },
 });
