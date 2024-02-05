@@ -1,5 +1,9 @@
-export const isAlphanumericRegex = (val) =>
+export const isAlphanumericRegex = (val) => {
+  // ^ and $ is start and end of line respectively
+  // [a-zA-Z0-9] is the character set to allow
+  // + means one or more
   new RegExp("^[a-zA-Z0-9]+$").test(val);
+};
 
 export const isAlphaNumeric = (str) => {
   let code;
