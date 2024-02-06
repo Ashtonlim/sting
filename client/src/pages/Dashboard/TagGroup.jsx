@@ -4,6 +4,7 @@ import { TweenOneGroup } from "rc-tween-one";
 import { Input, Tag, theme } from "antd";
 
 const TagGroup = ({ groups = [] }) => {
+  // console.log("groups", groups);
   const { token } = theme.useToken();
   const [tags, setTags] = useState(groups || []);
   const [inputVisible, setInputVisible] = useState(false);

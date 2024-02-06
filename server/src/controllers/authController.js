@@ -96,6 +96,8 @@ export const register = async (req, res) => {
   }
 };
 
+// disable user from accessing group
+// can just prevent user from logging in
 export const login = async (req, res) => {
   // console.log(req.body);
   const { username, password } = req.body;
@@ -108,6 +110,11 @@ export const login = async (req, res) => {
 
     if (users.length !== 1) {
       return res.status(401).json({ err: "No such user" });
+    }
+
+    // user should not be able to login if isActive is false
+    if (!users[0].isActive) {
+      return res.status(401).json({ err: "User is disabled" });
     }
 
     const isPwdCorrect = bcrypt.compareSync(password, users[0].password);

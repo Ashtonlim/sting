@@ -141,7 +141,7 @@ const Dashboard = () => {
       key: "secGrp",
       dataIndex: "secGrp",
       editable: true,
-      render: (_, { secGrp }) => <TagGroup groups={secGrp.split(",") || []} />,
+      render: (_, { secGrp }) => <TagGroup groups={secGrp?.split(",")} />,
       width: "30%",
     },
     {
