@@ -1,4 +1,5 @@
 import { createUser, findAll, findById } from "../models/authModel.js";
+import secGroups from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
@@ -36,22 +37,14 @@ export const verifyAccessGrp = async (req, res) => {
   }
 };
 
-// review: not tested yet
+// const groupsValidation = async () => {
+
+// }
+
 export const register = async (req, res) => {
-  const { username, password, email, groups } = req.body;
-
-  // verify fits constraints
-
-  const meetsContraints =
-    isAlphaNumeric(username) && username.length > 3 && username.length < 20;
-
-  if (!meetsContraints) {
-    return res.status(401).json({ err: "incorrect username" });
-  }
-
-  console.log(req.byUser);
-
   try {
+    const { username, password, email, groups } = req.body;
+
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
@@ -59,16 +52,42 @@ export const register = async (req, res) => {
       return { success: false, err: "user is not an admin" };
     }
 
+    // verify fits constraints
+    // const meetsContraints =
+    //   isAlphaNumeric(username) && username.length > 3 && username.length < 20;
+
+    // if (!meetsContraints) {
+    //   return res.status(401).json({ err: "incorrect username" });
+    // }
+
+    // verify groups are valid
+    const allSecGroups = await secGroups.findAll();
+    const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
+
+    const groupsLists = groups.split(",");
+    let invalidGrps = "";
+    for (const grp of groupsLists) {
+      if (!secGroupsSet.has(grp)) {
+        invalidGrps += grp;
+      }
+    }
+
+    if (invalidGrps)
+      return res.status(401).json({
+        err: `${invalidGrps} group does not exists, please create them first`,
+      });
+
+    // find if user already exists
     let user = await findById(username);
 
-    // 2. reject if user already exists
+    // reject if user already exists
     if (user.length >= 1) {
       const error = new Error("User already exists");
       error.code = 400;
       throw error;
     }
 
-    // 3. create hash
+    // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);

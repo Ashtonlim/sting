@@ -1,5 +1,16 @@
 import axios from "axios";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Select, Space } from "antd";
+
+const options = [];
+for (let i = 10; i < 36; i++) {
+  options.push({
+    label: i.toString(36) + i,
+    value: i.toString(36) + i,
+  });
+}
+const handleChange = (value) => {
+  console.log(`selected ${value}`);
+};
 
 const CreateUserForm = () => {
   const onFinish = async (credentials) => {
@@ -16,12 +27,6 @@ const CreateUserForm = () => {
     <div className="py-5">
       <Form
         name="basic"
-        labelCol={{
-          span: 8,
-        }}
-        wrapperCol={{
-          span: 16,
-        }}
         initialValues={{
           remember: true,
         }}
@@ -69,26 +74,18 @@ const CreateUserForm = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="Groups"
-          name="groups"
-          rules={[
-            {
-              message: "No spaces, alphanumeric only",
-            },
-          ]}
-        >
-          <Input />
+        <Form.Item label="Groups" name="groups">
+          <Select
+            mode="multiple"
+            placeholder="Please select"
+            onChange={handleChange}
+            options={options}
+          />
         </Form.Item>
 
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
+        <Form.Item>
           <Button type="primary" htmlType="submit">
-            Submit
+            Create User
           </Button>
         </Form.Item>
       </Form>
