@@ -53,12 +53,12 @@ export const register = async (req, res) => {
     }
 
     // verify fits constraints
-    // const meetsContraints =
-    //   isAlphaNumeric(username) && username.length > 3 && username.length < 20;
+    const meetsContraints =
+      isAlphaNumeric(username) && username.length >= 4 && username.length <= 20;
 
-    // if (!meetsContraints) {
-    //   return res.status(401).json({ err: "incorrect username" });
-    // }
+    if (!meetsContraints) {
+      return res.status(401).json({ err: "incorrect username" });
+    }
 
     // verify groups are valid
     console.log(groups, "groups");

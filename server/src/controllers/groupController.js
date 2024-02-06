@@ -11,10 +11,9 @@ export const getAllGroups = async (req, res) => {
 };
 
 export const createGroup = async (req, res) => {
-  const { groupname } = req.body;
   try {
+    const { groupname } = req.body;
     const group = await createSecGroup(groupname);
-    console.log("group", group);
     res.status(200).json(group);
   } catch (err) {
     console.log(err);

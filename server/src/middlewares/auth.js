@@ -18,10 +18,17 @@ export const checkJWT = (req, res, next) => {
 };
 
 export const isAdmin = async (req, res, next) => {
-  const username = req.byUser;
-  const isAdmin = Checkgroup(username, "admin");
-  if (isAdmin) {
+  try {
+    const username = req.byUser;
+    const isAdmin = await Checkgroup(username, "admin");
+    console.log(isAdmin);
+    if (!isAdmin) {
+      return res.status(403).send("User is not an admin");
+    }
+    console.log("user is an admin");
     next();
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send(err);
   }
-  return res.status(403).send("User is not an admin");
 };
