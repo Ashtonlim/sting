@@ -4,10 +4,8 @@ import { Button, Form, Input } from "antd";
 const CreateGroup = () => {
   const onFinish = async ({ groupname }) => {
     console.log("Success:", groupname);
-    // const res = await axios.post("auth/register", {
-    //   groupname,
-    // });
-    // console.log(res);
+    const res = await axios.post("group/createGroup", { groupname });
+    console.log(groupname, res);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -16,13 +14,9 @@ const CreateGroup = () => {
 
   return (
     <Form
-      name="basic"
-      initialValues={{
-        remember: true,
-      }}
+      name="createGroup"
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
-      autoComplete="off"
       layout="inline"
     >
       <Form.Item
@@ -31,7 +25,11 @@ const CreateGroup = () => {
         rules={[
           {
             required: true,
-            message: "Please input your username!",
+            message: "Group requires a name",
+          },
+          {
+            pattern: "^[a-zA-Z0-9]+$",
+            message: "Only letters and numbers are allowed",
           },
         ]}
       >
