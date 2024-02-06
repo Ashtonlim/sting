@@ -61,21 +61,23 @@ export const register = async (req, res) => {
     // }
 
     // verify groups are valid
+    console.log(groups, "groups");
     const allSecGroups = await secGroups.findAll();
     const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
+    console.log(allSecGroups, secGroupsSet, "groups");
 
-    const groupsLists = groups.split(",");
     let invalidGrps = "";
-    for (const grp of groupsLists) {
+    for (const grp of groups) {
       if (!secGroupsSet.has(grp)) {
         invalidGrps += grp;
       }
     }
 
-    if (invalidGrps)
+    if (invalidGrps) {
       return res.status(401).json({
         err: `${invalidGrps} group does not exists, please create them first`,
       });
+    }
 
     // find if user already exists
     let user = await findById(username);
@@ -94,7 +96,12 @@ export const register = async (req, res) => {
 
     console.log(hash, "hash");
 
-    user = await createUser({ ...req.body, password: hash });
+    user = await createUser({
+      ...req.body,
+      password: hash,
+      groups: groups.join(","),
+    });
+
     console.log(user);
     const token = jwt.sign({ username }, secret, { expiresIn });
 

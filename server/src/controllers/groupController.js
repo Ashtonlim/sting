@@ -1,8 +1,8 @@
-import secGroups from "../models/secGroups.js";
+import { findAll, createSecGroup } from "../models/secGroups.js";
 
 export const getAllGroups = async (req, res) => {
   try {
-    const groups = await secGroups.findAll();
+    const groups = await findAll();
     res.status(200).json(groups);
   } catch (err) {
     console.log(err);
@@ -11,8 +11,9 @@ export const getAllGroups = async (req, res) => {
 };
 
 export const createGroup = async (req, res) => {
+  const { groupname } = req.body;
   try {
-    const group = await secGroups.createSecGroup(req.body);
+    const group = await createSecGroup(groupname);
     console.log("group", group);
     res.status(200).json(group);
   } catch (err) {

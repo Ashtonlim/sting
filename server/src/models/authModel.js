@@ -36,10 +36,10 @@ export const findById = async (username) => {
   }
 };
 
-export const createUser = async ({ username, password, email }) => {
+export const createUser = async ({ username, password, email, groups }) => {
   try {
     const createUserQry = `
-      INSERT INTO accounts (username, password, email) values ('${username}', '${password}', '${email}');
+      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', '${email}', '${groups}');
     `;
     const createdUser = await sql.query(createUserQry);
     // console.log(createdUser[0].affectedRows);

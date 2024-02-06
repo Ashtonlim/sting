@@ -11,7 +11,8 @@ export const findAll = async () => {
 };
 
 export const createSecGroup = async (groupname) => {
-  const createGrpQry = `INSERT INTO secGroups (groupname) values (${groupname})`;
+  const createGrpQry = `INSERT INTO secGroups (groupname) values ('${groupname}')`;
+
   try {
     const res = await sql.query(createGrpQry);
     console.log("created grp", res);
@@ -39,4 +40,5 @@ export const findOne = async (groupname) => {
 export default {
   findAll,
   findOne,
+  createSecGroup,
 };
