@@ -39,11 +39,12 @@ export const findById = async (username) => {
 export const createUser = async ({ username, password, email }) => {
   try {
     const createUserQry = `
-      INSERT INTO accounts (username, password, email) values ('${username}', '${hash}', '${email}');
+      INSERT INTO accounts (username, password, email) values ('${username}', '${password}', '${email}');
     `;
     const createdUser = await sql.query(createUserQry);
-
-    if (createdUser.affectedRows !== 1) {
+    // console.log(createdUser[0].affectedRows);
+    // console.log(createdUser);
+    if (createdUser[0].affectedRows !== 1) {
       throw new Error("more than one row affected");
     }
 

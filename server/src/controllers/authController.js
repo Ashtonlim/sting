@@ -12,9 +12,16 @@ const expiresIn = "1h";
 
 export const Checkgroup = async (userid, groupname) => {
   try {
-    const user = findById(userid);
-    return user.secGrp.split(",").includes(groupname);
+    const users = await findById(userid);
+    if (users.length !== 1) {
+      console.log(users, "user not found");
+      return false;
+    }
+    // console.log(users[0],);
+
+    return users[0].secGrp.split(",").includes(groupname);
   } catch (err) {
+    // console.log("user", err);
     throw new Error(err);
   }
 };
@@ -31,24 +38,31 @@ export const verifyAccessGrp = async (req, res) => {
 
 // review: not tested yet
 export const register = async (req, res) => {
-  const { username, password, email, groups } = req.body; // user to create
-  console.log(username, password, email, groups);
+  const { username, password, email, groups } = req.body;
+
   // verify fits constraints
-  // isAlphaNumeric(username);
+
+  const meetsContraints =
+    isAlphaNumeric(username) && username.length > 3 && username.length < 20;
+
+  if (!meetsContraints) {
+    return res.status(401).json({ err: "incorrect username" });
+  }
+
+  console.log(req.byUser);
 
   try {
-    // check submitted JWT is a valid admin, prob in middleware jwt check
-    const { adminUsername } = req.body;
-    const isAdmin = await Checkgroup(adminUsername, "admin");
+    // check submitted JWT is a valid admin
+    const isAdmin = await Checkgroup(req.byUser, "admin");
 
     if (!isAdmin) {
       return { success: false, err: "user is not an admin" };
     }
 
-    let user = findById(username);
+    let user = await findById(username);
 
     // 2. reject if user already exists
-    if (user.length === 1) {
+    if (user.length >= 1) {
       const error = new Error("User already exists");
       error.code = 400;
       throw error;
@@ -59,7 +73,10 @@ export const register = async (req, res) => {
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
-    user = createUser({ username, password: hash, email });
+    console.log(hash, "hash");
+
+    user = await createUser({ ...req.body, password: hash });
+    console.log(user);
     const token = jwt.sign({ username }, secret, { expiresIn });
 
     if (!token || !user) {
@@ -70,6 +87,7 @@ export const register = async (req, res) => {
 
     res.status(200).json({ data: { token, user } });
   } catch (err) {
+    console.log("Register err:", err);
     if (err.code === 400) {
       res.status(500).json(err);
     } else {
@@ -81,14 +99,6 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   // console.log(req.body);
   const { username, password } = req.body;
-
-  const usercalled = req.byUser;
-  console.log(userCalled);
-  const meetsContraints = isAlphaNumeric(username);
-
-  if (!meetsContraints) {
-    return res.status(401).json({ err: "incorrect username" });
-  }
 
   console.log(username);
 
