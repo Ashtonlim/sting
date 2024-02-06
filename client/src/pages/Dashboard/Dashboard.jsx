@@ -19,6 +19,7 @@ import CreateUserForm from "./CreateUserForm";
 import LayoutOne from "/src/components/LayoutOne";
 
 import "./dashboard.scss";
+import CreateGroup from "./CreateGroup";
 
 const EditableCell = ({
   editing,
@@ -196,6 +197,7 @@ const Dashboard = () => {
   });
   return (
     <LayoutOne>
+      <CreateGroup />
       <CreateUserForm />
       <Form form={form} component={false}>
         <Table

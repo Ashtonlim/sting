@@ -1,15 +1,13 @@
 import axios from "axios";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Form, Input } from "antd";
 
 const CreateGroup = () => {
-  const onFinish = async ({ username, password, email }) => {
-    console.log("Success:", username, password);
-    const res = await axios.post("auth/register", {
-      username,
-      password,
-      email,
-    });
-    console.log(res);
+  const onFinish = async ({ groupname }) => {
+    console.log("Success:", groupname);
+    // const res = await axios.post("auth/register", {
+    //   groupname,
+    // });
+    // console.log(res);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -19,25 +17,17 @@ const CreateGroup = () => {
   return (
     <Form
       name="basic"
-      labelCol={{
-        span: 8,
-      }}
-      wrapperCol={{
-        span: 16,
-      }}
-      style={{
-        maxWidth: 600,
-      }}
       initialValues={{
         remember: true,
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
       autoComplete="off"
+      layout="inline"
     >
       <Form.Item
-        label="Username"
-        name="username"
+        label="Group Name"
+        name="groupname"
         rules={[
           {
             required: true,
@@ -48,52 +38,9 @@ const CreateGroup = () => {
         <Input />
       </Form.Item>
 
-      <Form.Item
-        label="Password"
-        name="password"
-        rules={[
-          {
-            required: true,
-            message: "Please input your password!",
-          },
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          {
-            type: "email",
-            required: true,
-            message: "Please enter a valid email!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="remember"
-        valuePropName="checked"
-        wrapperCol={{
-          offset: 8,
-          span: 16,
-        }}
-      >
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
-
-      <Form.Item
-        wrapperCol={{
-          offset: 8,
-          span: 16,
-        }}
-      >
+      <Form.Item>
         <Button type="primary" htmlType="submit">
-          Submit
+          Create group
         </Button>
       </Form.Item>
     </Form>

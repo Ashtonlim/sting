@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Button, Form, Input, Select, Space } from "antd";
+import { Button, Form, Input, Select } from "antd";
 
 const options = [];
 for (let i = 10; i < 36; i++) {
@@ -43,6 +43,11 @@ const CreateUserForm = () => {
               required: true,
               message: "Please input your username!",
             },
+            { min: 3, max: 20 },
+            {
+              pattern: "^[a-zA-Z0-9]+$",
+              message: "Only letters and numbers are allowed",
+            },
           ]}
         >
           <Input />
@@ -55,6 +60,21 @@ const CreateUserForm = () => {
             {
               required: true,
               message: "Please input your password!",
+            },
+
+            { min: 8, max: 10 },
+
+            {
+              pattern: "^(?=.*[a-zA-Z]).+$",
+              message: "must have 1 alphabet",
+            },
+            {
+              pattern: "\\d",
+              message: "must have 1 number",
+            },
+            {
+              pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+              message: "must have 1 special character",
             },
           ]}
         >
