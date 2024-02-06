@@ -37,6 +37,7 @@ const App = () => {
   );
 };
 
+// https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
   // const loginState = useSelector((state) => state.auth.user);
   const hasJWT = Cookies.get("jwt");

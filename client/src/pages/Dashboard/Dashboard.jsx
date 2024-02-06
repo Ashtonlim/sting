@@ -66,7 +66,7 @@ const Dashboard = () => {
 
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
-      console.log(data);
+      // console.log(data);
       setData(data);
     };
 
@@ -75,7 +75,7 @@ const Dashboard = () => {
 
   const isEditing = (record) => record.key === editingKey;
   const edit = (record) => {
-    console.log("what is record", record);
+    // console.log("what is record", record);
     form.setFieldsValue({
       username: "",
       password: "",
@@ -92,9 +92,9 @@ const Dashboard = () => {
   const save = async (key) => {
     try {
       const row = await form.validateFields();
-      console.log("what is row", row);
+      // console.log("what is row", row);
       const newData = [...data];
-      console.log("what is newData", newData);
+      // console.log("what is newData", newData);
 
       // findIndex returns index of first instance passing testing fn.
       // if no element passes, returns -1
@@ -114,7 +114,7 @@ const Dashboard = () => {
         setEditingKey("");
       }
     } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
+      // console.log("Validate Failed:", errInfo);
     }
   };
 
@@ -157,7 +157,7 @@ const Dashboard = () => {
       dataIndex: "operation",
       render: (_, record) => {
         const editable = isEditing(record);
-        console.log("what is editable", editable);
+        // console.log("what is editable", editable);
         return editable ? (
           <span>
             <Typography.Link
@@ -180,7 +180,7 @@ const Dashboard = () => {
     },
   ];
   const mergedColumns = columns.map((col) => {
-    console.log(col);
+    // console.log(col);
     if (!col.editable) {
       return col;
     }

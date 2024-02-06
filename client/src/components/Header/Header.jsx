@@ -13,7 +13,8 @@ const LoggedInView = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logout());
+    const res = dispatch(logout());
+    console.log("logout res", res);
   };
 
   if (loginState) {

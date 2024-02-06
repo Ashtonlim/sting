@@ -1,18 +1,26 @@
 import axios from "axios";
 import { Button, Form, Input, Select } from "antd";
+import { useEffect, useState } from "react";
 
-const options = [];
-for (let i = 10; i < 36; i++) {
-  options.push({
-    label: i.toString(36) + i,
-    value: i.toString(36) + i,
-  });
-}
 const handleChange = (value) => {
   console.log(`selected ${value}`);
 };
 
 const CreateUserForm = () => {
+  const [options, setoptions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get("group/allGroups");
+      const groupnameList = data.map(({ groupname }) => ({
+        label: groupname,
+        value: groupname,
+      }));
+      setoptions(groupnameList);
+    };
+    fetchData();
+  }, []);
+
   const onFinish = async (credentials) => {
     console.log("Success:", credentials);
     const res = await axios.post("auth/register", credentials);
@@ -96,6 +104,7 @@ const CreateUserForm = () => {
 
         <Form.Item label="Groups" name="groups">
           <Select
+            style={{ minWidth: "120px" }}
             mode="multiple"
             placeholder="Please select"
             onChange={handleChange}

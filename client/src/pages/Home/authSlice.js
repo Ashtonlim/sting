@@ -54,6 +54,10 @@ export const authSlice = createSlice({
     logout: (state) => {
       Cookies.remove("jwt");
       state.username = false;
+      // Review:
+      // for some reason, returning true allows it to redirect back to the login page
+      // not sure why, could be that state is being updated and it's causing a re-render
+      return true;
     },
   },
   extraReducers: (builder) => {
