@@ -6,6 +6,7 @@ import cors from "cors";
 
 import auth from "./routes/auth.js";
 import user from "./routes/user.js";
+import group from "./routes/group.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,7 @@ app.use(
 
 app.use("/auth", auth);
 app.use("/user", user);
+app.use("/group", group);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

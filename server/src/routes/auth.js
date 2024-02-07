@@ -11,6 +11,6 @@ const router = Router();
 // router.get("/reset/123", reset);
 router.post("/register", checkJWT, register);
 router.post("/login", login);
-router.post("/verifyAccessGrp", verifyAccessGrp);
+router.post("/verifyAccessGrp", checkJWT, verifyAccessGrp);
 
 export default router;

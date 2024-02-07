@@ -1,6 +1,7 @@
-import { Button, Checkbox, Form, Input } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Button, Checkbox, Form, Input } from "antd";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
 import { login } from "../Home/authSlice";
@@ -17,9 +18,9 @@ const Login = () => {
     // console.log("submited:", credentials);
     try {
       const { payload } = await dispatch(login({ username, password }));
-      // console.log("dispatch payload", payload);
+      console.log("dispatch payload", payload);
 
-      if (payload.success) {
+      if (payload) {
         navigate("/");
       }
     } catch (err) {
@@ -62,7 +63,10 @@ const Login = () => {
               },
             ]}
           >
-            <Input />
+            <Input
+              prefix={<UserOutlined className="site-form-item-icon" />}
+              placeholder="Username"
+            />
           </Form.Item>
 
           <Form.Item
@@ -75,7 +79,10 @@ const Login = () => {
               },
             ]}
           >
-            <Input.Password />
+            <Input.Password
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              placeholder="Password"
+            />
           </Form.Item>
 
           <Form.Item

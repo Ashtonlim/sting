@@ -1,20 +1,34 @@
 import jwt from "jsonwebtoken";
+import { findById } from "../models/userModel.js";
+import { Checkgroup } from "../controllers/authController.js";
 const secret = process.env.JWTSECRET;
 
-export const checkJWT = async (req, res, next) => {
-  const token = req.headers["x-access-token"];
-  const token2 = req.headers["authorization"];
-  console.log(token);
-  console.log(token2);
-  try {
-    var decoded = jwt.verify(token, secret);
-    console.log(decoded); // bar
+export const checkJWT = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  jwt.verify(token, secret, async (err, decoded) => {
+    // console.log(decoded); // { username: 'admin', iat: 1707118235, exp: 1707121835 }
+    if (err) {
+      return res.status(403).send("Invalid token");
+    }
 
-    console.log("auth middleware");
-    console.log(req.body);
+    req.byUser = decoded.username;
+    next();
+  });
+};
+
+export const isAdmin = async (req, res, next) => {
+  try {
+    const username = req.byUser;
+    const isAdmin = await Checkgroup(username, "admin");
+    console.log(isAdmin);
+    if (!isAdmin) {
+      return res.status(403).send("User is not an admin");
+    }
+    console.log("user is an admin");
     next();
   } catch (err) {
     console.log(err);
-    res.status(401).json({ message: "invalid user credentials" });
+    return res.status(500).send(err);
   }
 };

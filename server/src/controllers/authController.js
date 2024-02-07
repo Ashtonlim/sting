@@ -1,4 +1,5 @@
-import { createUser, findAll, findById } from "../models/authModel.js";
+import { createUser, findById } from "../models/userModel.js";
+import secGroups from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
@@ -10,11 +11,21 @@ const expiresIn = "1h";
 //   throw new Error("Secret for JWT not found");
 // }
 
+// From spec sheet:
+// create a function that returns a value to indicate if a user is in a group.
+
 export const Checkgroup = async (userid, groupname) => {
   try {
-    const user = findById(userid);
-    return user.secGrp.split(",").includes(groupname);
+    const users = await findById(userid);
+    if (users.length !== 1) {
+      console.log(users, "user not found");
+      return false;
+    }
+    // console.log(users[0],);
+
+    return users[0].secGrp.split(",").includes(groupname);
   } catch (err) {
+    // console.log("user", err);
     throw new Error(err);
   }
 };
@@ -29,36 +40,72 @@ export const verifyAccessGrp = async (req, res) => {
   }
 };
 
-// review: not tested yet
-export const register = async (req, res) => {
-  req.body = { username, password, email }; // user to create
-  // verify fits constraints
-  // isAlphaNumeric(username);
+// const groupsValidation = async () => {
 
+// }
+
+export const register = async (req, res) => {
   try {
-    // check submitted JWT is a valid admin, prob in middleware jwt check
-    const { adminUsername } = req.body;
-    const isAdmin = await Checkgroup(adminUsername, "admin");
+    const { username, password, email, groups } = req.body;
+
+    // check submitted JWT is a valid admin
+    const isAdmin = await Checkgroup(req.byUser, "admin");
 
     if (!isAdmin) {
-      return { success: false, err: "user is not an admin" };
+      return res.status(401).json("User is not an admin.");
     }
 
-    let user = findById(username);
+    // verify fits constraints
+    const meetsContraints =
+      isAlphaNumeric(username) && username.length >= 4 && username.length <= 20;
 
-    // 2. reject if user already exists
-    if (user.length === 1) {
+    if (!meetsContraints) {
+      return res.status(401).json("Invalid user details.");
+    }
+
+    // verify groups are valid
+    console.log(groups, "groups");
+    const allSecGroups = await secGroups.findAll();
+    const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
+    console.log(allSecGroups, secGroupsSet, "groups");
+
+    let invalidGrps = "";
+    for (const grp of groups) {
+      if (!secGroupsSet.has(grp)) {
+        invalidGrps += grp;
+      }
+    }
+
+    if (invalidGrps) {
+      return res
+        .status(401)
+        .json(`${invalidGrps} group does not exists, please create them first`);
+    }
+
+    // find if user already exists
+    let user = await findById(username);
+
+    // reject if user already exists
+    if (user.length >= 1) {
       const error = new Error("User already exists");
       error.code = 400;
       throw error;
     }
 
-    // 3. create hash
+    // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
-    user = createUser({ username, password: hash, email });
+    console.log(hash, "hash");
+
+    user = await createUser({
+      ...req.body,
+      password: hash,
+      groups: groups.join(","),
+    });
+
+    console.log(user);
     const token = jwt.sign({ username }, secret, { expiresIn });
 
     if (!token || !user) {
@@ -69,6 +116,7 @@ export const register = async (req, res) => {
 
     res.status(200).json({ data: { token, user } });
   } catch (err) {
+    console.log("Register err:", err);
     if (err.code === 400) {
       res.status(500).json(err);
     } else {
@@ -77,27 +125,29 @@ export const register = async (req, res) => {
   }
 };
 
+// disable user from accessing group
+// can just prevent user from logging in
 export const login = async (req, res) => {
-  // console.log(req.body);
   const { username, password } = req.body;
-  const meetsContraints = isAlphaNumeric(username);
 
-  if (!meetsContraints) {
-    return res
-      .status(401)
-      .json({ success: false, err: "username does not meet constraints" });
-  }
+  console.log(username);
 
   try {
-    const user = await findById(username);
-    // console.log(user);
-
     // user.password is hash
-    const isPwdCorrect = bcrypt.compareSync(password, user.password);
+    const users = await findById(username);
+
+    if (users.length !== 1) {
+      return res.status(401).json({ err: "No such user" });
+    }
+
+    // user should not be able to login if isActive is false
+    if (!users[0].isActive) {
+      return res.status(401).json({ err: "User is disabled" });
+    }
+
+    const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
-      return res
-        .status(401)
-        .json({ success: false, err: "incorrect password" });
+      return res.status(401).json({ err: "incorrect password" });
     }
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
@@ -108,7 +158,7 @@ export const login = async (req, res) => {
       // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
     });
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ data: users[0].username });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
