@@ -29,7 +29,6 @@ const CreateUserForm = () => {
         message.success("User created successfully");
       }
     } catch (error) {
-      console.error(error);
       message.error(error.response.data);
     }
   };

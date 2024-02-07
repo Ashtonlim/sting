@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import {
-  Space,
   Table,
   Switch,
-  Button,
   Input,
   Form,
   InputNumber,
-  Popconfirm,
+  Select,
   Typography,
 } from "antd";
 import axios from "axios";
@@ -19,7 +17,7 @@ import CreateUserForm from "./CreateUserForm";
 import LayoutOne from "/src/components/LayoutOne";
 
 import "./dashboard.scss";
-import CreateGroup from "./CreateGroup";
+import CreateGroupForm from "./CreateGroupForm";
 
 const EditableCell = ({
   editing,
@@ -31,6 +29,15 @@ const EditableCell = ({
   children,
   ...restProps
 }) => {
+  console.log(dataIndex, title, inputType);
+  // (
+  //   <Select
+  //     style={{ minWidth: "120px" }}
+  //     mode="multiple"
+  //     placeholder="Please select"
+  //     options={secGrp}
+  //   />
+  // ),
   const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
   return (
     <td {...restProps}>
@@ -61,6 +68,8 @@ const Dashboard = () => {
   const [data, setData] = useState([]);
   const [editingKey, setEditingKey] = useState("");
 
+  console.log("dashboard - am i rerendering?");
+
   useEffect(() => {
     // get user data
 
@@ -73,32 +82,24 @@ const Dashboard = () => {
     init();
   }, []);
 
-  const isEditing = (record) => record.key === editingKey;
+  const isEditing = (record) => record.username === editingKey;
   const edit = (record) => {
-    // console.log("what is record", record);
     form.setFieldsValue({
-      username: "",
-      password: "",
-      email: "",
+      name: "",
+      age: "",
+      address: "",
       ...record,
     });
-    setEditingKey(record.key);
+    setEditingKey(record.username);
   };
-
   const cancel = () => {
     setEditingKey("");
   };
-
   const save = async (key) => {
     try {
       const row = await form.validateFields();
-      // console.log("what is row", row);
       const newData = [...data];
-      // console.log("what is newData", newData);
-
-      // findIndex returns index of first instance passing testing fn.
-      // if no element passes, returns -1
-      const index = newData.findIndex((item) => key === item.key);
+      const index = newData.findIndex((item) => key === item.username);
       if (index > -1) {
         const item = newData[index];
         newData.splice(index, 1, {
@@ -108,13 +109,12 @@ const Dashboard = () => {
         setData(newData);
         setEditingKey("");
       } else {
-        //
         newData.push(row);
         setData(newData);
         setEditingKey("");
       }
     } catch (errInfo) {
-      // console.log("Validate Failed:", errInfo);
+      console.log("Validate Failed:", errInfo);
     }
   };
 
@@ -162,7 +162,7 @@ const Dashboard = () => {
           <span>
             <Typography.Link
               className="block mr-3"
-              onClick={() => save(record.key)}
+              onClick={() => save(record.username)}
             >
               Save
             </Typography.Link>
@@ -179,8 +179,8 @@ const Dashboard = () => {
       },
     },
   ];
+
   const mergedColumns = columns.map((col) => {
-    // console.log(col);
     if (!col.editable) {
       return col;
     }
@@ -188,16 +188,17 @@ const Dashboard = () => {
       ...col,
       onCell: (record) => ({
         record,
-        inputType: col.dataIndex === "username" ? "number" : "text",
+        inputType: col.dataIndex === "age" ? "number" : "text",
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
       }),
     };
   });
+
   return (
     <LayoutOne>
-      <CreateGroup />
+      <CreateGroupForm />
       <CreateUserForm />
       <Form form={form} component={false}>
         <Table

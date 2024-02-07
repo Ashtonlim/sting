@@ -1,12 +1,14 @@
 import axios from "axios";
 import { Button, Form, Input } from "antd";
 
-const CreateGroup = () => {
+const CreateGroupForm = () => {
   const onFinish = async ({ groupname }) => {
     console.log("Success:", groupname);
     const res = await axios.post("group/createGroup", { groupname });
     console.log(groupname, res);
   };
+
+  console.log("CreateGroupForm - am i rerendering?");
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -45,4 +47,4 @@ const CreateGroup = () => {
   );
 };
 
-export default CreateGroup;
+export default CreateGroupForm;

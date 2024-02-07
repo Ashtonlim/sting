@@ -125,7 +125,6 @@ export const register = async (req, res) => {
 // disable user from accessing group
 // can just prevent user from logging in
 export const login = async (req, res) => {
-  // console.log(req.body);
   const { username, password } = req.body;
 
   console.log(username);
