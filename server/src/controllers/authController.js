@@ -1,4 +1,4 @@
-import { createUser, findAll, findById } from "../models/authModel.js";
+import { createUser, findById } from "../models/userModel.js";
 import secGroups from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
@@ -10,6 +10,9 @@ const expiresIn = "1h";
 //   console.log("WARNING: Secret for JWT not found");
 //   throw new Error("Secret for JWT not found");
 // }
+
+// From spec sheet:
+// create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
   try {

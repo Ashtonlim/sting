@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { findById } from "../models/authModel.js";
+import { findById } from "../models/userModel.js";
 import { Checkgroup } from "../controllers/authController.js";
 const secret = process.env.JWTSECRET;
 
