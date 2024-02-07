@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
@@ -83,17 +83,6 @@ const Login = () => {
               prefix={<LockOutlined className="site-form-item-icon" />}
               placeholder="Password"
             />
-          </Form.Item>
-
-          <Form.Item
-            name="remember"
-            valuePropName="checked"
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
-            <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
           <Form.Item
