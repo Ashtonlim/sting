@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import {
-  Table,
-  Switch,
-  Input,
-  Form,
-  InputNumber,
-  Select,
-  Typography,
-} from "antd";
+import { Table, Switch, Input, Form, Select, Typography } from "antd";
 import axios from "axios";
 
 import TagGroup from "./TagGroup";
@@ -19,54 +11,11 @@ import LayoutOne from "/src/components/LayoutOne";
 import "./dashboard.scss";
 import CreateGroupForm from "./CreateGroupForm";
 
-const EditableCell = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  console.log(dataIndex, title, inputType);
-  // (
-  //   <Select
-  //     style={{ minWidth: "120px" }}
-  //     mode="multiple"
-  //     placeholder="Please select"
-  //     options={secGrp}
-  //   />
-  // ),
-  const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{
-            margin: 0,
-          }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
-
 const Dashboard = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [editingKey, setEditingKey] = useState("");
+  const [options, setoptions] = useState([]);
 
   console.log("dashboard - am i rerendering?");
 
@@ -75,12 +24,76 @@ const Dashboard = () => {
 
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
-      // console.log(data);
       setData(data);
+
+      const groupnameList = (await axios.get("group/allGroups")).data.map(
+        ({ groupname }) => ({
+          label: groupname,
+          value: groupname,
+        })
+      );
+      setoptions(groupnameList);
     };
+
+    const fetchData = async () => {};
+    fetchData();
 
     init();
   }, []);
+
+  const EditableCell = ({
+    editing,
+    dataIndex,
+    title,
+    inputType,
+    record,
+    index,
+    children,
+    ...restProps
+  }) => {
+    // console.log(dataIndex, title, inputType);
+
+    const inputMap = {
+      username: <Input />,
+      password: (
+        <Input.Password
+          placeholder="input password"
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
+        />
+      ),
+      email: <Input />,
+
+      secGrp: (
+        <Select mode="multiple" placeholder="Please select" options={options} />
+      ),
+      isActive: <Switch />,
+    };
+
+    return (
+      <td {...restProps}>
+        {editing ? (
+          <Form.Item
+            name={dataIndex}
+            // style={{
+            //   margin: 0,
+            // }}
+            rules={[
+              {
+                required: true,
+                message: `Please Input ${title}!`,
+              },
+            ]}
+          >
+            {inputMap[dataIndex]}
+          </Form.Item>
+        ) : (
+          children
+        )}
+      </td>
+    );
+  };
 
   const isEditing = (record) => record.username === editingKey;
   const edit = (record) => {
