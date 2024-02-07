@@ -91,8 +91,8 @@ const Login = () => {
               span: 16,
             }}
           >
-            <Button type="primary" htmlType="submit">
-              Submit
+            <Button className="mt-2" type="primary" htmlType="submit">
+              Login
             </Button>
           </Form.Item>
         </Form>
