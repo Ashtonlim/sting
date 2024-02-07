@@ -49,7 +49,7 @@ export const register = async (req, res) => {
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
     if (!isAdmin) {
-      return { success: false, err: "user is not an admin" };
+      return res.status(401).json("User is not an admin.");
     }
 
     // verify fits constraints
@@ -57,7 +57,7 @@ export const register = async (req, res) => {
       isAlphaNumeric(username) && username.length >= 4 && username.length <= 20;
 
     if (!meetsContraints) {
-      return res.status(401).json({ err: "incorrect username" });
+      return res.status(401).json("Invalid user details.");
     }
 
     // verify groups are valid
@@ -74,9 +74,9 @@ export const register = async (req, res) => {
     }
 
     if (invalidGrps) {
-      return res.status(401).json({
-        err: `${invalidGrps} group does not exists, please create them first`,
-      });
+      return res
+        .status(401)
+        .json(`${invalidGrps} group does not exists, please create them first`);
     }
 
     // find if user already exists

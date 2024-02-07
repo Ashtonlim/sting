@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 
 const handleChange = (value) => {
@@ -22,9 +22,16 @@ const CreateUserForm = () => {
   }, []);
 
   const onFinish = async (credentials) => {
-    console.log("Success:", credentials);
-    const res = await axios.post("auth/register", credentials);
-    console.log(res);
+    try {
+      const res = await axios.post("auth/register", credentials);
+      console.log(res);
+      if (res.response.status >= 200 && res.response.status < 300) {
+        message.success("User created successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error(error.response.data);
+    }
   };
 
   const onFinishFailed = (errorInfo) => {

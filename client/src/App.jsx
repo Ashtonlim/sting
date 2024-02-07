@@ -24,6 +24,10 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/* <Route element={<AdminRoute />}>
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route> */}
+
         <Route element={<PrivateRoute />}>
           <Route exact path="" element={<Home />} />
           <Route path="register" element={<Register />} />
@@ -47,10 +51,10 @@ const PrivateRoute = () => {
   return hasJWT ? <Outlet /> : <Navigate to="login" />;
 };
 
-const AdminRoute = () => {
-  const loginState = useSelector((state) => state.auth.user);
+// const AdminRoute = () => {
+//   // const isAdmin = someFucntionTocheckIfUserIsAdmin();
 
-  return loginState ? <Outlet /> : <Navigate to="login" />;
-};
+//   return isAdmin ? <Outlet /> : <Navigate to="login" />;
+// };
 
 export default App;
