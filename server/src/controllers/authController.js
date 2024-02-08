@@ -130,7 +130,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { username, password } = req.body;
 
-  console.log(username);
+  console.log(username, password);
 
   try {
     // user.password is hash
