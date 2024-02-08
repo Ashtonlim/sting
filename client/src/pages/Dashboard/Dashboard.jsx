@@ -13,8 +13,8 @@ import CreateGroupForm from "./CreateGroupForm";
 const Dashboard = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
-  const [editingKey, setEditingKey] = useState("");
   const [options, setoptions] = useState([]);
+  const [editingKey, setEditingKey] = useState("");
 
   // console.log("dashboard - am i rerendering?");
 
@@ -38,7 +38,6 @@ const Dashboard = () => {
         })
       );
 
-      console.log(groupnameList, "groupnameList");
       setoptions(groupnameList);
     };
 

@@ -24,9 +24,9 @@ export const isAdmin = async (req, res, next) => {
     console.log(isAdmin);
     if (!isAdmin) {
       return res.status(403).send("User is not an admin");
+    } else {
+      next();
     }
-    console.log("user is an admin");
-    next();
   } catch (err) {
     console.log(err);
     return res.status(500).send(err);

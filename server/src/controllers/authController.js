@@ -21,10 +21,8 @@ export const Checkgroup = async (userid, groupname) => {
       console.log(users, "user not found");
       return false;
     }
-    console.log(users[0], "admin");
     return users[0]["secGrp"].split(",").includes(groupname);
   } catch (err) {
-    // console.log("user", err);
     throw new Error(err);
   }
 };
@@ -56,17 +54,15 @@ export const register = async (req, res) => {
 
     // verify fits constraints
     const meetsContraints =
-      isAlphaNumeric(username) && username.length >= 4 && username.length <= 20;
+      isAlphaNumeric(username) && username.length >= 3 && username.length <= 20;
 
     if (!meetsContraints) {
       return res.status(401).json("Invalid user details.");
     }
 
     // verify groups are valid
-    console.log(groups, "groups");
     const allSecGroups = await secGroups.findAll();
     const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
-    console.log(allSecGroups, secGroupsSet, "groups");
 
     let invalidGrps = "";
     for (const grp of groups) {
@@ -96,15 +92,12 @@ export const register = async (req, res) => {
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
-    console.log(hash, "hash");
-
     user = await createUser({
       ...req.body,
       password: hash,
       groups: groups.join(","),
     });
 
-    console.log(user);
     const token = jwt.sign({ username }, secret, { expiresIn });
 
     if (!token || !user) {
@@ -115,12 +108,7 @@ export const register = async (req, res) => {
 
     res.status(200).json({ data: { token, user } });
   } catch (err) {
-    console.log("Register err:", err);
-    if (err.code === 400) {
-      res.status(500).json(err);
-    } else {
-      res.status(500).json(err);
-    }
+    res.status(err.code).json(err);
   }
 };
 
@@ -128,8 +116,6 @@ export const register = async (req, res) => {
 // can just prevent user from logging in
 export const login = async (req, res) => {
   const { username, password } = req.body;
-
-  console.log(username, password);
 
   try {
     // user.password is hash
@@ -159,15 +145,6 @@ export const login = async (req, res) => {
 
     res.status(200).json({ data: users[0].username });
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
-
-// export const reset = async (req, res) => {
-//   console.log("attempting to reset db");
-//   const resetSuccess = await resetDB();
-//   if (resetSuccess) {
-//     console.log("db has been reset");
-//   }
-// };

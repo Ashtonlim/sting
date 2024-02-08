@@ -19,17 +19,7 @@ export const findAll = async (onlyCols = [], excludeCols = []) => {
   }
 };
 
-export const findById = async (username, onlyCols = [], excludeCols = []) => {
-  // const allCols = ["username", "password", "email", "isActive", "secGrp"];
-  // const excludeColsSet = new Set(excludeCols);
-  // const getCols = (onlyCols?.length ? onlyCols : allCols).filter(
-  //   (colName) => !excludeColsSet.has(colName)
-  // );
-  // console.log(getCols.join(", "));
-  // const getUserByIdQry = `SELECT ${allCols.join(
-  //   ", "
-  // )} FROM accounts WHERE username='${username}';`;
-
+export const findById = async (username) => {
   const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
 
   try {
@@ -57,8 +47,7 @@ export const createUser = async ({ username, password, email, groups }) => {
       INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', '${email}', '${groups}');
     `;
     const createdUser = await sql.query(createUserQry);
-    // console.log(createdUser[0].affectedRows);
-    // console.log(createdUser);
+
     if (createdUser[0].affectedRows !== 1) {
       throw new Error("more than one row affected");
     }

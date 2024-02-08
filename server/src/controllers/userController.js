@@ -29,7 +29,6 @@ export const adminUpdateUser = async (req, res) => {
     }
 
     const users = await findById(username);
-    console.log(username, users);
 
     if (users.length !== 1) {
       return res.status(404).send("User not found");
@@ -40,11 +39,8 @@ export const adminUpdateUser = async (req, res) => {
       ? bcrypt.hashSync(password, bcrypt.genSaltSync(10))
       : users[0].password;
 
-    console.log(secGrp, "secGrp");
-
     secGrp = secGrp ? secGrp.join(",") : secGrp;
 
-    // console.log({ username, password, email, isActive, secGrp });
     // update user
     await editUser({
       username,
@@ -79,7 +75,6 @@ export const updateUser = async (req, res) => {
     res.cookie("jwt", token, { maxAge: 3600000 });
     res.status(200).json();
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };

@@ -5,7 +5,6 @@ export const getAllGroups = async (req, res) => {
     const groups = await findAll();
     res.status(200).json(groups);
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -16,7 +15,6 @@ export const createGroup = async (req, res) => {
     const group = await createSecGroup(groupname);
     res.status(200).json(group);
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };

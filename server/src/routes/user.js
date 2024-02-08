@@ -5,7 +5,7 @@ import { adminUpdateUser, updateUser } from "../controllers/userController.js";
 
 const router = Router();
 
-router.get("/allUsers", checkJWT, getAllUsers);
+router.get("/allUsers", checkJWT, isAdmin, getAllUsers);
 router.post("/admin/updateUser", checkJWT, isAdmin, adminUpdateUser);
 router.post("/updateUser", checkJWT, updateUser);
 

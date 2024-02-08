@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
@@ -13,18 +13,17 @@ const Login = () => {
 
   console.log("this is loginState", loginState);
 
-  const onFinish = async (credentials) => {
-    const { username, password } = credentials;
-    console.log("submited:", credentials);
+  const onFinish = async (credentails) => {
     try {
-      const { payload } = await dispatch(login({ username, password }));
+      const { payload } = await dispatch(login(credentails));
       console.log("dispatch payload", payload);
 
       if (payload) {
         navigate("/");
       }
     } catch (err) {
-      alert(err);
+      console.log("as", err);
+      message.error(err);
     }
   };
 
