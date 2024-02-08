@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
 
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../pages/Home/authSlice";
+import { logout } from "../../pages/Login/authSlice";
 
 import "./header.scss";
 

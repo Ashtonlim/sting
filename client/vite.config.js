@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react-swc";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    sourcemap: true,
+  },
   css: {
     devSourcemap: true,
     // index.scss not required to be imported into main.jsx because

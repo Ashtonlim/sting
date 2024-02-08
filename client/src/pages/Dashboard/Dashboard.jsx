@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { Table, Switch, Input, Form, Select, Typography } from "antd";
+import { Table, Switch, Input, Form, Select, Typography, message } from "antd";
 import axios from "axios";
 
 import TagGroup from "./TagGroup";
@@ -14,17 +13,23 @@ import CreateGroupForm from "./CreateGroupForm";
 const Dashboard = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
-  const [editingKey, setEditingKey] = useState("");
   const [options, setoptions] = useState([]);
+  const [editingKey, setEditingKey] = useState("");
 
-  console.log("dashboard - am i rerendering?");
+  // console.log("dashboard - am i rerendering?");
 
   useEffect(() => {
     // get user data
 
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
-      setData(data);
+
+      setData(
+        data.map((user) => ({
+          ...user,
+          secGrp: user.secGrp?.split(","),
+        }))
+      );
 
       const groupnameList = (await axios.get("group/allGroups")).data.map(
         ({ groupname }) => ({
@@ -32,11 +37,9 @@ const Dashboard = () => {
           value: groupname,
         })
       );
+
       setoptions(groupnameList);
     };
-
-    const fetchData = async () => {};
-    fetchData();
 
     init();
   }, []);
@@ -54,39 +57,47 @@ const Dashboard = () => {
     // console.log(dataIndex, title, inputType);
 
     const inputMap = {
-      username: <Input />,
-      password: (
-        <Input.Password
-          placeholder="input password"
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-        />
-      ),
-      email: <Input />,
+      password: {
+        component: <Input.Password placeholder="input new password" />,
+        rules: [
+          { min: 3, max: 20 },
+          {
+            pattern: "^[a-zA-Z0-9]+$",
+            message: "Only letters and numbers are allowed",
+          },
+        ],
+      },
+      email: {
+        component: <Input />,
+        rules: [
+          {
+            type: "email",
+            message: "Please input a valid email!",
+          },
+        ],
+      },
+      isActive: {
+        component: <Switch />,
+        rules: [],
+      },
 
-      secGrp: (
-        <Select mode="multiple" placeholder="Please select" options={options} />
-      ),
-      isActive: <Switch />,
+      secGrp: {
+        component: (
+          <Select
+            mode="multiple"
+            placeholder="Please select"
+            options={options}
+          />
+        ),
+        rules: [],
+      },
     };
 
     return (
       <td {...restProps}>
         {editing ? (
-          <Form.Item
-            name={dataIndex}
-            // style={{
-            //   margin: 0,
-            // }}
-            rules={[
-              {
-                required: true,
-                message: `Please Input ${title}!`,
-              },
-            ]}
-          >
-            {inputMap[dataIndex]}
+          <Form.Item name={dataIndex} rules={inputMap[dataIndex]["rules"]}>
+            {inputMap[dataIndex]["component"]}
           </Form.Item>
         ) : (
           children
@@ -97,12 +108,8 @@ const Dashboard = () => {
 
   const isEditing = (record) => record.username === editingKey;
   const edit = (record) => {
-    form.setFieldsValue({
-      name: "",
-      age: "",
-      address: "",
-      ...record,
-    });
+    // set inital values in input after on click edit
+    form.setFieldsValue({ ...record });
     setEditingKey(record.username);
   };
   const cancel = () => {
@@ -110,8 +117,18 @@ const Dashboard = () => {
   };
   const save = async (key) => {
     try {
-      const row = await form.validateFields();
+      const row = { ...(await form.validateFields()), username: key };
+
       const newData = [...data];
+      console.log("row", row);
+      if (key === "admin" && !row.secGrp.includes("admin")) {
+        message.error(
+          `User 'admin' can only change password and add or remove itself all groups except 'admin' group.`
+        );
+        setEditingKey("");
+        return;
+      }
+
       const index = newData.findIndex((item) => key === item.username);
       if (index > -1) {
         const item = newData[index];
@@ -119,14 +136,17 @@ const Dashboard = () => {
           ...item,
           ...row,
         });
+
+        const res = await axios.post("/user/admin/updateUser", row);
+        console.log("res from save", res);
         setData(newData);
-        setEditingKey("");
       } else {
         newData.push(row);
-        setData(newData);
-        setEditingKey("");
       }
+      setData(newData);
+      setEditingKey("");
     } catch (errInfo) {
+      message.error(errInfo.response.data);
       console.log("Validate Failed:", errInfo);
     }
   };
@@ -135,46 +155,43 @@ const Dashboard = () => {
     {
       title: "Username",
       dataIndex: "username",
-      width: "25%",
-      editable: true,
     },
     {
       title: "Password",
       dataIndex: "password",
-      width: "15%",
+      render: (_, { password }) => "********",
       editable: true,
     },
     {
       title: "Email",
       dataIndex: "email",
-      width: "20%",
       editable: true,
     },
     {
       title: "secGrp",
       key: "secGrp",
       dataIndex: "secGrp",
+      render: (_, { secGrp }) => <TagGroup groups={secGrp} />,
       editable: true,
-      render: (_, { secGrp }) => <TagGroup groups={secGrp?.split(",")} />,
-      width: "30%",
     },
     {
       title: "Active Status",
+      width: "10%",
       dataIndex: "isActive",
-      width: "20%",
+      render: (isActive) => <Switch value={isActive} />,
       editable: true,
-      render: (bool) => <Switch />,
     },
     {
       title: "Edit",
       dataIndex: "operation",
+      width: "14%",
       render: (_, record) => {
         const editable = isEditing(record);
         // console.log("what is editable", editable);
         return editable ? (
           <span>
             <Typography.Link
-              className="block mr-3"
+              className="mr-3"
               onClick={() => save(record.username)}
             >
               Save
@@ -236,55 +253,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-// const columns = [
-//   {
-//     title: "Username",
-//     dataIndex: "username",
-//     key: "username",
-//     render: (text) => <a>{text}</a>,
-//   },
-//   {
-//     title: "Password",
-//     dataIndex: "password",
-//     key: "password",
-//     width: "20%",
-//     render: (text) => (
-//       <Input.Password
-//         value={text}
-//         placeholder="input password"
-//         iconRender={(visible) =>
-//           visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-//         }
-//       />
-//     ),
-//   },
-//   {
-//     title: "Email",
-//     dataIndex: "email",
-//     key: "email",
-//   },
-//   {
-//     title: "isActive",
-//     dataIndex: "isActive",
-//     key: "isActive",
-//     render: (bool) => <Switch onChange={onChange} />,
-//   },
-//   {
-//     title: "secGrp",
-//     key: "secGrp",
-//     dataIndex: "secGrp",
-//     render: (_, { secGrp }) => <TagGroup groups={secGrp.split(",") || []} />,
-//     width: "30%",
-//   },
-//   {
-//     title: "Action",
-//     key: "action",
-//     render: (_, record) => (
-//       <Space size="middle">
-//         <a>Edit {record.name}</a>
-//         <a>Delete</a>
-//       </Space>
-//     ),
-//   },
-// ];

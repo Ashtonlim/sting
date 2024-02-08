@@ -2,10 +2,6 @@ import axios from "axios";
 import { Button, Form, Input, Select, message } from "antd";
 import { useEffect, useState } from "react";
 
-const handleChange = (value) => {
-  console.log(`selected ${value}`);
-};
-
 const CreateUserForm = () => {
   const [options, setoptions] = useState([]);
 
@@ -113,7 +109,6 @@ const CreateUserForm = () => {
             style={{ minWidth: "120px" }}
             mode="multiple"
             placeholder="Please select"
-            onChange={handleChange}
             options={options}
           />
         </Form.Item>

@@ -60,11 +60,13 @@ export const authSlice = createSlice({
       return true;
     },
   },
+
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
       console.log("inside builder fulfilled", action);
       const { username } = jwtDecode(Cookies.get("jwt"));
       state.username = username;
+      return "hello";
     });
   },
 });
