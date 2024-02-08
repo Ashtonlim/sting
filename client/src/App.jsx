@@ -35,7 +35,10 @@ const App = () => {
           <Route path="kanban" element={<Kanban />} />
         </Route>
 
-        <Route path="login" element={<Login />} />
+        <Route
+          path="login"
+          element={Cookies.get("jwt") ? <Navigate to="/" /> : <Login />}
+        />
       </Routes>
     </BrowserRouter>
   );
