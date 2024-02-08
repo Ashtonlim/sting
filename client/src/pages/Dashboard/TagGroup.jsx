@@ -5,24 +5,18 @@ const TagGroup = ({ groups = [] }) => {
   // console.log("groups", groups);
   const [tags, setTags] = useState(groups || []);
 
-  const forMap = (tag) => {
-    const tagElem = <Tag>{tag}</Tag>;
-    return (
-      <span
-        key={tag}
-        style={{
-          display: "inline-block",
-        }}
-      >
-        {tagElem}
-      </span>
-    );
-  };
-  const tagChild = tags.map(forMap);
-
   return (
     <>
-      <div className="mb-3">{tagChild}</div>
+      <div className="mb-3">
+        {tags &&
+          tags.map((tag) => {
+            return (
+              <Tag className="inline" key={tag}>
+                {tag}
+              </Tag>
+            );
+          })}
+      </div>
     </>
   );
 };

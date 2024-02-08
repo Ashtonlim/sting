@@ -13,7 +13,7 @@ export const getAllUsers = async (req, res) => {
 
 export const adminUpdateUser = async (req, res) => {
   try {
-    const { username, password, email, isActive, secGrp } = req.body;
+    let { username, password, email, isActive, secGrp } = req.body;
 
     console.log(req.body);
 
@@ -22,8 +22,13 @@ export const adminUpdateUser = async (req, res) => {
       return res.status(403).send("'admin' user cannot be deactivated");
     }
 
+    const user = await findById(username);
+
+    // password will not be updated if not provided
+    password = password ? password : user.password;
+
     // update user
-    const user = await updateUser({
+    const res = await updateUser({
       username,
       password,
       email,

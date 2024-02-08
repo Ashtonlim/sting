@@ -8,8 +8,6 @@ const CreateGroupForm = () => {
     console.log(groupname, res);
   };
 
-  console.log("CreateGroupForm - am i rerendering?");
-
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
