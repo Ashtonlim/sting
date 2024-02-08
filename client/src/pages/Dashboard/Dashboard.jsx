@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { Table, Switch, Input, Form, Select, Typography } from "antd";
+import { Table, Switch, Input, Form, Select, Typography, message } from "antd";
 import axios from "axios";
 
 import TagGroup from "./TagGroup";
@@ -24,7 +23,13 @@ const Dashboard = () => {
 
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
-      setData(data);
+
+      setData(
+        data.map((user) => ({
+          ...user,
+          secGrp: user.secGrp?.split(","),
+        }))
+      );
 
       const groupnameList = (await axios.get("group/allGroups")).data.map(
         ({ groupname }) => ({
@@ -32,12 +37,10 @@ const Dashboard = () => {
           value: groupname,
         })
       );
-      console.log(groupnameList, "groupnameList");
-      setoptions([groupnameList]);
-    };
 
-    const fetchData = async () => {};
-    fetchData();
+      console.log(groupnameList, "groupnameList");
+      setoptions(groupnameList);
+    };
 
     init();
   }, []);
@@ -55,20 +58,6 @@ const Dashboard = () => {
     // console.log(dataIndex, title, inputType);
 
     const inputMap = {
-      username: {
-        component: <Input />,
-        rules: [
-          {
-            required: true,
-            message: "Please input your username!",
-          },
-          { min: 3, max: 20 },
-          {
-            pattern: "^[a-zA-Z0-9]+$",
-            message: "Only letters and numbers are allowed",
-          },
-        ],
-      },
       password: {
         component: <Input.Password placeholder="input new password" />,
         rules: [
@@ -120,13 +109,8 @@ const Dashboard = () => {
 
   const isEditing = (record) => record.username === editingKey;
   const edit = (record) => {
-    form.setFieldsValue({
-      username: "ss",
-      password: "",
-      email: "",
-      secGrp: [],
-      ...record,
-    });
+    // set inital values in input after on click edit
+    form.setFieldsValue({ ...record });
     setEditingKey(record.username);
   };
   const cancel = () => {
@@ -134,9 +118,18 @@ const Dashboard = () => {
   };
   const save = async (key) => {
     try {
-      const row = await form.validateFields();
-      console.log("row", row);
+      const row = { ...(await form.validateFields()), username: key };
+
       const newData = [...data];
+      console.log("row", row);
+      if (key === "admin" && !row.secGrp.includes("admin")) {
+        message.error(
+          `User 'admin' can only change password and add or remove itself all groups except 'admin' group.`
+        );
+        setEditingKey("");
+        return;
+      }
+
       const index = newData.findIndex((item) => key === item.username);
       if (index > -1) {
         const item = newData[index];
@@ -144,16 +137,17 @@ const Dashboard = () => {
           ...item,
           ...row,
         });
+
         const res = await axios.post("/user/admin/updateUser", row);
         console.log("res from save", res);
         setData(newData);
-        setEditingKey("");
       } else {
         newData.push(row);
-        setData(newData);
-        setEditingKey("");
       }
+      setData(newData);
+      setEditingKey("");
     } catch (errInfo) {
+      message.error(errInfo.response.data);
       console.log("Validate Failed:", errInfo);
     }
   };
@@ -162,7 +156,6 @@ const Dashboard = () => {
     {
       title: "Username",
       dataIndex: "username",
-      editable: true,
     },
     {
       title: "Password",
@@ -179,7 +172,7 @@ const Dashboard = () => {
       title: "secGrp",
       key: "secGrp",
       dataIndex: "secGrp",
-      render: (_, { secGrp }) => <TagGroup groups={secGrp?.split(",")} />,
+      render: (_, { secGrp }) => <TagGroup groups={secGrp} />,
       editable: true,
     },
     {

@@ -21,9 +21,8 @@ export const Checkgroup = async (userid, groupname) => {
       console.log(users, "user not found");
       return false;
     }
-    // console.log(users[0],);
-
-    return users[0].secGrp.split(",").includes(groupname);
+    console.log(users[0], "admin");
+    return users[0]["secGrp"].split(",").includes(groupname);
   } catch (err) {
     // console.log("user", err);
     throw new Error(err);

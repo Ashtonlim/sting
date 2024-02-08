@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import Cookies from "js-cookie";
-import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
 import Home from "./pages/Home/Home";

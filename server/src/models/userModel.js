@@ -44,7 +44,7 @@ export const findById = async (username, onlyCols = [], excludeCols = []) => {
       throw error;
     }
 
-    // one row returned
+    // one or no rows should be returned
     return res;
   } catch (err) {
     throw new Error(err);
@@ -74,10 +74,14 @@ export const editUser = async ({
   password,
   email,
   isActive,
-  groups,
+  secGrp,
 }) => {
   try {
-    const updateUserQry = `UPDATE accounts SET password='${password}', email='${email}', isActive='${isActive}', secGrp='${groups}' WHERE username='${username}';`;
+    const updateUserQry = `UPDATE accounts SET password='${password}', email='${email}', isActive='${
+      isActive ? 1 : 0
+    }', secGrp=${secGrp ? `'${secGrp}'` : null} WHERE username='${username}';`;
+
+    console.log("query is", updateUserQry);
     const updatedUser = await sql.query(updateUserQry);
     if (updatedUser[0].affectedRows !== 1) {
       throw new Error("more than one row affected");
