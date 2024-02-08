@@ -4,7 +4,7 @@ import { Button, Form, Input } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
-import { login } from "../Home/authSlice";
+import { login } from "./authSlice";
 
 const Login = () => {
   const loginState = useSelector((state) => state.auth.user);
@@ -15,7 +15,7 @@ const Login = () => {
 
   const onFinish = async (credentials) => {
     const { username, password } = credentials;
-    // console.log("submited:", credentials);
+    console.log("submited:", credentials);
     try {
       const { payload } = await dispatch(login({ username, password }));
       console.log("dispatch payload", payload);
