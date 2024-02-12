@@ -3,9 +3,7 @@ import { Button, Form, Input } from "antd";
 
 const CreateGroupForm = () => {
   const onFinish = async ({ groupname }) => {
-    console.log("Success:", groupname);
     const res = await axios.post("group/createGroup", { groupname });
-    console.log(groupname, res);
   };
 
   const onFinishFailed = (errorInfo) => {

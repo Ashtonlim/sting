@@ -108,7 +108,7 @@ export const register = async (req, res) => {
 
     res.status(200).json({ data: { token, user } });
   } catch (err) {
-    res.status(err.code).json(err);
+    res.status(err.code ? err.code : 500).json(err);
   }
 };
 
@@ -145,6 +145,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({ data: users[0].username });
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };

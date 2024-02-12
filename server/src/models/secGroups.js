@@ -2,7 +2,6 @@ import sql from "./db.js";
 
 export const findAll = async () => {
   const findAllQry = `SELECT * FROM secGroups;`;
-  console.log("i am still run");
   try {
     const [groups] = await sql.query(findAllQry);
     return groups;

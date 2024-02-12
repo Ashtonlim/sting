@@ -13,7 +13,6 @@ export const getAllUsers = async (req, res) => {
 
 export const adminUpdateUser = async (req, res) => {
   try {
-    // console.log("req.body", req.body);
     let { username, password, email, isActive, secGrp } = req.body;
 
     // admin cannot be deleted, check if admin
