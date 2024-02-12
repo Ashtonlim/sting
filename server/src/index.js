@@ -1,5 +1,8 @@
 import dotenv from "dotenv";
-dotenv.config({ path: "config/dev.env" });
+// require("dotenv").config();
+// console.log(process.env);
+import { fileURLToPath } from "url";
+import path, { dirname } from "path";
 
 import express from "express";
 import cors from "cors";
@@ -8,9 +11,13 @@ import auth from "./routes/auth.js";
 import user from "./routes/user.js";
 import group from "./routes/group.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "config", "dev.env") });
+console.log(`env: ${process.env.NODE_ENV}, user: ${process.env.MYUSER}`); // dev
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 // parse incoming JSON requests
 app.use(express.json());
 
@@ -33,16 +40,6 @@ app.use(
   })
 );
 
-// app.use(function (req, res, next) {
-//   res.header("Content-Type", "application/json;charset=UTF-8");
-//   res.header("Access-Control-Allow-Credentials", true);
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   next();
-// });
-
 app.use("/auth", auth);
 app.use("/user", user);
 app.use("/group", group);
@@ -50,12 +47,6 @@ app.use("/group", group);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-// app.post("/login", (req, res) => {
-//   const { username, password } = req.body;
-//   console.log(username, password);
-//   return res.status(200).json({ message: "login success" });
-// });
 
 const start = async () => {
   try {
@@ -69,3 +60,13 @@ const start = async () => {
 };
 
 start();
+
+// app.use(function (req, res, next) {
+//   res.header("Content-Type", "application/json;charset=UTF-8");
+//   res.header("Access-Control-Allow-Credentials", true);
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
