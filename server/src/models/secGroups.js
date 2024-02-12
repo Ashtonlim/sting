@@ -7,6 +7,7 @@ export const findAll = async () => {
     const [groups] = await sql.query(findAllQry);
     return groups;
   } catch (err) {
+    console.log(err);
     throw new Error(err);
   }
 };
