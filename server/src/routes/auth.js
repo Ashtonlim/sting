@@ -5,8 +5,9 @@ import {
   verifyAccessGrp,
 } from "../controllers/authController.js";
 import { checkJWT } from "../middlewares/auth.js";
-import { sqlAllMultiLine } from "../models/db.js";
-import bcrypt from "bcryptjs";
+
+// import { sqlAllMultiLine } from "../models/db.js";
+// import bcrypt from "bcryptjs";
 
 const router = Router();
 

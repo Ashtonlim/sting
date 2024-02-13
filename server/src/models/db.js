@@ -11,6 +11,8 @@ dotenv.config({ path: path.resolve(__dirname, "..", "config", "dev.env") });
 
 const { MYHOST, MYUSER, MYPASSWORD, MYDATABASE } = process.env;
 
+console.log(MYHOST, MYUSER, MYPASSWORD, MYDATABASE);
+
 const mysqlCredentials = {
   host: MYHOST,
   user: MYUSER,

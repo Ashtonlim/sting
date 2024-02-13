@@ -78,28 +78,28 @@ export const register = async (req, res) => {
     // ==== check email ====
     if (typeof email !== "string" || !(email instanceof String)) {
       console.log("change email to empty str");
-      email = "";
+      email = null;
     }
     // ==== check email ====
 
     // ==== check groups ====
     if (!Array.isArray(groups) || !(groups instanceof Array)) {
       console.log("change groups to empty arr");
-      groups = [];
+      groups = null;
     }
 
     // if items provided
-    if (groups.length !== 0) {
+    if (groups) {
       // verify groups are valid
       const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
       const secGroupsSet = new Set(allSecGroups);
-      secGroupsSet = new Set("asdas");
 
       console.log(secGroupsSet);
 
       let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
+      console.log(invalidGrps, "invalidGrps");
 
-      if (invalidGrps) {
+      if (invalidGrps.length > 0) {
         return res
           .status(401)
           .json(
@@ -133,7 +133,6 @@ export const register = async (req, res) => {
 // can just prevent user from logging in
 export const login = async (req, res) => {
   const { username, password } = req.body;
-
   try {
     // user.password is hash
     const users = await findById(username);
