@@ -1,6 +1,10 @@
-import { findAll, findById, editUser } from "../models/userModel.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import sql from "../models/db.js";
+import { findAll, findById, editUser } from "../models/userModel.js";
+
+const secret = process.env.JWTSECRET;
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -19,7 +23,6 @@ export const getUser = async (req, res) => {
 
   try {
     const [users] = await sql.query(getUserByIdQry);
-    console.log(users);
     if (users.length !== 1) {
       return res.status(404).send("User not found");
     }
@@ -79,20 +82,55 @@ export const adminUpdateUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     // admin cannot be deleted, check if admin
-    const { password, email } = req.body;
-
+    let { password, email } = req.body;
+    console.log(password, email, req.byUser);
     // get which user is requesting
     const username = req.byUser;
-
     const user = await findById(username);
 
+    if (user.length !== 1) {
+      return res.status(404).send("User not found");
+    }
+
+    if (!password && !email) {
+      return res.status(400).send("No data to update");
+    }
+    console.log(typeof password !== "string");
+    // ==== check password ====
+    if (typeof password !== "string") {
+      console.log("change password to empty str");
+      password = null;
+    }
+
+    if (password) {
+      // create hash
+      const saltRounds = 10;
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hash = bcrypt.hashSync(password, salt);
+    }
+
+    // ==== check password ====
+    console.log(email, typeof email !== "string");
+    // ==== check email ====
+    if (typeof email !== "string") {
+      console.log("change email to empty str");
+      email = null;
+    }
+    // ==== check email ====
+    console.log("password", password, "email", email);
     // update user
-    const res = await updateUser(username, password, email);
+    const updateUserQry = `UPDATE accounts SET ${
+      password ? `password='${hash}', ` : ""
+    }${email ? `email='${email}' ` : ""}WHERE username='${username}';`;
+
+    console.log("query is", updateUserQry);
+    const updatedUser = await sql.query(updateUserQry);
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
     res.cookie("jwt", token, { maxAge: 3600000 });
     res.status(200).json();
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };

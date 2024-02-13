@@ -173,7 +173,7 @@ const Dashboard = () => {
       dataIndex: "secGrp",
       width: "20%",
       render: (_, { secGrp }) => (
-        <div className="mb-3">
+        <div>
           {secGrp?.map((tag) => (
             <Tag className="inline" key={tag}>
               {tag}

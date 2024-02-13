@@ -21,7 +21,12 @@ const FloatInput = (props) => {
       onBlur={() => setFocus(false)}
       onFocus={() => setFocus(true)}
     >
-      <Input onChange={onChange} type={type} defaultValue={value} />
+      {type === "password" ? (
+        <Input.password onChange={onChange} defaultValue={value} />
+      ) : (
+        <Input onChange={onChange} type={type} defaultValue={value} />
+      )}
+
       <label className={labelClass}>
         {isOccupied ? label : placeholder} {requiredMark}
       </label>

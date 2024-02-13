@@ -20,7 +20,8 @@ const Profile = () => {
 
   const onFinish = async (payload) => {
     try {
-      console.log("dispatch payload", payload);
+      await axios.post("user/updateUser", payload);
+      console.log(payload);
     } catch (err) {
       // message.error(err);
       alert(err);
@@ -67,7 +68,7 @@ const Profile = () => {
               >
                 <FloatInput
                   label="New email"
-                  placeholder="New Email Here Please"
+                  placeholder="New email here"
                   name="email"
                 />
               </Form.Item>
@@ -82,8 +83,9 @@ const Profile = () => {
                 ]}
               >
                 <FloatInput
+                  type="password"
                   label="New password"
-                  placeholder="New Password Here Please"
+                  placeholder="New password here"
                   name="password"
                 />
               </Form.Item>
