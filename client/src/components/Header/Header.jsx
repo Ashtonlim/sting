@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-
+import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../pages/Login/authSlice";
 
@@ -9,9 +10,20 @@ import "./header.scss";
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
+  const [isAdmin, setisAdmin] = useState(false);
   const loginState = useSelector((state) => state.auth.username);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const init = async () => {
+      const { data } = await axios.post("auth/verifyAccessGrp", {
+        groupname: "admin",
+      });
+      console.log("res", data);
+      setisAdmin(data);
+    };
+    init();
+  });
   const handleLogout = () => {
     const res = dispatch(logout());
     console.log("logout res", res);
@@ -23,9 +35,11 @@ const LoggedInView = () => {
         <li className="nav-item">
           <Link to="/">Hello, {loginState || "user"}</Link>
         </li>
-        <li className="nav-item">
-          <Link to="/dashboard">user management</Link>
-        </li>
+        {isAdmin && (
+          <li className="nav-item">
+            <Link to="/dashboard">user management</Link>
+          </li>
+        )}
         <li className="nav-item">
           <Link onClick={handleLogout} to="/">
             Logout

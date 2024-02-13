@@ -15,13 +15,19 @@ const expiresIn = "1h";
 // create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
+  // console.log(userid, groupname, "userid, groupname");
   try {
     const users = await findById(userid);
     if (users.length !== 1) {
       console.log(users, "user not found");
       return false;
     }
-    return users[0]["secGrp"].split(",").includes(groupname);
+    const secGroups = users[0]["secGrp"];
+    if (secGroups === null || typeof secGroups !== "string") {
+      return false;
+    }
+
+    return secGroups.split(",").includes(groupname);
   } catch (err) {
     throw new Error(err);
   }
@@ -29,10 +35,14 @@ export const Checkgroup = async (userid, groupname) => {
 
 export const verifyAccessGrp = async (req, res) => {
   try {
-    const { userid, groupname } = req.body;
-    const userIsInGroup = await Checkgroup(userid, groupname);
-    return res.status(200).json({ success: true, userIsInGroup });
+    const { groupname } = req.body;
+    if (!groupname) {
+      return res.status(401).json("no groupname provided");
+    }
+    const userIsInGroup = await Checkgroup(req.byUser, groupname);
+    return res.status(200).json(userIsInGroup);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };
