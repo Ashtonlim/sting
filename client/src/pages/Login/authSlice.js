@@ -5,7 +5,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const jwtToken = Cookies.get("jwt");
-// console.log("jwtToken", jwtToken);
 const initialState = {
   username: jwtToken ? jwtDecode(jwtToken).username : false,
   status: "idle",
@@ -15,14 +14,12 @@ const initialState = {
 export const login = createAsyncThunk("auth/login", async (payload) => {
   try {
     const res = await axios.post(`auth/login`, payload);
-    console.log("createAsyncThunk res", res);
     if (200 <= res.status && res.status < 300) {
       return res.data;
     }
     return res;
   } catch (err) {
     if (400 <= err.status && err.status < 500) {
-      console.log(err);
       throw new Error(err);
     }
   }
@@ -33,14 +30,12 @@ export const verifyUserGrp = createAsyncThunk(
   async (payload) => {
     try {
       const res = await axios.post(`auth/verifyUserGrp`, payload);
-      console.log("createAsyncThunk res", res);
       if (200 <= res.status && res.status < 300) {
         return res.data;
       }
       return res;
     } catch (err) {
       if (400 <= err.status && err.status < 500) {
-        console.log(err);
         throw new Error(err);
       }
     }
@@ -63,7 +58,6 @@ export const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
-      console.log("inside builder fulfilled", action);
       const { username } = jwtDecode(Cookies.get("jwt"));
       state.username = username;
       // return "hello";

@@ -1,5 +1,5 @@
 import { createUser, findById } from "../models/userModel.js";
-import secGroups from "../models/secGroups.js";
+import { sg_findAll } from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
@@ -37,21 +37,18 @@ export const verifyAccessGrp = async (req, res) => {
   }
 };
 
-// const groupsValidation = async () => {
-
-// }
-
 export const register = async (req, res) => {
   try {
-    const { username, password, email, groups } = req.body;
+    let { username, password, email, groups } = req.body;
 
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
     if (!isAdmin) {
-      return res.status(401).json("User is not an admin.");
+      return res.status(403).json("User is not an admin.");
     }
 
+    // ==== check username ====
     // verify fits constraints
     const meetsContraints =
       isAlphaNumeric(username) && username.length >= 3 && username.length <= 20;
@@ -59,24 +56,6 @@ export const register = async (req, res) => {
     if (!meetsContraints) {
       return res.status(401).json("Invalid user details.");
     }
-
-    // verify groups are valid
-    const allSecGroups = await secGroups.findAll();
-    const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
-
-    let invalidGrps = "";
-    for (const grp of groups) {
-      if (!secGroupsSet.has(grp)) {
-        invalidGrps += grp;
-      }
-    }
-
-    if (invalidGrps) {
-      return res
-        .status(401)
-        .json(`${invalidGrps} group does not exists, please create them first`);
-    }
-
     // find if user already exists
     let user = await findById(username);
 
@@ -85,15 +64,56 @@ export const register = async (req, res) => {
       return res.status(401).json("User already exists");
     }
 
+    // ==== check username ====
+
+    // ==== check password ====
+
     // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
+    // ==== check password ====
+
+    // ==== check email ====
+    if (typeof email !== "string" || !(email instanceof String)) {
+      console.log("change email to empty str");
+      email = "";
+    }
+    // ==== check email ====
+
+    // ==== check groups ====
+    if (!Array.isArray(groups) || !(groups instanceof Array)) {
+      console.log("change groups to empty arr");
+      groups = [];
+    }
+
+    // if items provided
+    if (groups.length !== 0) {
+      // verify groups are valid
+      const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
+      const secGroupsSet = new Set(allSecGroups);
+      secGroupsSet = new Set("asdas");
+
+      console.log(secGroupsSet);
+
+      let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
+
+      if (invalidGrps) {
+        return res
+          .status(401)
+          .json(
+            `${invalidGrps} group does not exists, please create them first`
+          );
+      }
+    }
+    // ==== check groups ====
+
     user = await createUser({
-      ...req.body,
+      username,
       password: hash,
-      groups: groups.join(","),
+      email,
+      groups: groups?.join(","),
     });
 
     const token = jwt.sign({ username }, secret, { expiresIn });
@@ -142,6 +162,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({ data: users[0].username });
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };

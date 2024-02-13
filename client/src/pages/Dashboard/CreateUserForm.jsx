@@ -20,7 +20,6 @@ const CreateUserForm = () => {
   const onFinish = async (credentials) => {
     try {
       const res = await axios.post("auth/register", credentials);
-      console.log(res);
       if (res.response.status >= 200 && res.response.status < 300) {
         message.success("User created successfully");
       }
@@ -29,9 +28,7 @@ const CreateUserForm = () => {
     }
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const onFinishFailed = (errorInfo) => {};
 
   return (
     <div className="py-5">

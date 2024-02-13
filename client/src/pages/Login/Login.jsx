@@ -22,8 +22,7 @@ const Login = () => {
         navigate("/");
       }
     } catch (err) {
-      console.log("ase", err);
-      // message.error(err);
+      message.error(err);
     }
   };
 

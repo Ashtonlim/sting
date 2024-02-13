@@ -16,8 +16,6 @@ const Dashboard = () => {
   const [options, setoptions] = useState([]);
   const [editingKey, setEditingKey] = useState("");
 
-  // console.log("dashboard - am i rerendering?");
-
   useEffect(() => {
     // get user data
 
@@ -54,8 +52,6 @@ const Dashboard = () => {
     children,
     ...restProps
   }) => {
-    // console.log(dataIndex, title, inputType);
-
     const inputMap = {
       password: {
         component: <Input.Password placeholder="input new password" />,
@@ -120,7 +116,6 @@ const Dashboard = () => {
       const row = { ...(await form.validateFields()), username: key };
 
       const newData = [...data];
-      console.log("row", row);
       if (key === "admin" && !row.secGrp.includes("admin")) {
         message.error(
           `User 'admin' can only change password and add or remove itself all groups except 'admin' group.`
@@ -138,7 +133,6 @@ const Dashboard = () => {
         });
 
         const res = await axios.post("/user/admin/updateUser", row);
-        console.log("res from save", res);
         setData(newData);
       } else {
         newData.push(row);
@@ -147,7 +141,6 @@ const Dashboard = () => {
       setEditingKey("");
     } catch (errInfo) {
       message.error(errInfo.response.data);
-      console.log("Validate Failed:", errInfo);
     }
   };
 
@@ -187,7 +180,6 @@ const Dashboard = () => {
       width: "14%",
       render: (_, record) => {
         const editable = isEditing(record);
-        // console.log("what is editable", editable);
         return editable ? (
           <span>
             <Typography.Link

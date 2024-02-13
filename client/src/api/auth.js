@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 
 export const register = async (credentials) => {
   try {
-    console.log(credentials);
     const res = await api.post(`auth/register`, credentials);
     if (res.status >= 200 && res.status < 300) {
       return res;
