@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { Input } from "antd";
 
-import "./floatInput.css";
+import "./profile.scss";
 
-const FloatInput = ({
-  label,
-  value,
-  placeholder,
-  type,
-  required,
-  onChange,
-}) => {
+const FloatInput = (props) => {
   const [focus, setFocus] = useState(false);
+  let { label, value, placeholder, type, required, onChange } = props;
 
   if (!placeholder) placeholder = label;
 
@@ -23,7 +17,7 @@ const FloatInput = ({
 
   return (
     <div
-      className="float-label"
+      className="float-label mt-3"
       onBlur={() => setFocus(false)}
       onFocus={() => setFocus(true)}
     >

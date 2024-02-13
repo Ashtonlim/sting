@@ -103,15 +103,15 @@ const CreateUserForm = () => {
 
         <Form.Item label="Groups" name="groups">
           <Select
-            style={{ minWidth: "120px" }}
+            style={{ minWidth: "200px" }}
             mode="multiple"
             placeholder="Please select"
             options={options}
           />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
+        <Form.Item className="flex items-end justify-center">
+          <Button className="w-28" type="primary" htmlType="submit">
             Create User
           </Button>
         </Form.Item>

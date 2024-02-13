@@ -11,35 +11,37 @@ const CreateGroupForm = () => {
   };
 
   return (
-    <Form
-      name="createGroup"
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      layout="inline"
-    >
-      <Form.Item
-        label="Group Name"
-        name="groupname"
-        rules={[
-          {
-            required: true,
-            message: "Group requires a name",
-          },
-          {
-            pattern: "^[a-zA-Z0-9]+$",
-            message: "Only letters and numbers are allowed",
-          },
-        ]}
+    <div>
+      <Form
+        name="createGroup"
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        layout="inline"
       >
-        <Input />
-      </Form.Item>
+        <Form.Item
+          label="Group Name"
+          name="groupname"
+          rules={[
+            {
+              required: true,
+              message: "Group requires a name",
+            },
+            {
+              pattern: "^[a-zA-Z0-9]+$",
+              message: "Only letters and numbers are allowed",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Create group
-        </Button>
-      </Form.Item>
-    </Form>
+        <Form.Item className="flex items-end justify-center ">
+          <Button className="w-28" type="primary" htmlType="submit">
+            Create group
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 };
 
