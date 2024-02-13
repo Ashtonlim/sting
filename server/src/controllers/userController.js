@@ -1,10 +1,29 @@
 import { findAll, findById, editUser } from "../models/userModel.js";
 
+import sql from "../models/db.js";
+
 export const getAllUsers = async (req, res) => {
   try {
     const users = await findAll();
 
     res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+export const getUser = async (req, res) => {
+  console.log(req.byUser);
+  const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
+
+  try {
+    const [users] = await sql.query(getUserByIdQry);
+    console.log(users);
+    if (users.length !== 1) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).json(users[0]);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);

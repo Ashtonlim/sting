@@ -33,7 +33,7 @@ const LoggedInView = () => {
     return (
       <>
         <li className="nav-item">
-          <Link to="/">Hello, {loginState || "user"}</Link>
+          <Link to="/profile">Profile</Link>
         </li>
         {isAdmin && (
           <li className="nav-item">

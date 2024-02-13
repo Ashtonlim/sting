@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { getAllUsers } from "../controllers/userController.js";
+import { getAllUsers, getUser } from "../controllers/userController.js";
 import { checkJWT, isAdmin } from "../middlewares/auth.js";
 import { adminUpdateUser, updateUser } from "../controllers/userController.js";
 
 const router = Router();
 
 router.get("/allUsers", checkJWT, isAdmin, getAllUsers);
+router.get("/user", checkJWT, getUser);
 router.post("/admin/updateUser", checkJWT, isAdmin, adminUpdateUser);
 router.post("/updateUser", checkJWT, updateUser);
 

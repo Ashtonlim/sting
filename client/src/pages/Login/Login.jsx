@@ -13,9 +13,9 @@ const Login = () => {
 
   console.log("this is loginState", loginState);
 
-  const onFinish = async (credentails) => {
+  const onFinish = async (credentials) => {
     try {
-      const { payload } = await dispatch(login(credentails));
+      const { payload } = await dispatch(login(credentials));
       console.log("dispatch payload", payload);
 
       if (payload) {
