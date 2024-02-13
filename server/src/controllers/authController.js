@@ -82,9 +82,7 @@ export const register = async (req, res) => {
 
     // reject if user already exists
     if (user.length >= 1) {
-      const error = new Error("User already exists");
-      error.code = 400;
-      throw error;
+      return res.status(401).json("User already exists");
     }
 
     // create hash
@@ -101,14 +99,13 @@ export const register = async (req, res) => {
     const token = jwt.sign({ username }, secret, { expiresIn });
 
     if (!token || !user) {
-      return res
-        .status(401)
-        .json({ success: false, err: "failed to create user" });
+      return res.status(401).json("failed to create user");
     }
 
-    res.status(200).json({ data: { token, user } });
+    res.status(200).json();
   } catch (err) {
-    res.status(err.code).json(err);
+    console.log(err, "error");
+    res.status(500).json(err);
   }
 };
 

@@ -66,7 +66,7 @@ export const authSlice = createSlice({
       console.log("inside builder fulfilled", action);
       const { username } = jwtDecode(Cookies.get("jwt"));
       state.username = username;
-      return "hello";
+      // return "hello";
     });
   },
 });

@@ -25,15 +25,6 @@ export const findById = async (username) => {
   try {
     const [res] = await sql.query(getUserByIdQry);
 
-    // multiple results found,
-    // should not happen in db as id is unique
-    // fix data problem if so
-    if (res.length > 1) {
-      const error = new Error("multiple rows found");
-      error.code = 500;
-      throw error;
-    }
-
     // one or no rows should be returned
     return res;
   } catch (err) {
