@@ -52,7 +52,7 @@ const LoggedInView = () => {
 
 const Header = () => {
   return (
-    <header className="App-header bg-white shadow-[rgba(13,_38,_76,_0.19)_0px_9px_20px]">
+    <header className="App-header bg-white shadow-[rgba(13,_38,_76,_0.11)_0px_5px_20px]">
       <Row
         style={{ width: "100%", padding: "0px 20px" }}
         justify="center"

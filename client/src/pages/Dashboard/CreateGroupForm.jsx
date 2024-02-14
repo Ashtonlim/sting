@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Card } from "antd";
 
 const CreateGroupForm = () => {
   const onFinish = async ({ groupname }) => {
@@ -11,7 +11,7 @@ const CreateGroupForm = () => {
   };
 
   return (
-    <div>
+    <Card title="Create a new group" size="small" className="w-1/3 my-3 mr-5">
       <Form
         name="createGroup"
         onFinish={onFinish}
@@ -32,7 +32,7 @@ const CreateGroupForm = () => {
             },
           ]}
         >
-          <Input />
+          <Input placeholder="admin" />
         </Form.Item>
 
         <Form.Item className="flex items-end justify-center ">
@@ -41,7 +41,7 @@ const CreateGroupForm = () => {
           </Button>
         </Form.Item>
       </Form>
-    </div>
+    </Card>
   );
 };
 

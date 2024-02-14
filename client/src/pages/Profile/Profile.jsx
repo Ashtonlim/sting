@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Form, Button } from "antd";
 import axios from "axios";
+import { Card, Input, Form, Button, message } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
-import FloatInput from "/src/pages/Profile/FloatInput";
-import "./profile.scss";
 
 const Profile = () => {
   const [user, setUser] = useState({ username: "", email: "" });
@@ -20,11 +19,11 @@ const Profile = () => {
 
   const onFinish = async (payload) => {
     try {
-      await axios.post("user/updateUser", payload);
-      console.log(payload);
+      const res = await axios.post("user/updateUser", payload);
+      console.log(res);
+      message.success("Credentials updated successfully!");
     } catch (err) {
-      // message.error(err);
-      alert(err);
+      message.success(`Unable to update credentials! ${err}`);
     }
   };
 
@@ -33,63 +32,69 @@ const Profile = () => {
   };
   return (
     <LayoutOne>
-      <div className="flex flex-row w-full">
-        <div className="text-left w-2/6">
+      <div className="flex flex-row w-full justify-evenly">
+        <div className="text-left w-1/2">
           <Card className="" title={`Hello, ${user.username}`} bordered={false}>
-            <p>
-              <div className="text-lg">Username</div>{" "}
-              <span className="font-bold">{user.username}</span>
-            </p>
-            <p>
-              <div className="text-lg">Email</div>{" "}
-              <span className="font-bold">{user.email}</span>
-            </p>
+            <div className="mb-5">
+              <div className="text-lg underline underline-offset-8">
+                Username
+              </div>{" "}
+              <div className="font-bold mt-1">{user.username}</div>
+            </div>
+            <div>
+              <div className="text-lg underline underline-offset-8">Email</div>{" "}
+              <div className="font-bold mt-1">{user.email}</div>
+            </div>
           </Card>
         </div>
-        <div className="text-left w-5/12 ml-10">
-          <Card title={`Update Profile Information`}>
+        <div className="text-left w-full ml-10">
+          <Card title={`Update profile information`}>
             <Form
               name="edit-user"
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
-              size="large"
               layout="vertical"
             >
               <Form.Item
+                label="New Email"
                 name="email"
                 rules={[
                   {
                     type: "email",
-                    required: true,
                     message: "Please enter a valid email!",
                   },
                 ]}
               >
-                <FloatInput
-                  label="New email"
-                  placeholder="New email here"
-                  name="email"
+                <Input
+                  prefix={<MailOutlined className="site-form-item-icon" />}
+                  placeholder="Enter new email"
                 />
               </Form.Item>
               <Form.Item
+                label="New Password"
                 name="password"
                 rules={[
-                  { min: 3, max: 20 },
+                  // { min: 8, max: 10 },
                   {
-                    pattern: "^[a-zA-Z0-9]+$",
-                    message: "Only letters and numbers are allowed",
+                    pattern: "^(?=.*[a-zA-Z]).+$",
+                    message: "must have 1 alphabet",
                   },
+                  // {
+                  //   pattern: "\\d",
+                  //   message: "must have 1 number",
+                  // },
+                  // {
+                  //   pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+                  //   message: "must have 1 special character",
+                  // },
                 ]}
               >
-                <FloatInput
-                  type="password"
-                  label="New password"
-                  placeholder="New password here"
-                  name="password"
+                <Input.Password
+                  prefix={<LockOutlined className="site-form-item-icon" />}
+                  placeholder="Enter new password"
                 />
               </Form.Item>
-
               <Form.Item>
                 <Button
                   className="mt-2 float-right"

@@ -36,6 +36,7 @@ export const Checkgroup = async (userid, groupname) => {
 export const verifyAccessGrp = async (req, res) => {
   try {
     const { groupname } = req.body;
+    console.log(groupname);
     if (!groupname) {
       return res.status(401).json("no groupname provided");
     }

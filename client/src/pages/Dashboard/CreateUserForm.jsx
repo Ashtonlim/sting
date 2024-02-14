@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Button, Form, Input, Select, message } from "antd";
+import { Button, Form, Input, Select, message, Card } from "antd";
 
 const CreateUserForm = () => {
   const [options, setoptions] = useState([]);
@@ -31,7 +31,7 @@ const CreateUserForm = () => {
   const onFinishFailed = (errorInfo) => {};
 
   return (
-    <div className="py-5">
+    <Card title="Create a new user" size="small" className="w-full my-3">
       <Form
         name="createUser"
         initialValues={{
@@ -57,7 +57,7 @@ const CreateUserForm = () => {
             },
           ]}
         >
-          <Input />
+          <Input placeholder="Dev01" />
         </Form.Item>
 
         <Form.Item
@@ -69,23 +69,23 @@ const CreateUserForm = () => {
               message: "Please input your password!",
             },
 
-            // { min: 8, max: 10 },
+            { min: 8, max: 10 },
 
-            // {
-            //   pattern: "^(?=.*[a-zA-Z]).+$",
-            //   message: "must have 1 alphabet",
-            // },
-            // {
-            //   pattern: "\\d",
-            //   message: "must have 1 number",
-            // },
-            // {
-            //   pattern: "^(?=.*[^a-zA-Z0-9]).+$",
-            //   message: "must have 1 special character",
-            // },
+            {
+              pattern: "^(?=.*[a-zA-Z]).+$",
+              message: "must have 1 alphabet",
+            },
+            {
+              pattern: "\\d",
+              message: "must have 1 number",
+            },
+            {
+              pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+              message: "must have 1 special character",
+            },
           ]}
         >
-          <Input.Password />
+          <Input.Password placeholder="A secure password" />
         </Form.Item>
 
         <Form.Item
@@ -98,7 +98,7 @@ const CreateUserForm = () => {
             },
           ]}
         >
-          <Input />
+          <Input placeholder="admin@st.com" />
         </Form.Item>
 
         <Form.Item label="Groups" name="groups">
@@ -116,7 +116,7 @@ const CreateUserForm = () => {
           </Button>
         </Form.Item>
       </Form>
-    </div>
+    </Card>
   );
 };
 

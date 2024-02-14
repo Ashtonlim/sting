@@ -168,16 +168,14 @@ const Dashboard = () => {
       editable: true,
     },
     {
-      title: "secGrp",
+      title: "Group",
       key: "secGrp",
       dataIndex: "secGrp",
       width: "20%",
       render: (_, { secGrp }) => (
         <div>
           {secGrp?.map((tag) => (
-            <Tag className="inline" key={tag}>
-              {tag}
-            </Tag>
+            <Tag key={tag}>{tag}</Tag>
           ))}
         </div>
       ),
@@ -187,7 +185,7 @@ const Dashboard = () => {
       title: "Active Status",
       width: "10%",
       dataIndex: "isActive",
-      render: (isActive) => <Switch value={isActive} />,
+      render: (isActive) => <Switch value={isActive} disabled={true} />,
       editable: true,
     },
     {
@@ -236,7 +234,7 @@ const Dashboard = () => {
 
   return (
     <LayoutOne>
-      <div className="flex flex-col items-end">
+      <div className="flex justify-end">
         <CreateGroupForm />
         <CreateUserForm />
       </div>
