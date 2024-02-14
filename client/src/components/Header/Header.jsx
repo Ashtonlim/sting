@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
 import axios from "axios";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../pages/Login/authSlice";
+import Cookies from "js-cookie";
 
 import "./header.scss";
 
@@ -11,8 +10,8 @@ const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
   const [isAdmin, setisAdmin] = useState(false);
-  const loginState = useSelector((state) => state.auth.username);
-  const dispatch = useDispatch();
+  const loginState = true;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const init = async () => {
@@ -25,8 +24,8 @@ const LoggedInView = () => {
     init();
   });
   const handleLogout = () => {
-    const res = dispatch(logout());
-    console.log("logout res", res);
+    Cookies.remove("jwt");
+    navigate("/");
   };
 
   if (loginState) {

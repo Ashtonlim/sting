@@ -1,28 +1,34 @@
-import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 import LayoutOne from "/src/components/LayoutOne";
-import { login } from "./authSlice";
 
 const Login = () => {
-  const loginState = useSelector((state) => state.auth.user);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const loginState = true;
 
   console.log("this is loginState", loginState);
 
   const onFinish = async (credentials) => {
     try {
-      const { payload } = await dispatch(login(credentials));
-      console.log("dispatch payload", payload);
+      const res = await axios.post(`auth/login`, credentials);
+      if (200 <= res.status && res.status < 300) {
+        const { username } = jwtDecode(Cookies.get("jwt"));
 
-      if (payload) {
         navigate("/");
+        return res.data;
       }
+
+      return res;
     } catch (err) {
-      message.error(err);
+      if (400 <= err.status && err.status < 500) {
+        console.log(err);
+        message.error(err);
+      }
     }
   };
 
