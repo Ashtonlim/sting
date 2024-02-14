@@ -12,6 +12,7 @@ import Home from "./pages/Home/Home";
 import Register from "./pages/Register/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
+import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
 
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
@@ -31,6 +32,7 @@ const App = () => {
           <Route exact path="" element={<Home />} />
           <Route path="register" element={<Register />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="Profile" element={<Profile />} />
           <Route path="kanban" element={<Kanban />} />
         </Route>
 

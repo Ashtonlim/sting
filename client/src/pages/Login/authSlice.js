@@ -60,7 +60,7 @@ export const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       const { username } = jwtDecode(Cookies.get("jwt"));
       state.username = username;
-      return "hello";
+      // return "hello";
     });
   },
 });

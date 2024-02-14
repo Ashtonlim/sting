@@ -1,5 +1,5 @@
 import { createUser, findById } from "../models/userModel.js";
-import secGroups from "../models/secGroups.js";
+import { sg_findAll } from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
@@ -15,13 +15,19 @@ const expiresIn = "1h";
 // create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
+  // console.log(userid, groupname, "userid, groupname");
   try {
     const users = await findById(userid);
     if (users.length !== 1) {
       console.log(users, "user not found");
       return false;
     }
-    return users[0]["secGrp"].split(",").includes(groupname);
+    const secGroups = users[0]["secGrp"];
+    if (secGroups === null || typeof secGroups !== "string") {
+      return false;
+    }
+
+    return secGroups.split(",").includes(groupname);
   } catch (err) {
     throw new Error(err);
   }
@@ -29,29 +35,31 @@ export const Checkgroup = async (userid, groupname) => {
 
 export const verifyAccessGrp = async (req, res) => {
   try {
-    const { userid, groupname } = req.body;
-    const userIsInGroup = await Checkgroup(userid, groupname);
-    return res.status(200).json({ success: true, userIsInGroup });
+    const { groupname } = req.body;
+    console.log(groupname);
+    if (!groupname) {
+      return res.status(401).json("no groupname provided");
+    }
+    const userIsInGroup = await Checkgroup(req.byUser, groupname);
+    return res.status(200).json(userIsInGroup);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };
 
-// const groupsValidation = async () => {
-
-// }
-
 export const register = async (req, res) => {
   try {
-    const { username, password, email, groups } = req.body;
+    let { username, password, email, groups } = req.body;
 
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
     if (!isAdmin) {
-      return res.status(401).json("User is not an admin.");
+      return res.status(403).json("User is not an admin.");
     }
 
+    // ==== check username ====
     // verify fits constraints
     const meetsContraints =
       isAlphaNumeric(username) && username.length >= 3 && username.length <= 20;
@@ -59,56 +67,76 @@ export const register = async (req, res) => {
     if (!meetsContraints) {
       return res.status(401).json("Invalid user details.");
     }
-
-    // verify groups are valid
-    const allSecGroups = await secGroups.findAll();
-    const secGroupsSet = new Set(allSecGroups.map((row) => row.groupname));
-
-    let invalidGrps = "";
-    for (const grp of groups) {
-      if (!secGroupsSet.has(grp)) {
-        invalidGrps += grp;
-      }
-    }
-
-    if (invalidGrps) {
-      return res
-        .status(401)
-        .json(`${invalidGrps} group does not exists, please create them first`);
-    }
-
     // find if user already exists
     let user = await findById(username);
 
     // reject if user already exists
     if (user.length >= 1) {
-      const error = new Error("User already exists");
-      error.code = 400;
-      throw error;
+      return res.status(401).json("User already exists");
     }
+
+    // ==== check username ====
+
+    // ==== check password ====
 
     // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
+    // ==== check password ====
+
+    // ==== check email ====
+    if (typeof email !== "string" || !(email instanceof String)) {
+      console.log("change email to empty str");
+      email = null;
+    }
+    // ==== check email ====
+
+    // ==== check groups ====
+    if (!Array.isArray(groups) || !(groups instanceof Array)) {
+      console.log("change groups to empty arr");
+      groups = null;
+    }
+
+    // if items provided
+    if (groups) {
+      // verify groups are valid
+      const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
+      const secGroupsSet = new Set(allSecGroups);
+
+      console.log(secGroupsSet);
+
+      let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
+      console.log(invalidGrps, "invalidGrps");
+
+      if (invalidGrps.length > 0) {
+        return res
+          .status(401)
+          .json(
+            `${invalidGrps} group does not exists, please create them first`
+          );
+      }
+    }
+    // ==== check groups ====
+
     user = await createUser({
-      ...req.body,
+      username,
       password: hash,
-      groups: groups.join(","),
+      email,
+      groups: groups?.join(","),
     });
 
     const token = jwt.sign({ username }, secret, { expiresIn });
 
     if (!token || !user) {
-      return res
-        .status(401)
-        .json({ success: false, err: "failed to create user" });
+      return res.status(401).json("failed to create user");
     }
 
-    res.status(200).json({ data: { token, user } });
+    res.status(200).json();
   } catch (err) {
-    res.status(err.code ? err.code : 500).json(err);
+    console.log(err, "error");
+    res.status(500).json(err);
   }
 };
 
@@ -116,7 +144,6 @@ export const register = async (req, res) => {
 // can just prevent user from logging in
 export const login = async (req, res) => {
   const { username, password } = req.body;
-
   try {
     // user.password is hash
     const users = await findById(username);

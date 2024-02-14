@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
-import { Table, Switch, Input, Form, Select, Typography, message } from "antd";
+import {
+  Table,
+  Switch,
+  Input,
+  Form,
+  Select,
+  Typography,
+  message,
+  Tag,
+} from "antd";
 import axios from "axios";
-
-import TagGroup from "./TagGroup";
 
 import CreateUserForm from "./CreateUserForm";
 import LayoutOne from "/src/components/LayoutOne";
@@ -161,17 +168,24 @@ const Dashboard = () => {
       editable: true,
     },
     {
-      title: "secGrp",
+      title: "Group",
       key: "secGrp",
       dataIndex: "secGrp",
-      render: (_, { secGrp }) => <TagGroup groups={secGrp} />,
+      width: "20%",
+      render: (_, { secGrp }) => (
+        <div>
+          {secGrp?.map((tag) => (
+            <Tag key={tag}>{tag}</Tag>
+          ))}
+        </div>
+      ),
       editable: true,
     },
     {
       title: "Active Status",
       width: "10%",
       dataIndex: "isActive",
-      render: (isActive) => <Switch value={isActive} />,
+      render: (isActive) => <Switch value={isActive} disabled={true} />,
       editable: true,
     },
     {
@@ -220,8 +234,10 @@ const Dashboard = () => {
 
   return (
     <LayoutOne>
-      <CreateGroupForm />
-      <CreateUserForm />
+      <div className="flex justify-end">
+        <CreateGroupForm />
+        <CreateUserForm />
+      </div>
       <Form form={form} component={false}>
         <Table
           components={{

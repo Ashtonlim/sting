@@ -24,17 +24,6 @@ export const findById = async (username) => {
 
   try {
     const [res] = await sql.query(getUserByIdQry);
-
-    // multiple results found,
-    // should not happen in db as id is unique
-    // fix data problem if so
-    if (res.length > 1) {
-      const error = new Error("multiple rows found");
-      error.code = 500;
-      throw error;
-    }
-
-    // one or no rows should be returned
     return res;
   } catch (err) {
     throw new Error(err);
@@ -43,8 +32,11 @@ export const findById = async (username) => {
 
 export const createUser = async ({ username, password, email, groups }) => {
   try {
+    console.log(groups);
     const createUserQry = `
-      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', '${email}', '${groups}');
+      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', ${
+      email ? email : null
+    }, ${groups ? `'${groups}'` : null});
     `;
     const createdUser = await sql.query(createUserQry);
 

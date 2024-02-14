@@ -1,16 +1,17 @@
 import sql from "./db.js";
 
-export const findAll = async () => {
+export const sg_findAll = async () => {
   const findAllQry = `SELECT * FROM secGroups;`;
   try {
     const [groups] = await sql.query(findAllQry);
     return groups;
   } catch (err) {
+    console.log(err);
     throw new Error(err);
   }
 };
 
-export const createSecGroup = async (groupname) => {
+export const sg_createSecGroup = async (groupname) => {
   const createGrpQry = `INSERT INTO secGroups (groupname) values ('${groupname}')`;
 
   try {
@@ -21,7 +22,7 @@ export const createSecGroup = async (groupname) => {
   }
 };
 
-export const findOne = async (groupname) => {
+export const sg_findOne = async (groupname) => {
   const findAllQry = `SELECT * FROM secGroups where groupname=${groupname};`;
   try {
     const [groups] = await sql.query(findAllQry);
@@ -37,7 +38,7 @@ export const findOne = async (groupname) => {
 };
 
 export default {
-  findAll,
-  findOne,
-  createSecGroup,
+  sg_findAll,
+  sg_createSecGroup,
+  sg_findOne,
 };
