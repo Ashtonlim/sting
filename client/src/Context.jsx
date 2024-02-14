@@ -51,7 +51,7 @@ const reducer = (state = {}, action) => {
       return loginState;
     }
     case "LOGOUT": {
-      const logoutState = { ...state, loggedIn: false };
+      const logoutState = { ...state, loggedIn: false, isAdmin: false };
       saveState(logoutState);
       return logoutState;
     }

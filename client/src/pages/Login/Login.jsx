@@ -1,35 +1,33 @@
+import { useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+
+import GC from "/src/context";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { state, dispatch } = useContext(GC);
 
-  const loginState = true;
+  console.log(state, "state");
 
-  console.log("this is loginState", loginState);
-
-  const onFinish = async (credentials) => {
-    console.log(credentials, "credentials");
+  const onFinish = async (payload) => {
+    // console.log(payload, "credentials");
     try {
-      const res = await axios.post(`auth/login`, credentials);
-      console.log(
-        res.status,
-        "res.status",
-        200 <= res.status,
-        res.status < 300
-      );
-      if (200 <= res.status && res.status < 300) {
-        const { username } = jwtDecode(Cookies.get("jwt"));
-        navigate("/");
-      }
-      console.log("does it refresh? out");
+      const res = await axios.post(`auth/login`, payload);
 
-      return res;
+      console.log(res, "res.status");
+
+      if (200 <= res.status && res.status < 300) {
+        dispatch({ type: "LOGIN" });
+        navigate("/");
+        console.log("does it refresh? out");
+        return res;
+      }
     } catch (err) {
       if (400 <= err.status && err.status < 500) {
         console.log(err);

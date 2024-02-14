@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
 import axios from "axios";
 import Cookies from "js-cookie";
 
+import GC from "/src/context";
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
+  const { state, dispatch } = useContext(GC);
+  console.log(state, dispatch);
   const [isAdmin, setisAdmin] = useState(false);
   const [loginState, isloginState] = useState(
     Cookies.get("jwt") ? true : false
@@ -29,11 +32,12 @@ const LoggedInView = () => {
     }
   }, [isAdmin]);
   const handleLogout = () => {
+    dispatch({ type: "LOGOUT" });
     Cookies.remove("jwt");
     navigate("/login");
   };
 
-  if (loginState) {
+  if (state.loggedIn) {
     return (
       <>
         <li className="nav-item">

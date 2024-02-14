@@ -23,7 +23,7 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 const App = () => {
   const [loggedIn, setloggedIn] = useState(Cookies.get("jwt") ? true : false);
 
-  console.log("app", loggedIn);
+  // console.log("app", loggedIn);
   return (
     <BrowserRouter>
       <Routes>
@@ -51,7 +51,7 @@ const App = () => {
 const PrivateRoute = () => {
   // const loginState = useSelector((state) => state.auth.user);
   const hasJWT = Cookies.get("jwt");
-  console.log("jwt", hasJWT, <Outlet />);
+  // console.log("jwt", hasJWT, <Outlet />);
 
   // jwt may not be legit but it should not matter as data cannot be accessed without one
   return hasJWT !== undefined ? <Outlet /> : <Navigate to="login" />;
