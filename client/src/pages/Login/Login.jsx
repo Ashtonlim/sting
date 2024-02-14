@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-
+import { jwtDecode } from "jwt-decode";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Login = () => {
@@ -14,14 +14,20 @@ const Login = () => {
   console.log("this is loginState", loginState);
 
   const onFinish = async (credentials) => {
+    console.log(credentials, "credentials");
     try {
       const res = await axios.post(`auth/login`, credentials);
+      console.log(
+        res.status,
+        "res.status",
+        200 <= res.status,
+        res.status < 300
+      );
       if (200 <= res.status && res.status < 300) {
         const { username } = jwtDecode(Cookies.get("jwt"));
-
         navigate("/");
-        return res.data;
       }
+      console.log("does it refresh? out");
 
       return res;
     } catch (err) {

@@ -10,22 +10,27 @@ const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
   const [isAdmin, setisAdmin] = useState(false);
-  const loginState = true;
+  const [loginState, isloginState] = useState(
+    Cookies.get("jwt") ? true : false
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
-    const init = async () => {
+    console.log("what");
+    const checkAdmin = async () => {
       const { data } = await axios.post("auth/verifyAccessGrp", {
         groupname: "admin",
       });
-      console.log("res", data);
-      setisAdmin(data);
+      setisAdmin(true);
     };
-    init();
-  });
+    console.log(loginState, isAdmin, "isAdmin");
+    if (loginState && isAdmin === false) {
+      checkAdmin();
+    }
+  }, [isAdmin]);
   const handleLogout = () => {
     Cookies.remove("jwt");
-    navigate("/");
+    navigate("/login");
   };
 
   if (loginState) {
@@ -40,9 +45,8 @@ const LoggedInView = () => {
           </li>
         )}
         <li className="nav-item">
-          <Link onClick={handleLogout} to="/">
-            Logout
-          </Link>
+          {/* Review: navigate() doesnt not work w Link onClick, why? */}
+          <a onClick={handleLogout}>Logout</a>
         </li>
       </>
     );
