@@ -3,6 +3,7 @@ import { sg_findAll } from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
+import sql from "../models/db.js";
 
 const secret = process.env.JWTSECRET;
 const expiresIn = "1h";
@@ -53,7 +54,7 @@ export const verifyAccessGrp = async (req, res) => {
 export const register = async (req, res) => {
   try {
     let { username, password, email, groups } = req.body;
-
+    console.log(username, password, email, groups);
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
@@ -89,14 +90,23 @@ export const register = async (req, res) => {
     // ==== check password ====
 
     // ==== check email ====
-    if (typeof email !== "string" || !(email instanceof String)) {
+    if (typeof email !== "string") {
       console.log("change email to empty str");
       email = null;
+    } else {
+      const checkIfEmailExistsQry = `SELECT * from accounts where email='${email}'`;
+      console.log(checkIfEmailExistsQry);
+      const [usersWithEmail] = await sql.query(checkIfEmailExistsQry);
+      console.log(usersWithEmail);
+      if (usersWithEmail > 0) {
+        return res.status(401).json("Email already in use");
+      }
     }
+
     // ==== check email ====
 
     // ==== check groups ====
-    if (!Array.isArray(groups) || !(groups instanceof Array)) {
+    if (!Array.isArray(groups)) {
       console.log("change groups to empty arr");
       groups = null;
     }

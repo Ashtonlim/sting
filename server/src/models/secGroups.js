@@ -11,17 +11,6 @@ export const sg_findAll = async () => {
   }
 };
 
-export const sg_createSecGroup = async (groupname) => {
-  const createGrpQry = `INSERT INTO secGroups (groupname) values ('${groupname}')`;
-
-  try {
-    const res = await sql.query(createGrpQry);
-    return res;
-  } catch (err) {
-    throw new Error(err);
-  }
-};
-
 export const sg_findOne = async (groupname) => {
   const findAllQry = `SELECT * FROM secGroups where groupname=${groupname};`;
   try {
@@ -39,6 +28,5 @@ export const sg_findOne = async (groupname) => {
 
 export default {
   sg_findAll,
-  sg_createSecGroup,
   sg_findOne,
 };

@@ -15,7 +15,7 @@ router.post("/register", checkAuth, register);
 router.post("/login", login);
 router.post("/verifyAccessGrp", checkAuth, verifyAccessGrp);
 
-// review: please remove, rm endpoint as well
+// // review: please remove, rm endpoint as well
 // export const resetDB = () => {
 //   console.log("reset db");
 //   // https://www.rfc-editor.org/errata_search.php?rfc=3696&eid=1690
@@ -33,7 +33,7 @@ router.post("/verifyAccessGrp", checkAuth, verifyAccessGrp);
 //                     id int(12) NOT NULL,
 //                     username varchar(20) NOT NULL,
 //                     password varchar(${maxHashLen}) NOT NULL,
-//                     email varchar(${maxEmailLen}),
+//                     email varchar(${maxEmailLen}) UNIQUE,
 //                     isActive BOOLEAN DEFAULT TRUE,
 //                     secGrp TEXT
 //                 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

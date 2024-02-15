@@ -19,7 +19,7 @@ import CreateGroupForm from "./CreateGroupForm";
 
 const Dashboard = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
+  const [data, setdata] = useState([]);
   const [options, setoptions] = useState([]);
   const [editingKey, setEditingKey] = useState("");
 
@@ -29,7 +29,7 @@ const Dashboard = () => {
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
 
-      setData(
+      setdata(
         data.map((user) => ({
           ...user,
           secGrp: user.secGrp?.split(","),
@@ -148,11 +148,11 @@ const Dashboard = () => {
         });
 
         const res = await axios.post("/user/admin/updateUser", row);
-        setData(newData);
+        setdata(newData);
       } else {
         newData.push(row);
       }
-      setData(newData);
+      setdata(newData);
       setEditingKey("");
     } catch (errInfo) {
       message.error(errInfo.response.data);
@@ -243,8 +243,12 @@ const Dashboard = () => {
   return (
     <LayoutOne>
       <div className="flex justify-end">
-        <CreateGroupForm />
-        <CreateUserForm tableData={data} setData={setData} />
+        <CreateGroupForm options={options} setoptions={setoptions} />
+        <CreateUserForm
+          options={options}
+          setoptions={setoptions}
+          setdata={setdata}
+        />
       </div>
       <Form form={form} component={false}>
         <Table
