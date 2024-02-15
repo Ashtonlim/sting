@@ -1,14 +1,6 @@
 import sql from "./db.js";
 
-export const findAll = async (onlyCols = [], excludeCols = []) => {
-  // const allCols = ["username", "password", "email", "isActive", "secGrp"];
-  // const excludeColsSet = new Set(excludeCols);
-  // const getCols = (onlyCols?.length ? onlyCols : allCols).filter(
-  //   (colName) => !excludeColsSet.has(colName)
-  // );
-  // console.log(getCols.join(", "));
-  // const getUserByIdQry = `SELECT ${allCols.join(", ")} FROM accounts;`;
-
+export const findAll = async () => {
   const getUserByIdQry = `SELECT username, email, isActive, secGrp FROM accounts;`;
 
   try {
