@@ -2,9 +2,7 @@ import { useEffect } from "react";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Home = () => {
-  useEffect(() => {
-    console.log("this is home");
-  });
+  useEffect(() => {});
   return (
     <LayoutOne>
       <div>

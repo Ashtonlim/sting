@@ -56,12 +56,13 @@ const CreateGroupForm = ({ setoptions }) => {
         >
           <Input placeholder="admin" />
         </Form.Item>
-
-        <Form.Item className="flex items-end justify-center ">
-          <Button className="w-28" type="primary" htmlType="submit">
-            Create group
-          </Button>
-        </Form.Item>
+        <div className="mt-3">
+          <Form.Item className="">
+            <Button className="w-28" type="primary" htmlType="submit">
+              Create group
+            </Button>
+          </Form.Item>
+        </div>
       </Form>
     </Card>
   );

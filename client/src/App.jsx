@@ -27,7 +27,6 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 const App = () => {
   const { state, dispatch } = useContext(GC);
 
-  // console.log("app", loggedIn);
   return (
     <BrowserRouter>
       <Routes>
@@ -51,7 +50,7 @@ const App = () => {
 
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
-  console.log("admin route");
+  console.log("Private route");
   const { state, dispatch } = useContext(GC);
   const navigate = useNavigate();
   useEffect(() => {

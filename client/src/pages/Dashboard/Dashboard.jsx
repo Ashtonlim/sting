@@ -103,12 +103,15 @@ const Dashboard = () => {
         rules: [],
       },
     };
-
     return (
       <td {...restProps}>
         {editing ? (
           <Form.Item name={dataIndex} rules={inputMap[dataIndex]["rules"]}>
-            {inputMap[dataIndex]["component"]}
+            {dataIndex === "isActive" && record?.username === "admin" ? (
+              <Switch value={true} disabled={true} />
+            ) : (
+              inputMap[dataIndex]["component"]
+            )}
           </Form.Item>
         ) : (
           children
@@ -242,7 +245,7 @@ const Dashboard = () => {
 
   return (
     <LayoutOne>
-      <div className="flex justify-end">
+      <div className="flex flex-col items-end">
         <CreateGroupForm options={options} setoptions={setoptions} />
         <CreateUserForm
           options={options}

@@ -89,7 +89,6 @@ export const updateUser = async (req, res) => {
   try {
     // admin cannot be deleted, check if admin
     let { password, email } = req.body;
-    console.log(password, email, req.byUser);
     // get which user is requesting
     const username = req.byUser;
     const user = await findById(username);
@@ -101,7 +100,6 @@ export const updateUser = async (req, res) => {
     if (!password && !email) {
       return res.status(400).send("No data to update");
     }
-    console.log(typeof password !== "string");
     // ==== check password ====
     if (typeof password !== "string") {
       console.log("change password to empty str");

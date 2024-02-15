@@ -1,7 +1,7 @@
+// import axios from "axios";
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
-import axios from "axios";
 import Cookies from "js-cookie";
 
 import GC from "/src/context";
@@ -15,18 +15,7 @@ const LoggedInView = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(Cookies.get("jwt"));
-    // console.log("what");
-    // const checkAdmin = async () => {
-    //   const { data } = await axios.post("auth/verifyAccessGrp", {
-    //     groupname: "admin",
-    //   });
-    //   setisAdmin(true);
-    // };
-    // console.log(loginState, isAdmin, "isAdmin");
-    // if (loginState && isAdmin === false) {
-    //   checkAdmin();
-    // }
+    // console.log(Cookies.get("jwt"));
   }, [state.loggedIn]);
 
   const handleLogout = () => {
@@ -38,14 +27,14 @@ const LoggedInView = () => {
   if (state.loggedIn) {
     return (
       <>
-        <li className="nav-item">
-          <Link to="/profile">Profile</Link>
-        </li>
         {state.isAdmin && (
           <li className="nav-item">
             <Link to="/dashboard">user management</Link>
           </li>
         )}
+        <li className="nav-item">
+          <Link to="/profile">Profile</Link>
+        </li>
         <li className="nav-item">
           {/* Review: navigate() doesnt not work w Link onClick, why? */}
           <a onClick={handleLogout}>Logout</a>

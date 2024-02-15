@@ -11,13 +11,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(GC);
 
-  console.log(state, "state");
-
   const onFinish = async (credentials) => {
-    // console.log(payload, "credentials");
     try {
       const res = await axios.post(`auth/login`, credentials);
-      console.log(res, "res.status");
 
       if (200 <= res.status && res.status < 300) {
         dispatch({ type: "LOGIN", payload: res.data });

@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-// require("dotenv").config();
-// console.log(process.env);
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 
@@ -14,7 +12,6 @@ import group from "./routes/group.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "config", "dev.env") });
-console.log(`env: ${process.env.NODE_ENV}, user: ${process.env.MYUSER}`); // dev
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,7 +49,9 @@ const start = async () => {
   try {
     /** App listening on port */
     app.listen(PORT, () => {
-      console.log(`Listening at http://localhost:${PORT}`);
+      console.log(
+        `Listening at http://localhost:${PORT}\nEnv: ${process.env.NODE_ENV} | User: ${process.env.MYUSER}`
+      );
     });
   } catch (err) {
     console.log(err);

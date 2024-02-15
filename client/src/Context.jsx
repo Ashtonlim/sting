@@ -11,10 +11,7 @@ const stateResolver = (state, payload, key = "state") => {
       ...payload,
     };
     window.localStorage.setItem(key, JSON.stringify(newState));
-    console.log(payload, newState, {
-      ...state,
-      ...payload,
-    });
+
     return newState;
   } catch (err) {
     console.log(`@context.js: ${err}`);
@@ -25,8 +22,6 @@ const stateResolver = (state, payload, key = "state") => {
 // uses something similar to redux pattern.
 // google redux for more info
 const reducer = (state = {}, action) => {
-  console.log("reducer action", action);
-
   switch (action.type) {
     case "LOGIN": {
       return stateResolver(state, { ...action.payload, loggedIn: true });

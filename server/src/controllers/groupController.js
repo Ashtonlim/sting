@@ -3,11 +3,8 @@ import sql from "../models/db.js";
 
 export const getAllGroups = async (req, res) => {
   if (!req.isAdmin) {
-    console.log("not admin", req.isAdmin);
     return res.status(403).send("User is not an admin");
   }
-
-  console.log("getallgrps", req.isAdmin);
 
   try {
     const groups = await sg_findAll();

@@ -64,12 +64,15 @@ export const register = async (req, res) => {
 
     // ==== check username ====
     // verify fits constraints
-    const meetsContraints =
-      isAlphaNumeric(username) && username.length >= 3 && username.length <= 20;
+    const usernameMeetsContraints =
+      new RegExp("^[a-zA-Z0-9]+$").test(username) &&
+      username.length >= 3 &&
+      username.length <= 20;
 
-    if (!meetsContraints) {
-      return res.status(401).json("Invalid user details.");
+    if (!usernameMeetsContraints) {
+      return res.status(401).json("Username is not valid");
     }
+
     // find if user already exists
     let user = await findById(username);
 
@@ -78,32 +81,32 @@ export const register = async (req, res) => {
       return res.status(401).json("User already exists");
     }
 
-    // ==== check username ====
-
     // ==== check password ====
+    if (
+      new RegExp(
+        "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,10}$"
+      ).test(password)
+    ) {
+      return res.status(401).json("password is not valid");
+    }
 
     // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
-    // ==== check password ====
-
     // ==== check email ====
     if (typeof email !== "string") {
       console.log("change email to empty str");
       email = null;
     } else {
-      const checkIfEmailExistsQry = `SELECT * from accounts where email='${email}'`;
-      console.log(checkIfEmailExistsQry);
+      const checkIfEmailExistsQry = `SELECT * from accounts where email='${email}';`;
       const [usersWithEmail] = await sql.query(checkIfEmailExistsQry);
-      console.log(usersWithEmail);
-      if (usersWithEmail > 0) {
+
+      if (usersWithEmail.length > 0) {
         return res.status(401).json("Email already in use");
       }
     }
-
-    // ==== check email ====
 
     // ==== check groups ====
     if (!Array.isArray(groups)) {
@@ -117,10 +120,7 @@ export const register = async (req, res) => {
       const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
       const secGroupsSet = new Set(allSecGroups);
 
-      console.log(secGroupsSet);
-
       let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
-      console.log(invalidGrps, "invalidGrps");
 
       if (invalidGrps.length > 0) {
         return res
