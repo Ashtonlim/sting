@@ -63,10 +63,18 @@ const Dashboard = () => {
       password: {
         component: <Input.Password placeholder="input new password" />,
         rules: [
-          { min: 3, max: 20 },
+          { min: 8, max: 10 },
           {
-            pattern: "^[a-zA-Z0-9]+$",
-            message: "Only letters and numbers are allowed",
+            pattern: "^(?=.*[a-zA-Z]).+$",
+            message: "must have 1 alphabet",
+          },
+          {
+            pattern: "\\d",
+            message: "must have 1 number",
+          },
+          {
+            pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+            message: "must have 1 special character",
           },
         ],
       },
@@ -236,7 +244,7 @@ const Dashboard = () => {
     <LayoutOne>
       <div className="flex justify-end">
         <CreateGroupForm />
-        <CreateUserForm />
+        <CreateUserForm tableData={data} setData={setData} />
       </div>
       <Form form={form} component={false}>
         <Table

@@ -9,11 +9,13 @@ import {
 import Cookies from "js-cookie";
 import axios from "axios";
 
+import { message } from "antd";
 import Home from "./pages/Home/Home";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
+import { useNavigate } from "react-router-dom";
 
 import GC from "./context";
 
@@ -24,6 +26,7 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
   const { state, dispatch } = useContext(GC);
+
   // console.log("app", loggedIn);
   return (
     <BrowserRouter>
@@ -48,15 +51,25 @@ const App = () => {
 
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
+  console.log("admin route");
   const { state, dispatch } = useContext(GC);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const checkRights = async () => {
-      const res = await axios.post("auth/verifyAccessGrp", {
-        groupname: "admin",
-      });
-      if (200 <= res.status && res.status < 300) {
-        dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+      const jwt = Cookies.get("jwt");
+      if (!jwt) {
+        dispatch({ type: "LOGOUT" });
+      }
+      try {
+        const res = await axios.post("auth/verifyAccessGrp", {
+          groupname: "admin",
+        });
+        if (200 <= res.status && res.status < 300) {
+          dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+        }
+      } catch (err) {
+        dispatch({ type: "LOGOUT" });
+        // navigate("/");
       }
     };
     checkRights();
@@ -67,13 +80,26 @@ const PrivateRoute = () => {
 
 const AdminRoute = () => {
   const { state, dispatch } = useContext(GC);
+  const navigate = useNavigate();
+
   useEffect(() => {
+    console.log("admin route");
     const checkRights = async () => {
-      const res = await axios.post("auth/verifyAccessGrp", {
-        groupname: "admin",
-      });
-      if (200 <= res.status && res.status < 300) {
-        dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+      try {
+        const jwt = Cookies.get("jwt");
+        if (!jwt) {
+          dispatch({ type: "LOGOUT" });
+        }
+        const res = await axios.post("auth/verifyAccessGrp", {
+          groupname: "admin",
+        });
+        if (200 <= res.status && res.status < 300) {
+          dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+        }
+      } catch (err) {
+        dispatch({ type: "LOGOUT" });
+        // navigate("/");
+        // message.error(err);
       }
     };
     checkRights();

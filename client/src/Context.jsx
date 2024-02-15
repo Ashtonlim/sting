@@ -1,38 +1,20 @@
 import { createContext, useReducer } from "react";
 
-const INITIAL_STATE = { loggedIn: false };
+let initial_state = { loggedIn: false, isAdmin: false };
 
-const loadState = (key = "state") => {
-  try {
-    const serializedState = window.localStorage.getItem(key);
-    if (serializedState) {
-      return JSON.parse(serializedState);
-    }
-    return INITIAL_STATE;
-  } catch (err) {
-    console.log(err);
-    return INITIAL_STATE;
-  }
-};
-
-const saveState = (state, key = "state") => {
-  console.log("savingState");
-  try {
-    window.localStorage.setItem(key, JSON.stringify(state));
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const stateResolver = (state, action) => {
+const stateResolver = (state, payload, key = "state") => {
   // console.log(`resolving state for: ${state}`);
   // add in payload
   try {
     const newState = {
       ...state,
-      ...action.payload,
+      ...payload,
     };
-    saveState(newState);
+    window.localStorage.setItem(key, JSON.stringify(newState));
+    console.log(payload, newState, {
+      ...state,
+      ...payload,
+    });
     return newState;
   } catch (err) {
     console.log(`@context.js: ${err}`);
@@ -43,20 +25,22 @@ const stateResolver = (state, action) => {
 // uses something similar to redux pattern.
 // google redux for more info
 const reducer = (state = {}, action) => {
+  console.log("reducer action", action);
+
   switch (action.type) {
     case "LOGIN": {
-      const loginState = { ...state, ...action.payload, loggedIn: true };
-      saveState(loginState);
-      console.log("From reducers.js, LOG_IN");
-      return loginState;
+      return stateResolver(state, { ...action.payload, loggedIn: true });
     }
     case "LOGOUT": {
-      const logoutState = { ...state, loggedIn: false, isAdmin: false };
-      saveState(logoutState);
-      return logoutState;
+      return stateResolver(state, {
+        ...action.payload,
+        loggedIn: false,
+        isAdmin: false,
+      });
     }
-    case "CHECK_RIGHTS":
-      return stateResolver(state, action);
+    case "CHECK_RIGHTS": {
+      return stateResolver(state, { ...action.payload });
+    }
     default:
       return state;
   }
@@ -66,7 +50,11 @@ const GC = createContext({});
 
 // allows different component to access state held in a context
 export const ContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, loadState());
+  const serializedState = window.localStorage.getItem("state");
+  const [state, dispatch] = useReducer(
+    reducer,
+    serializedState ? JSON.parse(serializedState) : initial_state
+  );
   // takes in state and dispatch as value.
   // Dispatch function can then be taken from the context and used to update state
   return <GC.Provider value={{ state, dispatch }}>{children}</GC.Provider>;
