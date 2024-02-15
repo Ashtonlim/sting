@@ -10,7 +10,7 @@ const Profile = () => {
   useEffect(() => {
     const init = async () => {
       const res = await axios.get("user/user");
-      console.log(res.data);
+      // console.log(res.data);
       setUser(res.data);
     };
 
@@ -20,7 +20,7 @@ const Profile = () => {
   const onFinish = async (payload) => {
     try {
       const res = await axios.post("user/updateUser", payload);
-      console.log(res);
+      // console.log(res);
       message.success("Credentials updated successfully!");
     } catch (err) {
       message.success(`Unable to update credentials! ${err}`);
@@ -43,7 +43,11 @@ const Profile = () => {
             </div>
             <div>
               <div className="text-lg underline underline-offset-8">Email</div>{" "}
-              <div className="font-bold mt-1">{user.email}</div>
+              {user.email ? (
+                <div className="font-bold mt-1">{user.email}</div>
+              ) : (
+                <div className="italic mt-1">No email</div>
+              )}
             </div>
           </Card>
         </div>

@@ -1,49 +1,54 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
 import axios from "axios";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../pages/Login/authSlice";
+import Cookies from "js-cookie";
 
+import GC from "/src/context";
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
-  const [isAdmin, setisAdmin] = useState(false);
-  const loginState = useSelector((state) => state.auth.username);
-  const dispatch = useDispatch();
+  const { state, dispatch } = useContext(GC);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const init = async () => {
-      const { data } = await axios.post("auth/verifyAccessGrp", {
-        groupname: "admin",
-      });
-      console.log("res", data);
-      setisAdmin(data);
-    };
-    init();
-  });
+    console.log(Cookies.get("jwt"));
+    // console.log("what");
+    // const checkAdmin = async () => {
+    //   const { data } = await axios.post("auth/verifyAccessGrp", {
+    //     groupname: "admin",
+    //   });
+    //   setisAdmin(true);
+    // };
+    // console.log(loginState, isAdmin, "isAdmin");
+    // if (loginState && isAdmin === false) {
+    //   checkAdmin();
+    // }
+  }, [state.loggedIn]);
+
   const handleLogout = () => {
-    const res = dispatch(logout());
-    console.log("logout res", res);
+    Cookies.remove("jwt");
+    dispatch({ type: "LOGOUT" });
+    navigate("/login");
   };
 
-  if (loginState) {
+  if (state.loggedIn) {
     return (
       <>
         <li className="nav-item">
           <Link to="/profile">Profile</Link>
         </li>
-        {isAdmin && (
+        {state.isAdmin && (
           <li className="nav-item">
             <Link to="/dashboard">user management</Link>
           </li>
         )}
         <li className="nav-item">
-          <Link onClick={handleLogout} to="/">
-            Logout
-          </Link>
+          {/* Review: navigate() doesnt not work w Link onClick, why? */}
+          <a onClick={handleLogout}>Logout</a>
         </li>
       </>
     );

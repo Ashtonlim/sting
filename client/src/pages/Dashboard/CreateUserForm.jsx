@@ -69,20 +69,20 @@ const CreateUserForm = () => {
               message: "Please input your password!",
             },
 
-            { min: 8, max: 10 },
+            // { min: 8, max: 10 },
 
-            {
-              pattern: "^(?=.*[a-zA-Z]).+$",
-              message: "must have 1 alphabet",
-            },
-            {
-              pattern: "\\d",
-              message: "must have 1 number",
-            },
-            {
-              pattern: "^(?=.*[^a-zA-Z0-9]).+$",
-              message: "must have 1 special character",
-            },
+            // {
+            //   pattern: "^(?=.*[a-zA-Z]).+$",
+            //   message: "must have 1 alphabet",
+            // },
+            // {
+            //   pattern: "\\d",
+            //   message: "must have 1 number",
+            // },
+            // {
+            //   pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+            //   message: "must have 1 special character",
+            // },
           ]}
         >
           <Input.Password placeholder="A secure password" />

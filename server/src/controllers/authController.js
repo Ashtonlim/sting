@@ -36,12 +36,14 @@ export const Checkgroup = async (userid, groupname) => {
 export const verifyAccessGrp = async (req, res) => {
   try {
     const { groupname } = req.body;
-    console.log(groupname);
+
     if (!groupname) {
       return res.status(401).json("no groupname provided");
     }
-    const userIsInGroup = await Checkgroup(req.byUser, groupname);
-    return res.status(200).json(userIsInGroup);
+
+    return res
+      .status(200)
+      .json({ isAdmin: await Checkgroup(req.byUser, groupname) });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -149,17 +151,17 @@ export const login = async (req, res) => {
     const users = await findById(username);
 
     if (users.length !== 1) {
-      return res.status(401).json({ err: "No such user" });
+      return res.status(401).json("Invalid credentials");
     }
 
     // user should not be able to login if isActive is false
     if (!users[0].isActive) {
-      return res.status(401).json({ err: "User is disabled" });
+      return res.status(401).json("User is disabled");
     }
 
     const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
-      return res.status(401).json({ err: "incorrect password" });
+      return res.status(401).json("Invalid credentials");
     }
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
@@ -170,7 +172,9 @@ export const login = async (req, res) => {
       // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
     });
 
-    res.status(200).json({ data: users[0].username });
+    res
+      .status(200)
+      .json({ username, isAdmin: await Checkgroup(username, "admin") });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);

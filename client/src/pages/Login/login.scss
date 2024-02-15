@@ -1,7 +1,18 @@
-#userLogin .ant-col.ant-form-item-label {
-  color: white;
-  .ant-form-item-required {
-    color: white !important;
-    // color: inherit;
-  }
+// #userLogin.ant-col.ant-form-item-label {
+//   color: white;
+//   div.ant-form-item-required > label {
+//     color: white !important;
+//   }
+// }
+
+#userLogin
+  > div:nth-child(1)
+  > div
+  > div.ant-col.ant-form-item-label.css-dev-only-do-not-override-1qhpsh8
+  > label {
+  color: white !important;
+}
+
+[title="Username"] {
+  color: white !important;
 }
