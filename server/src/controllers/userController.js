@@ -61,6 +61,12 @@ export const adminUpdateUser = async (req, res) => {
     const setIntoQry = [];
 
     // password will not be updated if not provided
+    // fix
+    // fix
+    // fix
+    // fix
+    // fix
+    // regex not working and sql statement wrong, doesnt include password, see query string output
     if (
       new RegExp(
         "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,10}$"
