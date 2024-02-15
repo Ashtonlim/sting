@@ -7,6 +7,9 @@ import { findAll, findById, editUser } from "../models/userModel.js";
 const secret = process.env.JWTSECRET;
 
 export const getAllUsers = async (req, res) => {
+  if (!req.isAdmin) {
+    return res.status(403).send("User is not an admin");
+  }
   try {
     const users = await findAll();
 
@@ -34,6 +37,9 @@ export const getUser = async (req, res) => {
 };
 
 export const adminUpdateUser = async (req, res) => {
+  if (!req.isAdmin) {
+    return res.status(403).send("User is not an admin");
+  }
   try {
     let { username, password, email, isActive, secGrp } = req.body;
 

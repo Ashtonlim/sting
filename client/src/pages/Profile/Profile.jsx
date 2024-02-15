@@ -43,7 +43,11 @@ const Profile = () => {
             </div>
             <div>
               <div className="text-lg underline underline-offset-8">Email</div>{" "}
-              <div className="font-bold mt-1">{user.email}</div>
+              {user.email ? (
+                <div className="font-bold mt-1">{user.email}</div>
+              ) : (
+                <div className="italic mt-1">No email</div>
+              )}
             </div>
           </Card>
         </div>

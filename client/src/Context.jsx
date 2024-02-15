@@ -25,7 +25,7 @@ const saveState = (state, key = "state") => {
 };
 
 const stateResolver = (state, action) => {
-  console.log(`resolving state for: ${state}`);
+  // console.log(`resolving state for: ${state}`);
   // add in payload
   try {
     const newState = {
@@ -55,7 +55,7 @@ const reducer = (state = {}, action) => {
       saveState(logoutState);
       return logoutState;
     }
-    case "POST_ON_STOCK":
+    case "CHECK_RIGHTS":
       return stateResolver(state, action);
     default:
       return state;

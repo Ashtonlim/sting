@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -15,32 +15,31 @@ import Kanban from "./pages/Kanban/Kanban";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
 
+import GC from "./context";
+
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
-  const [loggedIn, setloggedIn] = useState(Cookies.get("jwt") ? true : false);
-
+  const { state, dispatch } = useContext(GC);
   // console.log("app", loggedIn);
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route element={<AdminRoute />}>
+        <Route element={<AdminRoute />}>
           <Route path="dashboard" element={<Dashboard />} />
-        </Route> */}
+        </Route>
 
         <Route element={<PrivateRoute />}>
           <Route exact path="" element={<Home />} />
-          <Route path="dashboard" element={<Dashboard />} />
           <Route path="Profile" element={<Profile />} />
           <Route path="kanban" element={<Kanban />} />
         </Route>
-        {console.log("keepNav")}
         <Route
           path="login"
-          element={loggedIn ? <Navigate to="/" /> : <Login />}
+          element={state.loggedIn ? <Navigate to="/" /> : <Login />}
         />
       </Routes>
     </BrowserRouter>
@@ -49,18 +48,38 @@ const App = () => {
 
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
-  // const loginState = useSelector((state) => state.auth.user);
-  const hasJWT = Cookies.get("jwt");
-  // console.log("jwt", hasJWT, <Outlet />);
+  const { state, dispatch } = useContext(GC);
 
-  // jwt may not be legit but it should not matter as data cannot be accessed without one
-  return hasJWT !== undefined ? <Outlet /> : <Navigate to="login" />;
+  useEffect(() => {
+    const checkRights = async () => {
+      const res = await axios.post("auth/verifyAccessGrp", {
+        groupname: "admin",
+      });
+      if (200 <= res.status && res.status < 300) {
+        dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+      }
+    };
+    checkRights();
+  }, []);
+
+  return state.loggedIn ? <Outlet /> : <Navigate to="login" />;
 };
 
-// const AdminRoute = () => {
-//   // const isAdmin = someFucntionTocheckIfUserIsAdmin();
+const AdminRoute = () => {
+  const { state, dispatch } = useContext(GC);
+  useEffect(() => {
+    const checkRights = async () => {
+      const res = await axios.post("auth/verifyAccessGrp", {
+        groupname: "admin",
+      });
+      if (200 <= res.status && res.status < 300) {
+        dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+      }
+    };
+    checkRights();
+  }, []);
 
-//   return isAdmin ? <Outlet /> : <Navigate to="login" />;
-// };
+  return state.loggedIn && state.isAdmin ? <Outlet /> : <Navigate to="" />;
+};
 
 export default App;

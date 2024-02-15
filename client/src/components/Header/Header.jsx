@@ -11,29 +11,27 @@ const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
   const { state, dispatch } = useContext(GC);
-  console.log(state, dispatch);
-  const [isAdmin, setisAdmin] = useState(false);
-  const [loginState, isloginState] = useState(
-    Cookies.get("jwt") ? true : false
-  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("what");
-    const checkAdmin = async () => {
-      const { data } = await axios.post("auth/verifyAccessGrp", {
-        groupname: "admin",
-      });
-      setisAdmin(true);
-    };
-    console.log(loginState, isAdmin, "isAdmin");
-    if (loginState && isAdmin === false) {
-      checkAdmin();
-    }
-  }, [isAdmin]);
+    console.log(Cookies.get("jwt"));
+    // console.log("what");
+    // const checkAdmin = async () => {
+    //   const { data } = await axios.post("auth/verifyAccessGrp", {
+    //     groupname: "admin",
+    //   });
+    //   setisAdmin(true);
+    // };
+    // console.log(loginState, isAdmin, "isAdmin");
+    // if (loginState && isAdmin === false) {
+    //   checkAdmin();
+    // }
+  }, [state.loggedIn]);
+
   const handleLogout = () => {
-    dispatch({ type: "LOGOUT" });
     Cookies.remove("jwt");
+    dispatch({ type: "LOGOUT" });
     navigate("/login");
   };
 
@@ -43,7 +41,7 @@ const LoggedInView = () => {
         <li className="nav-item">
           <Link to="/profile">Profile</Link>
         </li>
-        {isAdmin && (
+        {state.isAdmin && (
           <li className="nav-item">
             <Link to="/dashboard">user management</Link>
           </li>

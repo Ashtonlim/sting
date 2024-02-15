@@ -4,16 +4,16 @@ import {
   login,
   verifyAccessGrp,
 } from "../controllers/authController.js";
-import { checkJWT } from "../middlewares/auth.js";
+import { checkAuth } from "../middlewares/auth.js";
 
 // import { sqlAllMultiLine } from "../models/db.js";
 // import bcrypt from "bcryptjs";
 
 const router = Router();
 
-router.post("/register", checkJWT, register);
+router.post("/register", checkAuth, register);
 router.post("/login", login);
-router.post("/verifyAccessGrp", checkJWT, verifyAccessGrp);
+router.post("/verifyAccessGrp", checkAuth, verifyAccessGrp);
 
 // review: please remove, rm endpoint as well
 // export const resetDB = () => {
