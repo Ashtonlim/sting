@@ -1,4 +1,3 @@
-import { sg_findAll } from "../models/secGroups.js";
 import sql from "../models/db.js";
 
 export const getAllGroups = async (req, res) => {
@@ -7,7 +6,8 @@ export const getAllGroups = async (req, res) => {
   }
 
   try {
-    const groups = await sg_findAll();
+    const findAllQry = `SELECT * FROM secGroups;`;
+    const [groups] = await sql.query(findAllQry);
     res.status(200).json(groups);
   } catch (err) {
     res.status(500).json(err);

@@ -1,5 +1,3 @@
-import { createUser, findById } from "../models/userModel.js";
-import { sg_findAll } from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
@@ -18,7 +16,9 @@ const expiresIn = "1h";
 export const Checkgroup = async (userid, groupname) => {
   // console.log(userid, groupname, "userid, groupname");
   try {
-    const users = await findById(userid);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${userid}';`;
+    const [users] = await sql.query(getUserByIdQry);
+
     if (users.length !== 1) {
       console.log(users, "user not found");
       return false;
@@ -74,10 +74,11 @@ export const register = async (req, res) => {
     }
 
     // find if user already exists
-    let user = await findById(username);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
 
     // reject if user already exists
-    if (user.length >= 1) {
+    if (users.length >= 1) {
       return res.status(401).json("User already exists");
     }
 
@@ -117,7 +118,10 @@ export const register = async (req, res) => {
     // if items provided
     if (groups) {
       // verify groups are valid
-      const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
+      const findAllQry = `SELECT * FROM secGroups;`;
+      const [groups] = await sql.query(findAllQry);
+
+      const allSecGroups = groups.map((row) => row.groupname);
       const secGroupsSet = new Set(allSecGroups);
 
       let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
@@ -126,22 +130,22 @@ export const register = async (req, res) => {
         return res
           .status(401)
           .json(
-            `${invalidGrps} group does not exists, please create them first`
+            `${invalidGrps} group(s) does not exists, please create them first`
           );
       }
     }
-    // ==== check groups ====
 
-    user = await createUser({
-      username,
-      password: hash,
-      email,
-      groups: groups?.join(","),
-    });
+    groups = groups?.join(",");
 
+    const createUserQry = `
+      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', ${
+      email ? email : null
+    }, ${groups ? `'${groups}'` : null});
+    `;
+    const createdUser = await sql.query(createUserQry);
     const token = jwt.sign({ username }, secret, { expiresIn });
 
-    if (!token || !user) {
+    if (!token || !createdUser) {
       return res.status(401).json("failed to create user");
     }
 
@@ -157,8 +161,8 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { username, password } = req.body;
   try {
-    // user.password is hash
-    const users = await findById(username);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
 
     if (users.length !== 1) {
       return res.status(401).json("Invalid credentials");

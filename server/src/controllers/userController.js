@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import sql from "../models/db.js";
-import { findAll, findById, editUser } from "../models/userModel.js";
 
 const secret = process.env.JWTSECRET;
 
