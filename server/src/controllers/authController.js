@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
-import sql from "../models/db.js";
+import sql from "../config/db.js";
 
 const secret = process.env.JWTSECRET;
 const expiresIn = "1h";

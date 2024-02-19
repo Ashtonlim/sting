@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import sql from "../models/db.js";
+import sql from "../config/db.js";
 
 const secret = process.env.JWTSECRET;
 

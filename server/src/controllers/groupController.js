@@ -1,4 +1,4 @@
-import sql from "../models/db.js";
+import sql from "../config/db.js";
 
 export const getAllGroups = async (req, res) => {
   if (!req.isAdmin) {
