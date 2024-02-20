@@ -25,8 +25,6 @@ export const Checkgroup = async (userid, groupname) => {
       return false;
     }
 
-    console.log("is admin", secGroups.split(",").includes(groupname));
-
     return secGroups.split(",").includes(groupname);
   } catch (err) {
     throw new Error(err);
@@ -35,7 +33,8 @@ export const Checkgroup = async (userid, groupname) => {
 
 export const verifyAccessGrp = async (req, res) => {
   try {
-    const { groupname } = req.body;
+    console.log("alksjdklfa");
+    const groupname = req.body?.groupname || "admin";
 
     if (!groupname) {
       return res.status(401).json("no groupname provided");
@@ -46,10 +45,18 @@ export const verifyAccessGrp = async (req, res) => {
 
     const secGroups = users[0]["secGrp"];
 
+    console.log({
+      username: req.byUser,
+      isAdmin: await Checkgroup(req.byUser, groupname),
+      secGroups,
+      secGroupsSplit: secGroups?.split(","),
+    });
+
     return res.status(200).json({
       username: req.byUser,
       isAdmin: await Checkgroup(req.byUser, groupname),
       secGroups: secGroups?.split(","),
+      isLoggedin: true,
     });
   } catch (err) {
     console.log(err);
@@ -104,7 +111,6 @@ export const register = async (req, res) => {
 
     // ==== check email ====
     if (typeof email !== "string") {
-      console.log("change email to empty str");
       email = null;
     } else {
       const checkIfEmailExistsQry = `SELECT * from accounts where email='${email}';`;
@@ -117,7 +123,6 @@ export const register = async (req, res) => {
 
     // ==== check groups ====
     if (!Array.isArray(groups)) {
-      console.log("change groups to empty arr");
       groups = null;
     }
 
@@ -141,12 +146,10 @@ export const register = async (req, res) => {
       }
     }
 
-    groups = groups?.join(",");
-
     const createUserQry = `
       INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${hash}', ${
       email ? email : null
-    }, ${groups ? `'${groups}'` : null});
+    }, ${groups ? `'${groups?.join(",")}'` : null});
     `;
     const createdUser = await sql.query(createUserQry);
     const token = jwt.sign({ username }, secret, { expiresIn });
@@ -155,7 +158,12 @@ export const register = async (req, res) => {
       return res.status(401).json("failed to create user");
     }
 
-    res.status(200).json();
+    res.status(200).json({
+      token,
+      username,
+      isAdmin: groups?.includes("admin"),
+      secGroups: groups,
+    });
   } catch (err) {
     console.log(err, "error");
     res.status(500).json(err);
@@ -194,9 +202,16 @@ export const login = async (req, res) => {
 
     // console.log(users, username);
     // return res.status(401);
-    res
-      .status(200)
-      .json({ username, isAdmin: await Checkgroup(username, "admin") });
+
+    let secGroups = users[0]["secGrp"];
+    secGroups = secGroups ? secGroups?.split(",") : null;
+
+    res.status(200).json({
+      token,
+      username,
+      isAdmin: secGroups?.includes("admin"),
+      secGroups,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);

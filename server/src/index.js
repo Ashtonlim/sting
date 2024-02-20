@@ -9,8 +9,6 @@ import auth from "./routes/auth.js";
 import user from "./routes/user.js";
 import group from "./routes/group.js";
 
-import cookieParser from "cookie-parser";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "config", "dev.env") });
@@ -18,7 +16,6 @@ dotenv.config({ path: path.resolve(__dirname, "config", "dev.env") });
 const app = express();
 const PORT = process.env.PORT || 3000;
 // parse incoming JSON requests
-app.use(cookieParser());
 app.use(express.json());
 
 // allows CORS requests

@@ -3,17 +3,14 @@ import jwt from "jsonwebtoken";
 const secret = process.env.JWTSECRET;
 
 export const checkAuth = (req, res, next) => {
-  // const authHeader = req.headers["authorization"];
-  // const token = authHeader && authHeader.split(" ")[1];
-  // console.log(token, "token");
-  console.log("req", req.cookies.jwt);
-  const token = req.cookies.jwt;
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
   jwt.verify(token, secret, async (err, decode) => {
-    // console.log("decode", decode);
+    console.log(token, decode);
     if (!decode) {
       return res
-        .status(401)
-        .json({ err: "Error with JWT", loggedIn: false, isAdmin: false });
+        .status(200)
+        .json({ err: "Lacking a JWT", loggedIn: false, isAdmin: false });
     }
     const { username } = decode;
     // console.log(decoded); // { username: 'admin', iat: 1707118235, exp: 1707121835 }
@@ -25,9 +22,7 @@ export const checkAuth = (req, res, next) => {
       const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
       const [users] = await sql.query(getUserByIdQry);
       if (users.length !== 1) {
-        return res
-          .status(401)
-          .json({ err: "No such user", loggedIn: false, isAdmin: false });
+        return res.status(401).json({ loggedIn: false, isAdmin: false });
       }
 
       const user = users[0];
