@@ -50,7 +50,7 @@ const App = () => {
 
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
-  console.log("Private route");
+  console.log("Private route", window.location.href);
   const { state, dispatch } = useContext(GC);
   const navigate = useNavigate();
   useEffect(() => {
@@ -63,12 +63,17 @@ const PrivateRoute = () => {
         const res = await axios.post("auth/verifyAccessGrp", {
           groupname: "admin",
         });
+        console.log("private route", res);
+        let isAdmin = false;
         if (200 <= res.status && res.status < 300) {
-          dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+          isAdmin = true;
         }
+        dispatch({
+          type: "CHECK_RIGHTS",
+          payload: { isAdmin },
+        });
       } catch (err) {
         dispatch({ type: "LOGOUT" });
-        // navigate("/");
       }
     };
     checkRights();
@@ -78,11 +83,12 @@ const PrivateRoute = () => {
 };
 
 const AdminRoute = () => {
+  console.log("admin route");
   const { state, dispatch } = useContext(GC);
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("admin route");
+    console.log("admin route", window.location.href);
     const checkRights = async () => {
       try {
         const jwt = Cookies.get("jwt");
@@ -92,9 +98,16 @@ const AdminRoute = () => {
         const res = await axios.post("auth/verifyAccessGrp", {
           groupname: "admin",
         });
+        console.log("admin route", res);
+
+        let isAdmin = false;
         if (200 <= res.status && res.status < 300) {
-          dispatch({ type: "CHECK_RIGHTS", payload: res.data });
+          isAdmin = true;
         }
+        dispatch({
+          type: "CHECK_RIGHTS",
+          payload: { isAdmin },
+        });
       } catch (err) {
         dispatch({ type: "LOGOUT" });
         // navigate("/");

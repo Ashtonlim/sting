@@ -16,9 +16,10 @@ const Login = () => {
       const res = await axios.post(`auth/login`, credentials);
 
       if (200 <= res.status && res.status < 300) {
+        console.log("dispatch login", res.data);
         dispatch({ type: "LOGIN", payload: res.data });
-        // message.success(`Welcome`)
-        navigate(0);
+
+        navigate("/");
         return res;
       }
     } catch (err) {

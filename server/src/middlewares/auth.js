@@ -1,10 +1,13 @@
-import sql from "../models/db.js";
+import sql from "../config/db.js";
 import jwt from "jsonwebtoken";
 const secret = process.env.JWTSECRET;
 
 export const checkAuth = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  // const authHeader = req.headers["authorization"];
+  // const token = authHeader && authHeader.split(" ")[1];
+  // console.log(token, "token");
+  console.log("req", req.cookies.jwt);
+  const token = req.cookies.jwt;
   jwt.verify(token, secret, async (err, decode) => {
     // console.log("decode", decode);
     if (!decode) {

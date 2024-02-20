@@ -14,19 +14,18 @@ const expiresIn = "1h";
 // create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
-  // console.log(userid, groupname, "userid, groupname");
   try {
     const getUserByIdQry = `SELECT * FROM accounts WHERE username='${userid}';`;
     const [users] = await sql.query(getUserByIdQry);
-
     if (users.length !== 1) {
-      console.log(users, "user not found");
       return false;
     }
     const secGroups = users[0]["secGrp"];
     if (secGroups === null || typeof secGroups !== "string") {
       return false;
     }
+
+    console.log("is admin", secGroups.split(",").includes(groupname));
 
     return secGroups.split(",").includes(groupname);
   } catch (err) {
@@ -42,9 +41,16 @@ export const verifyAccessGrp = async (req, res) => {
       return res.status(401).json("no groupname provided");
     }
 
-    return res
-      .status(200)
-      .json({ isAdmin: await Checkgroup(req.byUser, groupname) });
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
+    const [users] = await sql.query(getUserByIdQry);
+
+    const secGroups = users[0]["secGrp"];
+
+    return res.status(200).json({
+      username: req.byUser,
+      isAdmin: await Checkgroup(req.byUser, groupname),
+      secGroups: secGroups?.split(","),
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -54,7 +60,7 @@ export const verifyAccessGrp = async (req, res) => {
 export const register = async (req, res) => {
   try {
     let { username, password, email, groups } = req.body;
-    console.log(username, password, email, groups);
+    // console.log(username, password, email, groups);
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
@@ -138,7 +144,7 @@ export const register = async (req, res) => {
     groups = groups?.join(",");
 
     const createUserQry = `
-      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${password}', ${
+      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${hash}', ${
       email ? email : null
     }, ${groups ? `'${groups}'` : null});
     `;
@@ -160,19 +166,19 @@ export const register = async (req, res) => {
 // can just prevent user from logging in
 export const login = async (req, res) => {
   const { username, password } = req.body;
+  // console.log(username, password);
+
   try {
     const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
     const [users] = await sql.query(getUserByIdQry);
-
     if (users.length !== 1) {
       return res.status(401).json("Invalid credentials");
     }
-
     // user should not be able to login if isActive is false
     if (!users[0].isActive) {
       return res.status(401).json("User is disabled");
     }
-
+    // console.log(password, users[0].password, "password, users[0].password");
     const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
       return res.status(401).json("Invalid credentials");
@@ -186,6 +192,8 @@ export const login = async (req, res) => {
       // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
     });
 
+    // console.log(users, username);
+    // return res.status(401);
     res
       .status(200)
       .json({ username, isAdmin: await Checkgroup(username, "admin") });

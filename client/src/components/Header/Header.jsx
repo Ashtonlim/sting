@@ -15,7 +15,7 @@ const LoggedInView = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // console.log(Cookies.get("jwt"));
+    console.log("from headers", state);
   }, [state.loggedIn]);
 
   const handleLogout = () => {
@@ -29,7 +29,7 @@ const LoggedInView = () => {
       <>
         {state.isAdmin && (
           <li className="nav-item">
-            <Link to="/dashboard">user management</Link>
+            <Link to="/dashboard">User management</Link>
           </li>
         )}
         <li className="nav-item">
