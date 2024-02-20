@@ -9,7 +9,6 @@ import {
 import Cookies from "js-cookie";
 import axios from "axios";
 
-import { message } from "antd";
 import Home from "./pages/Home/Home";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
@@ -25,7 +24,28 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
+  console.log("app route");
   const { state, dispatch } = useContext(GC);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.post("auth/verifyAccessGrp");
+        console.log(state);
+        dispatch({ type: "FETCH_INITIAL_DATA", payload: data });
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+
+    // if (Object.keys(state).length === 0) {
+    //   fetchData();
+    // }
+    if (!state.loggedIn) {
+      fetchData();
+    }
+    console.log(state, "in app");
+  }, [state.loggedIn, dispatch]);
 
   return (
     <BrowserRouter>
@@ -50,27 +70,20 @@ const App = () => {
 
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
-  console.log("Private route", window.location.href);
   const { state, dispatch } = useContext(GC);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   useEffect(() => {
     const checkRights = async () => {
-      const jwt = Cookies.get("jwt");
-      if (!jwt) {
-        dispatch({ type: "LOGOUT" });
-      }
       try {
-        const res = await axios.post("auth/verifyAccessGrp", {
+        const { status, data } = await axios.post("auth/verifyAccessGrp", {
           groupname: "admin",
         });
-        console.log("private route", res);
-        let isAdmin = false;
-        if (200 <= res.status && res.status < 300) {
-          isAdmin = true;
-        }
+
+        // console.log("private route", data);
+
         dispatch({
           type: "CHECK_RIGHTS",
-          payload: { isAdmin },
+          payload: data,
         });
       } catch (err) {
         dispatch({ type: "LOGOUT" });
@@ -83,30 +96,23 @@ const PrivateRoute = () => {
 };
 
 const AdminRoute = () => {
-  console.log("admin route");
+  // console.log("admin route");
   const { state, dispatch } = useContext(GC);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("admin route", window.location.href);
     const checkRights = async () => {
       try {
-        const jwt = Cookies.get("jwt");
-        if (!jwt) {
-          dispatch({ type: "LOGOUT" });
-        }
-        const res = await axios.post("auth/verifyAccessGrp", {
+        const { status, data } = await axios.post("auth/verifyAccessGrp", {
           groupname: "admin",
         });
-        console.log("admin route", res);
 
-        let isAdmin = false;
-        if (200 <= res.status && res.status < 300) {
-          isAdmin = true;
-        }
+        // console.log("admin route", data);
+
+        // let isAdmin = 200 <= status && status < 300 ? true : false;
         dispatch({
           type: "CHECK_RIGHTS",
-          payload: { isAdmin },
+          payload: data,
         });
       } catch (err) {
         dispatch({ type: "LOGOUT" });

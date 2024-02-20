@@ -1,5 +1,6 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Card, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
@@ -11,16 +12,40 @@ const Login = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(GC);
 
+  console.log("login route");
+
+  // useEffect(() => {
+  //   const checkRights = async () => {
+  //     try {
+  //       const { status, data } = await axios.post("auth/verifyAccessGrp", {
+  //         groupname: "admin",
+  //       });
+
+  //       console.log("login route", data);
+
+  //       dispatch({
+  //         type: "CHECK_RIGHTS",
+  //         payload: data,
+  //       });
+  //     } catch (err) {
+  //       dispatch({ type: "LOGOUT" });
+  //       // navigate("/");
+  //       // message.error(err);
+  //     }
+  //   };
+  //   checkRights();
+  //   console.log(state, "in login");
+  // }, []);
+
   const onFinish = async (credentials) => {
     try {
-      const res = await axios.post(`auth/login`, credentials);
+      const { status, data } = await axios.post(`auth/login`, credentials);
+      if (200 <= status && status < 300) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+        Cookies.set("jwt", data.token, { expires: 60 * 60 });
 
-      if (200 <= res.status && res.status < 300) {
-        console.log("dispatch login", res.data);
-        dispatch({ type: "LOGIN", payload: res.data });
-
+        dispatch({ type: "LOGIN", payload: data });
         navigate("/");
-        return res;
       }
     } catch (err) {
       if (err?.response?.data) {

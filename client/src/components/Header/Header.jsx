@@ -1,5 +1,5 @@
-// import axios from "axios";
-import { useEffect, useState, useContext } from "react";
+import axios from "axios";
+import { useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
 import Cookies from "js-cookie";
@@ -21,9 +21,10 @@ const LoggedInView = () => {
   const handleLogout = () => {
     Cookies.remove("jwt");
     dispatch({ type: "LOGOUT" });
+    delete axios.defaults.headers.common["Authorization"];
     navigate("/login");
   };
-
+  // console.log("from header isadmin", state, state.isAdmin);
   if (state.loggedIn) {
     return (
       <>
