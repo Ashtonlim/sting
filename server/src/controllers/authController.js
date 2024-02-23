@@ -1,17 +1,9 @@
 import jwt from "jsonwebtoken";
-import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
 import sql from "../config/db.js";
 
 const secret = process.env.JWTSECRET;
 const expiresIn = "1h";
-// if (!secret) {
-//   console.log("WARNING: Secret for JWT not found");
-//   throw new Error("Secret for JWT not found");
-// }
-
-// From spec sheet:
-// create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
   try {
@@ -20,12 +12,12 @@ export const Checkgroup = async (userid, groupname) => {
     if (users.length !== 1) {
       return false;
     }
-    const secGroups = users[0]["secGrp"];
-    if (secGroups === null || typeof secGroups !== "string") {
+    const secGrp = users[0]["secGrp"];
+    if (secGrp === null || typeof secGrp !== "string") {
       return false;
     }
 
-    return secGroups.split(",").includes(groupname);
+    return secGrp.split(",").includes(groupname);
   } catch (err) {
     throw new Error(err);
   }
@@ -33,9 +25,7 @@ export const Checkgroup = async (userid, groupname) => {
 
 export const verifyAccessGrp = async (req, res) => {
   try {
-    console.log("alksjdklfa");
     const groupname = req.body?.groupname || "admin";
-
     if (!groupname) {
       return res.status(401).json("no groupname provided");
     }
@@ -43,19 +33,12 @@ export const verifyAccessGrp = async (req, res) => {
     const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
     const [users] = await sql.query(getUserByIdQry);
 
-    const secGroups = users[0]["secGrp"];
-
-    console.log({
-      username: req.byUser,
-      isAdmin: await Checkgroup(req.byUser, groupname),
-      secGroups,
-      secGroupsSplit: secGroups?.split(","),
-    });
+    const secGrp = users[0]["secGrp"];
 
     return res.status(200).json({
       username: req.byUser,
       isAdmin: await Checkgroup(req.byUser, groupname),
-      secGroups: secGroups?.split(","),
+      secGrp: secGrp?.split(","),
       loggedIn: true,
     });
   } catch (err) {
@@ -162,7 +145,7 @@ export const register = async (req, res) => {
       token,
       username,
       isAdmin: groups?.includes("admin"),
-      secGroups: groups,
+      secGrps: groups,
     });
   } catch (err) {
     console.log(err, "error");
@@ -193,15 +176,6 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
-    res.cookie("jwt", token, {
-      // httpOnly: true, // cannot access cookie via js in client
-      // secure: true, // Only sent over HTTPS
-      maxAge: 3600000, // expiration milliseconds
-      // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
-    });
-
-    // console.log(users, username);
-    // return res.status(401);
 
     let secGrp = users[0]["secGrp"];
     secGrp = secGrp ? secGrp?.split(",") : null;

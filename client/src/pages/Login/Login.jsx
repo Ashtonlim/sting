@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Card, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,18 +5,10 @@ import { login } from "./authSlice.js";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Login = () => {
-  const navigate = useNavigate();
-  const user = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const onFinish = async (credentials) => {
     await dispatch(login(credentials));
-    // try {
-    // } catch (err) {
-    //   alert(err);
-    //   console.log(err);
-    //   message.error(`${err}`);
-    // }
   };
 
   const onFinishFailed = (errorInfo) => {

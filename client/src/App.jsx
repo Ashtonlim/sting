@@ -18,6 +18,9 @@ import Login from "./pages/Login/Login";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
 
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
@@ -26,9 +29,9 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 const App = () => {
   const user = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  console.log("app route");
 
   useEffect(() => {
+    console.log("app route", user);
     dispatch(checkUser());
   }, []);
 
@@ -46,7 +49,24 @@ const App = () => {
         </Route>
         <Route
           path="login"
-          element={user.loggedIn ? <Navigate to="/" /> : <Login />}
+          element={
+            user.status === "idle" ? (
+              <Spin
+                indicator={
+                  <LoadingOutlined
+                    style={{
+                      fontSize: 24,
+                    }}
+                    spin
+                  />
+                }
+              />
+            ) : user.loggedIn ? (
+              <Navigate to="/" />
+            ) : (
+              <Login />
+            )
+          }
         />
       </Routes>
     </BrowserRouter>
@@ -56,32 +76,28 @@ const App = () => {
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
   const user = useSelector((state) => state.auth);
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(checkUser());
-  // }, []);
+  console.log("Private route", user);
 
-  return user.loggedIn ? <Outlet /> : <Navigate to="login" />;
+  return user.status === "idle" ? (
+    <Spin
+      indicator={
+        <LoadingOutlined
+          style={{
+            fontSize: 24,
+          }}
+          spin
+        />
+      }
+    />
+  ) : user.loggedIn ? (
+    <Outlet />
+  ) : (
+    <Navigate to="login" />
+  );
 };
 
 const AdminRoute = () => {
   const user = useSelector((state) => state.auth);
-  // console.log("admin route");
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const checkRights = async () => {
-  //     try {
-  //       const { status, data } = await axios.post("auth/verifyAccessGrp", {
-  //         groupname: "admin",
-  //       });
-  //       // console.log("admin route", data);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   checkRights();
-  // }, []);
 
   return user.loggedIn && user.isAdmin ? <Outlet /> : <Navigate to="" />;
 };

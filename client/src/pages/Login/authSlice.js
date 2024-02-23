@@ -5,6 +5,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { message } from "antd";
 
 const initialState = {
+  status: "idle",
   loggedIn: false,
   isAdmin: false,
   secGrp: [],
@@ -25,9 +26,7 @@ export const login = createAsyncThunk(
 
 export const checkUser = createAsyncThunk("auth/checkUser", async () => {
   try {
-    const { status, data } = await axios.post("auth/verifyAccessGrp", {
-      groupname: "admin",
-    });
+    const { status, data } = await axios.post("auth/verifyAccessGrp");
     if (200 <= status && status < 300) {
       return data;
     }
@@ -55,25 +54,38 @@ export const authSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state, action) => {
       console.log("login pending", action);
+      return { ...state, status: "loading" };
     });
     builder.addCase(login.fulfilled, (state, action) => {
       console.log("login fulfilled", action);
       message.success("Login successful");
-      return { ...state, ...action.payload, loggedIn: true };
+      Cookies.set("jwt", action.payload.token, { expires: 60 * 60 });
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${action.payload.token}`;
+
+      return {
+        ...state,
+        ...action.payload,
+        loggedIn: true,
+        status: "succeeded",
+      };
     });
     builder.addCase(login.rejected, (state, action) => {
       message.error(action.payload ? action.payload : "An error occurred");
-      return { ...state, loggedIn: false };
+      return { ...state, loggedIn: false, status: "failed" };
     });
     builder.addCase(checkUser.pending, (state, action) => {
+      return { ...state, status: "loading" };
       console.log("checkUser pending", action);
     });
     builder.addCase(checkUser.fulfilled, (state, action) => {
       console.log("checkUser fulfilled", action);
-      return { ...state, ...action.payload };
+      return { ...state, ...action.payload, status: "succeeded" };
     });
     builder.addCase(checkUser.rejected, (state, action) => {
       console.log("checkUser rejected", action);
+      return { ...state, ...action.payload, status: "failed" };
     });
     builder.addCase(logout.pending, (state, action) => {
       console.log("logout pending", action);
