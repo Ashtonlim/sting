@@ -1,5 +1,4 @@
-import axios from "axios";
-import { useEffect, useContext } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
 import { useSelector, useDispatch } from "react-redux";

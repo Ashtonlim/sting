@@ -2,6 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { message } from "antd";
 
 const initialState = {
   loggedIn: false,
@@ -9,17 +10,18 @@ const initialState = {
   secGrp: [],
 };
 
-export const login = createAsyncThunk("auth/login", async (credentials) => {
-  try {
-    // axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-    const { status, data } = await axios.post(`auth/login`, credentials);
-    if (200 <= status && status < 300) {
+export const login = createAsyncThunk(
+  "auth/login",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      // axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+      const { data } = await axios.post(`auth/login`, credentials);
       return data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
     }
-  } catch (err) {
-    return err;
   }
-});
+);
 
 export const checkUser = createAsyncThunk("auth/checkUser", async () => {
   try {
@@ -47,12 +49,7 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // logout: (state, action) => {
-    //   state.loggedIn = false;
-    //   state.isAdmin = false;
-    //   state.secGrp = [];
-    //   console.log("logged out", action.payload);
-    // },
+    // logout: (state, action) => { },
   },
 
   extraReducers: (builder) => {
@@ -61,10 +58,12 @@ export const authSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, action) => {
       console.log("login fulfilled", action);
+      message.success("Login successful");
       return { ...state, ...action.payload, loggedIn: true };
     });
     builder.addCase(login.rejected, (state, action) => {
-      console.log("login rejected", action);
+      message.error(action.payload ? action.payload : "An error occurred");
+      return { ...state, loggedIn: false };
     });
     builder.addCase(checkUser.pending, (state, action) => {
       console.log("checkUser pending", action);
@@ -85,6 +84,7 @@ export const authSlice = createSlice({
     });
     builder.addCase(logout.rejected, (state, action) => {
       console.log("logout rejected", action);
+      return { ...state, loggedIn: false, isAdmin: false, secGrp: [] };
     });
   },
 });

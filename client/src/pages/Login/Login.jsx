@@ -1,42 +1,23 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Card, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { login, checkUser } from "./authSlice.js";
+import { login } from "./authSlice.js";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth);
-
-  console.log("login route");
-
-  useEffect(() => {
-    dispatch(checkUser());
-    // const init = async () => {
-    //   console.log(user.loggedIn, "in login");
-    //   if (user.loggedIn === false) {
-    //     const res = ;
-    //     console.log(res, "in login");
-    //     // navigate("/");
-    //   }
-    //   console.log(user, "in login");
-    // };
-    // init();
-  }, []);
+  const dispatch = useDispatch();
 
   const onFinish = async (credentials) => {
-    const res = await dispatch(login(credentials));
-    console.log(user.loggedIn, "in login onFinish");
-    console.log(res, "in login onFinish");
-    if (user.loggedIn) {
-      message.success("Login successful");
-      navigate("/");
-    } else {
-      message.error("Login failed");
-    }
+    await dispatch(login(credentials));
+    // try {
+    // } catch (err) {
+    //   alert(err);
+    //   console.log(err);
+    //   message.error(`${err}`);
+    // }
   };
 
   const onFinishFailed = (errorInfo) => {

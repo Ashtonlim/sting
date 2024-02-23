@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -6,6 +6,7 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
+
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -14,9 +15,9 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
+
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;

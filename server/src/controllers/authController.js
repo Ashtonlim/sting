@@ -203,14 +203,14 @@ export const login = async (req, res) => {
     // console.log(users, username);
     // return res.status(401);
 
-    let secGroups = users[0]["secGrp"];
-    secGroups = secGroups ? secGroups?.split(",") : null;
+    let secGrp = users[0]["secGrp"];
+    secGrp = secGrp ? secGrp?.split(",") : null;
 
     res.status(200).json({
       token,
       username,
-      isAdmin: secGroups?.includes("admin"),
-      secGroups,
+      isAdmin: secGrp?.includes("admin"),
+      secGrp,
     });
   } catch (err) {
     console.log(err);
