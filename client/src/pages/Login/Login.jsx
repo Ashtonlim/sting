@@ -1,56 +1,41 @@
-import { useContext, useEffect } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Card, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-
-import GC from "/src/context";
+import { useSelector, useDispatch } from "react-redux";
+import { login, checkUser } from "./authSlice.js";
 import LayoutOne from "/src/components/LayoutOne";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { state, dispatch } = useContext(GC);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth);
 
   console.log("login route");
 
-  // useEffect(() => {
-  //   const checkRights = async () => {
-  //     try {
-  //       const { status, data } = await axios.post("auth/verifyAccessGrp", {
-  //         groupname: "admin",
-  //       });
-
-  //       console.log("login route", data);
-
-  //       dispatch({
-  //         type: "CHECK_RIGHTS",
-  //         payload: data,
-  //       });
-  //     } catch (err) {
-  //       dispatch({ type: "LOGOUT" });
-  //       // navigate("/");
-  //       // message.error(err);
-  //     }
-  //   };
-  //   checkRights();
-  //   console.log(state, "in login");
-  // }, []);
+  useEffect(() => {
+    dispatch(checkUser());
+    // const init = async () => {
+    //   console.log(user.loggedIn, "in login");
+    //   if (user.loggedIn === false) {
+    //     const res = ;
+    //     console.log(res, "in login");
+    //     // navigate("/");
+    //   }
+    //   console.log(user, "in login");
+    // };
+    // init();
+  }, []);
 
   const onFinish = async (credentials) => {
-    try {
-      const { status, data } = await axios.post(`auth/login`, credentials);
-      if (200 <= status && status < 300) {
-        axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-        Cookies.set("jwt", data.token, { expires: 60 * 60 });
-
-        dispatch({ type: "LOGIN", payload: data });
-        navigate("/");
-      }
-    } catch (err) {
-      if (err?.response?.data) {
-        message.error(err?.response?.data);
-      }
+    const res = await dispatch(login(credentials));
+    console.log(user.loggedIn, "in login onFinish");
+    console.log(res, "in login onFinish");
+    if (user.loggedIn) {
+      message.success("Login successful");
+      navigate("/");
+    } else {
+      message.error("Login failed");
     }
   };
 

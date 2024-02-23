@@ -56,7 +56,7 @@ export const verifyAccessGrp = async (req, res) => {
       username: req.byUser,
       isAdmin: await Checkgroup(req.byUser, groupname),
       secGroups: secGroups?.split(","),
-      isLoggedin: true,
+      loggedIn: true,
     });
   } catch (err) {
     console.log(err);

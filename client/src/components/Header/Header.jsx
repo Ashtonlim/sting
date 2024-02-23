@@ -2,33 +2,27 @@ import axios from "axios";
 import { useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Row, Col } from "antd";
-import Cookies from "js-cookie";
-
-import GC from "/src/context";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "/src/pages/Login/authSlice.js";
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
-  const { state, dispatch } = useContext(GC);
-
+  const user = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("from headers", state);
-  }, [state.loggedIn]);
+  useEffect(() => {}, []);
 
   const handleLogout = () => {
-    Cookies.remove("jwt");
-    dispatch({ type: "LOGOUT" });
-    delete axios.defaults.headers.common["Authorization"];
-    navigate("/login");
+    dispatch(logout());
   };
   // console.log("from header isadmin", state, state.isAdmin);
-  if (state.loggedIn) {
+  if (user.loggedIn) {
     return (
       <>
-        {state.isAdmin && (
+        {user.isAdmin && (
           <li className="nav-item">
             <Link to="/dashboard">User management</Link>
           </li>

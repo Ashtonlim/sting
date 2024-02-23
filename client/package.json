@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.2.1",
     "antd": "^5.13.2",
     "axios": "^1.6.7",
     "js-cookie": "^3.0.5",

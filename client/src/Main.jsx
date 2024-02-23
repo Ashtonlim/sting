@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import { ContextProvider } from "./context";
+import { store } from "./app/store";
+import { Provider } from "react-redux";
 
 // refer to vite.config.js for index.scss import
 // import "antd/dist/antd.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ContextProvider>
+    <Provider store={store}>
       <App />
-    </ContextProvider>
+    </Provider>
   </React.StrictMode>
 );

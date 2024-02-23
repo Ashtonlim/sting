@@ -5,12 +5,23 @@ const secret = process.env.JWTSECRET;
 export const checkAuth = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res
+      .status(200)
+      .json({ err: "Lacking a JWT", loggedIn: false, isAdmin: false });
+  }
+
   jwt.verify(token, secret, async (err, decode) => {
     console.log(token, decode);
     if (!decode) {
       return res
         .status(200)
-        .json({ err: "Lacking a JWT", loggedIn: false, isAdmin: false });
+        .json({
+          err: "Could not decode JWT. Possible issues include: timeout, etc.",
+          loggedIn: false,
+          isAdmin: false,
+        });
     }
     const { username } = decode;
     // console.log(decoded); // { username: 'admin', iat: 1707118235, exp: 1707121835 }
