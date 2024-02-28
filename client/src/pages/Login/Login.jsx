@@ -1,14 +1,34 @@
-import { Button, Form, Input, Card, message } from "antd";
+import { Button, Form, Input, Card } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "./authSlice.js";
 import LayoutOne from "/src/components/LayoutOne";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = () => {
+  const user = useSelector((state) => state.auth);
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    console.log("now in login, from:", from);
+    if (user.loggedIn) {
+      navigate(from);
+    }
+  }, []);
 
   const onFinish = async (credentials) => {
-    await dispatch(login(credentials));
+    try {
+      await dispatch(login(credentials));
+      console.log("from", from);
+      navigate(from);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const onFinishFailed = (errorInfo) => {

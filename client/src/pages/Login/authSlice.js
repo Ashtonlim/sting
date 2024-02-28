@@ -4,6 +4,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { message } from "antd";
 
+// const statusStates = ["succeeded", "loading", "failed", "idle"];
+
 const initialState = {
   status: "idle",
   loggedIn: false,

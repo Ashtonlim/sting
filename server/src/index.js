@@ -20,6 +20,7 @@ app.use(express.json());
 
 // allows CORS requests
 // app.use(cors());
+
 app.use(
   cors({
     // Access to XMLHttpRequest at 'http://localhost:3000/auth/login'
@@ -50,7 +51,7 @@ const start = async () => {
     /** App listening on port */
     app.listen(PORT, () => {
       console.log(
-        `Listening at http://localhost:${PORT}\nEnv: ${process.env.NODE_ENV} | User: ${process.env.MYUSER}`
+        `Listening at http://localhost:${PORT}\nEnv: ${process.env.NODE_ENV} | sqlUser: ${process.env.MYUSER}`
       );
     });
   } catch (err) {

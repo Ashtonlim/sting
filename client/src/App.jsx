@@ -5,6 +5,8 @@ import {
   Route,
   Outlet,
   Navigate,
+  useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 import Cookies from "js-cookie";
@@ -15,11 +17,9 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Kanban from "./pages/Kanban/Kanban";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
+import Loading from "./pages/Loading/";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
-
-import { LoadingOutlined } from "@ant-design/icons";
-import { Spin } from "antd";
 
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
@@ -32,8 +32,11 @@ const App = () => {
 
   useEffect(() => {
     console.log("app route", user);
-    dispatch(checkUser());
-  }, []);
+    // console.log(window.location.href);
+    if (user.status === "idle") {
+      dispatch(checkUser());
+    }
+  }, [user.status, dispatch]);
 
   return (
     <BrowserRouter>
@@ -50,17 +53,8 @@ const App = () => {
         <Route
           path="login"
           element={
-            user.status === "idle" ? (
-              <Spin
-                indicator={
-                  <LoadingOutlined
-                    style={{
-                      fontSize: 24,
-                    }}
-                    spin
-                  />
-                }
-              />
+            user.status != "succeeded" ? (
+              <Loading />
             ) : user.loggedIn ? (
               <Navigate to="/" />
             ) : (
@@ -77,29 +71,49 @@ const App = () => {
 const PrivateRoute = () => {
   const user = useSelector((state) => state.auth);
   console.log("Private route", user);
+  const location = useLocation();
 
-  return user.status === "idle" ? (
-    <Spin
-      indicator={
-        <LoadingOutlined
-          style={{
-            fontSize: 24,
-          }}
-          spin
-        />
-      }
-    />
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   console.log("app route", user);
+  //   // console.log(window.location.href);
+  //   if (user.status === "idle") {
+  //     dispatch(checkUser());
+  //   }
+  // }, [user.status, dispatch]);
+
+  // console.log(location.pathname);
+
+  // need to check if state is retrieved from server first
+  // once succeeded, res will then be updated in redux state
+  // check if user is logged in
+  // ensures route is always authenticated by server
+  return user.status != "succeeded" ? (
+    <Loading />
   ) : user.loggedIn ? (
     <Outlet />
   ) : (
-    <Navigate to="login" />
+    <Navigate to="login" state={{ from: location }} replace />
   );
 };
 
 const AdminRoute = () => {
   const user = useSelector((state) => state.auth);
+  const location = useLocation();
 
-  return user.loggedIn && user.isAdmin ? <Outlet /> : <Navigate to="" />;
+  // need to check if state is retrieved from server first
+  // once succeeded, res will then be updated in redux state
+  // check if user is logged in
+  // ensures route is always authenticated by server
+  return user.status != "succeeded" ? (
+    <Loading />
+  ) : user.loggedIn ? (
+    <Outlet />
+  ) : user.isAdmin ? (
+    <Navigate to="" />
+  ) : (
+    <Navigate to="login" state={{ from: location }} replace />
+  );
 };
 
 export default App;
