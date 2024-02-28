@@ -40,6 +40,7 @@ export const checkUser = createAsyncThunk("auth/checkUser", async () => {
 export const logout = createAsyncThunk("auth/logout", async () => {
   try {
     Cookies.remove("jwt");
+    // delete axios.defaults.headers.common["Authorization"];
     return true;
   } catch (err) {
     return err;

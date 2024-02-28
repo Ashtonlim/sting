@@ -82,19 +82,24 @@ export const adminUpdateUser = async (req, res) => {
 
     setIntoQry.push(` isActive=${isActive ? 1 : 0}`);
 
-    if (Array.isArray(secGrp) && secGrp.length > 0) {
-      setIntoQry.push(` secGrp='${secGrp.join(",")}'`);
+    if (Array.isArray(secGrp)) {
+      setIntoQry.push(
+        ` secGrp=${secGrp.length > 0 ? `'${secGrp.join(",")}'` : "NULL"}`
+      );
     }
 
     // update user
     const updateUserQry = `UPDATE accounts SET${setIntoQry.join(
       ","
     )} WHERE username='${username}';`;
+
+    // console.log("query is", updateUserQry);
     console.log("query is", updateUserQry);
 
     await sql.query(updateUserQry);
     res.status(200).json(`Updated user ${username}`);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -105,7 +110,7 @@ export const updateUser = async (req, res) => {
     let { password, email } = req.body;
 
     if (!password && !email) {
-      return res.status(400).send("No data to update");
+      return res.status(400).json("No data to update");
     }
 
     // get which user is requesting

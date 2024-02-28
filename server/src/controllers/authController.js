@@ -34,10 +34,12 @@ export const verifyAccessGrp = async (req, res) => {
     const [users] = await sql.query(getUserByIdQry);
 
     const secGrp = users[0]["secGrp"];
+    const isAdmin = await Checkgroup(req.byUser, "admin");
+    // console.log(isAdmin);
 
     return res.status(200).json({
       username: req.byUser,
-      isAdmin: await Checkgroup(req.byUser, groupname),
+      isAdmin,
       secGrp: secGrp?.split(","),
       loggedIn: true,
     });

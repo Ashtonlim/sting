@@ -30,7 +30,11 @@ export const checkAuth = (req, res, next) => {
       const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
       const [users] = await sql.query(getUserByIdQry);
       if (users.length !== 1) {
-        return res.status(401).json({ loggedIn: false, isAdmin: false });
+        return res.status(401).json({
+          err: "no such user associated with JWT",
+          loggedIn: false,
+          isAdmin: false,
+        });
       }
 
       const user = users[0];

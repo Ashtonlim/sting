@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "/src/pages/Login/authSlice.js";
@@ -10,9 +9,6 @@ const { VITE_APP_NAME } = import.meta.env;
 const LoggedInView = () => {
   const user = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  useEffect(() => {}, []);
 
   const handleLogout = () => {
     dispatch(logout());

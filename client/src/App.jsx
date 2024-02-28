@@ -31,12 +31,16 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("app route", user);
-    // console.log(window.location.href);
+    console.log("App route", user);
+    const init = async () => {
+      await dispatch(checkUser());
+    };
+
     if (user.status === "idle") {
-      dispatch(checkUser());
+      // console.log("checkUser on idle - refreshed or typed in url");
+      init();
     }
-  }, [user.status, dispatch]);
+  }, []);
 
   return (
     <BrowserRouter>
@@ -50,6 +54,11 @@ const App = () => {
           <Route path="Profile" element={<Profile />} />
           <Route path="kanban" element={<Kanban />} />
         </Route>
+
+        {/* <Route element={<OpenRoute />}>
+          <Route path="login" element={<Login />} />
+        </Route> */}
+
         <Route
           path="login"
           element={
@@ -70,19 +79,19 @@ const App = () => {
 // https://reactrouter.com/en/main/components/outlet
 const PrivateRoute = () => {
   const user = useSelector((state) => state.auth);
-  console.log("Private route", user);
+  const dispatch = useDispatch();
   const location = useLocation();
 
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   console.log("app route", user);
-  //   // console.log(window.location.href);
-  //   if (user.status === "idle") {
-  //     dispatch(checkUser());
-  //   }
-  // }, [user.status, dispatch]);
-
-  // console.log(location.pathname);
+  useEffect(() => {
+    console.log("Private route", user);
+    const init = async () => {
+      await dispatch(checkUser());
+    };
+    if (user.status === "succeeded") {
+      // console.log("checkUser on success - user.status should be success in PR");
+      init();
+    }
+  }, [dispatch]);
 
   // need to check if state is retrieved from server first
   // once succeeded, res will then be updated in redux state
@@ -99,21 +108,52 @@ const PrivateRoute = () => {
 
 const AdminRoute = () => {
   const user = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const location = useLocation();
 
-  // need to check if state is retrieved from server first
-  // once succeeded, res will then be updated in redux state
-  // check if user is logged in
-  // ensures route is always authenticated by server
+  useEffect(() => {
+    console.log("Admin route", user);
+    const init = async () => {
+      await dispatch(checkUser());
+    };
+    if (user.status === "succeeded") {
+      init();
+    }
+  }, [dispatch]);
+
   return user.status != "succeeded" ? (
     <Loading />
   ) : user.loggedIn ? (
-    <Outlet />
-  ) : user.isAdmin ? (
-    <Navigate to="" />
+    user.isAdmin ? (
+      <Outlet /> // if user is loggedin and admin, allow access
+    ) : (
+      <Navigate to="" /> // if user is loggedin but not an admin, redirect to home
+    )
   ) : (
-    <Navigate to="login" state={{ from: location }} replace />
+    <Navigate to="login" state={{ from: location }} replace /> //
   );
 };
 
 export default App;
+
+// const OpenRoute = () => {
+//   const user = useSelector((state) => state.auth);
+//   const dispatch = useDispatch();
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     console.log("Open route", user, location);
+//     const init = async () => {
+//       await dispatch(checkUser());
+//     };
+//     init();
+//   }, []);
+
+//   return user.status != "succeeded" ? (
+//     <Loading />
+//   ) : user.loggedIn ? (
+//     <Navigate to="/" />
+//   ) : (
+//     <Outlet />
+//   );
+// };

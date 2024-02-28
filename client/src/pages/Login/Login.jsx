@@ -24,7 +24,6 @@ const Login = () => {
   const onFinish = async (credentials) => {
     try {
       await dispatch(login(credentials));
-      console.log("from", from);
       navigate(from);
     } catch (err) {
       console.log(err);
