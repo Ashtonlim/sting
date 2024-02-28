@@ -14,7 +14,6 @@ import axios from "axios";
 
 import Home from "./pages/Home/Home";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Kanban from "./pages/Kanban/Kanban";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
 import Loading from "./pages/Loading/";
@@ -52,7 +51,6 @@ const App = () => {
         <Route element={<PrivateRoute />}>
           <Route exact path="" element={<Home />} />
           <Route path="Profile" element={<Profile />} />
-          <Route path="kanban" element={<Kanban />} />
         </Route>
 
         {/* <Route element={<OpenRoute />}>
