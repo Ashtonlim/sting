@@ -8,6 +8,7 @@ import cors from "cors";
 import auth from "./routes/auth.js";
 import user from "./routes/user.js";
 import group from "./routes/group.js";
+import apt from "./routes/apt.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,6 +42,7 @@ app.use(
 app.use("/auth", auth);
 app.use("/user", user);
 app.use("/group", group);
+app.use("/apt", apt);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
