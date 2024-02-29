@@ -26,9 +26,6 @@ const LoggedInView = () => {
           <Link to="/profile">Profile</Link>
         </li>
         <li className="nav-item">
-          <Link to="/Kanban">Kanban</Link>
-        </li>
-        <li className="nav-item">
           {/* Review: navigate() doesnt not work w Link onClick, why? */}
           <a onClick={handleLogout}>Logout</a>
         </li>
