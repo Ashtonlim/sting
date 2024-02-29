@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import Login from "./pages/Login/Login";
 import Kanban from "./pages/Kanban/Kanban";
+import CreateApplication from "./pages/CreateApplication/CreateApplication";
 import Loading from "./pages/Loading/";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
@@ -51,6 +52,7 @@ const App = () => {
         <Route element={<PrivateRoute />}>
           <Route exact path="" element={<Home />} />
           <Route path="Profile" element={<Profile />} />
+          <Route path="Create-application" element={<CreateApplication />} />
           <Route path="Kanban" element={<Kanban />} />
         </Route>
 

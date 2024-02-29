@@ -34,9 +34,12 @@ const Home = () => {
   useEffect(() => {});
   return (
     <LayoutOne>
-      <Button type="primary">
-        <Link href="/create-application">Create Application</Link>
-      </Button>
+      <Link to="/create-application">
+        <Button type="primary" className="mb-5 float-right">
+          Create Application
+        </Button>
+      </Link>
+
       <Table columns={columns} dataSource={data} />
     </LayoutOne>
   );
