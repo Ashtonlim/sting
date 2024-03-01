@@ -1,209 +1,346 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/btero0aK9VK
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+import { useState, useRef, useCallback, useEffect } from "react";
+import {
+  closestCenter,
+  pointerWithin,
+  rectIntersection,
+  DndContext,
+  DragOverlay,
+  getFirstCollision,
+  MouseSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensors,
+  useSensor,
+  MeasuringStrategy,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import update from "immutability-helper";
+import { SectionItem, FieldItem } from "./TasksItem.jsx";
+import ClientOnlyPortal from "./ClientOnlyPortal.jsx";
+import { ProjectOutlined } from "@ant-design/icons";
 
+import { tasks, columns } from "./fakeData.js";
 import LayoutOne from "/src/components/LayoutOne";
+import "./Kanban.scss";
 
-const Kanban = () => {
+export default function Kanban() {
+  const [data, setData] = useState(null);
+  const [items, setItems] = useState({});
+  const [containers, setContainers] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const lastOverId = useRef(null);
+  const recentlyMovedToNewContainer = useRef(false);
+  const isSortingContainer = activeId ? containers.includes(activeId) : false;
+
+  useEffect(() => {
+    if (tasks) {
+      setData(tasks);
+      let cols = {};
+      columns.sort((a, b) => a.order - b.order);
+      columns.forEach((c) => {
+        cols["column-" + c.id] = [];
+      });
+      tasks.forEach((d) => {
+        if (!("column-" + d.col_id in cols)) {
+          cols["column-" + d.col_id] = [];
+        }
+        cols["column-" + d.col_id].push("task-" + d.id);
+      });
+      setItems(cols);
+      setContainers(Object.keys(cols));
+    }
+  }, [tasks, columns]);
+
+  const moveBetweenContainers = useCallback(
+    (activeContainer, overContainer, active, over, overId) => {
+      const activeItems = items[activeContainer];
+      const overItems = items[overContainer];
+      const overIndex = overItems.indexOf(overId);
+      const activeIndex = activeItems.indexOf(active.id);
+
+      let newIndex;
+
+      if (overId in items) {
+        newIndex = overItems.length + 1;
+      } else {
+        const isBelowOverItem =
+          over &&
+          active.rect?.current?.translated &&
+          active.rect?.current?.translated.top >=
+            over.rect?.top + over.rect?.height;
+
+        const modifier = isBelowOverItem ? 1 : 0;
+
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
+      recentlyMovedToNewContainer.current = true;
+
+      setItems(
+        update(items, {
+          [activeContainer]: {
+            $splice: [[activeIndex, 1]],
+          },
+          [overContainer]: {
+            $splice: [[newIndex, 0, active.id]],
+            //$splice: [[newIndex, 0, items[activeContainer][activeIndex]],
+          },
+        })
+      );
+    },
+    [items]
+  );
+
+  /**
+   * Custom collision detection strategy optimized for multiple containers
+   *
+   * - First, find any droppable containers intersecting with the pointer.
+   * - If there are none, find intersecting containers with the active draggable.
+   * - If there are no intersecting containers, return the last matched intersection
+   *
+   */
+  const collisionDetectionStrategy = useCallback(
+    (args) => {
+      if (activeId && activeId in items) {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter(
+            (container) => container.id in items
+          ),
+        });
+      }
+
+      // Start by finding any intersecting droppable
+      const pointerIntersections = pointerWithin(args);
+      const intersections =
+        pointerIntersections.length > 0
+          ? // If there are droppables intersecting with the pointer, return those
+            pointerIntersections
+          : rectIntersection(args);
+      let overId = getFirstCollision(intersections, "id");
+
+      if (overId !== null) {
+        if (overId in items) {
+          const containerItems = items[overId];
+
+          // If a container is matched and it contains items (columns 'A', 'B', 'C')
+          if (containerItems.length > 0) {
+            // Return the closest droppable within that container
+            overId = closestCenter({
+              ...args,
+              droppableContainers: args.droppableContainers.filter(
+                (container) =>
+                  container.id !== overId &&
+                  containerItems.includes(container.id)
+              ),
+            })[0]?.id;
+          }
+        }
+
+        lastOverId.current = overId;
+
+        return [{ id: overId }];
+      }
+
+      // When a draggable item moves to a new container, the layout may shift
+      // and the `overId` may become `null`. We manually set the cached `lastOverId`
+      // to the id of the draggable item that was moved to the new container, otherwise
+      // the previous `overId` will be returned which can cause items to incorrectly shift positions
+      if (recentlyMovedToNewContainer.current) {
+        lastOverId.current = activeId;
+      }
+
+      // If no droppable is matched, return the last match
+      return lastOverId.current ? [{ id: lastOverId.current }] : [];
+    },
+    [activeId, items]
+  );
+
+  const [clonedItems, setClonedItems] = useState(null);
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        //distance: 5,
+        delay: 100,
+        tolerance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        distance: 5,
+        delay: 100,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      KeyboardSensor: {
+        distance: 5,
+        delay: 100,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const findContainer = (id) => {
+    if (id in items) return id;
+    return containers.find((key) => items[key].includes(id));
+  };
+
+  function handleDragStart({ active }) {
+    setActiveId(active.id);
+    setClonedItems(items);
+  }
+
+  function handleDragOver({ active, over }) {
+    const overId = over?.id;
+
+    if (!overId || active.id in items) return;
+
+    const overContainer = findContainer(overId);
+    const activeContainer = findContainer(active.id);
+
+    if (!overContainer || !activeContainer) return;
+
+    if (activeContainer !== overContainer) {
+      moveBetweenContainers(
+        activeContainer,
+        overContainer,
+        active,
+        over,
+        overId
+      );
+    }
+  }
+
+  function handleDragEnd({ active, over }) {
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    if (active.id in items && over?.id) {
+      setContainers((containers) => {
+        const activeIndex = containers.indexOf(active.id);
+        const overIndex = containers.indexOf(over.id);
+
+        return arrayMove(containers, activeIndex, overIndex);
+      });
+    }
+
+    const activeContainer = findContainer(active.id);
+
+    if (!activeContainer) {
+      setActiveId(null);
+      return;
+    }
+
+    const overContainer = findContainer(over.id);
+
+    if (overContainer) {
+      const activeIndex = items[activeContainer].indexOf(active.id);
+      const overIndex = items[overContainer].indexOf(over.id);
+
+      if (activeIndex !== overIndex) {
+        setItems((items) => ({
+          ...items,
+          [overContainer]: arrayMove(
+            items[overContainer],
+            activeIndex,
+            overIndex
+          ),
+        }));
+      }
+    }
+
+    setActiveId(null);
+  }
+
+  const handleDragCancel = () => {
+    if (clonedItems) {
+      // Reset items to their original state in case items have been
+      // Dragged across containers
+      setItems(clonedItems);
+    }
+
+    setActiveId(null);
+    setClonedItems(null);
+  };
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      recentlyMovedToNewContainer.current = false;
+    });
+  }, [items]);
+
   return (
     <LayoutOne>
-      <div key="1" className="flex flex-col h-screen">
-        <div className="h-[60px] flex items-center px-4 shadow-md">
-          <h1 className="text-sm font-medium text-gray-900 dark:text-gray-50 flex items-center">
-            <KanbanIcon className="mr-2 h-4 w-4" />
-            Kanban Board
-          </h1>
-        </div>
-        <div className="flex-1 overflow-auto py-4 px-4 bg-gray-100">
-          <div className="flex space-x-4">
-            <div className="w-72">
-              <h2 className="mb-4 text-sm font-medium text-gray-400 dark:text-gray-300 flex items-center">
-                <BackpackIcon className="mr-2 h-4 w-4" />
-                Backlog
-              </h2>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 1</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 1.
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 2</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 2.
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 3</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 3.
-                </p>
-              </div>
-            </div>
-            <div className="w-72">
-              <h2 className="mb-4 text-sm font-medium text-gray-400 dark:text-gray-300 flex items-center">
-                <ListTodoIcon className="mr-2 h-4 w-4" />
-                To Do
-              </h2>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 4</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 4.
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 5</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 5.
-                </p>
-              </div>
-            </div>
-            <div className="w-72">
-              <h2 className="mb-4 text-sm font-medium text-gray-400 dark:text-gray-300 flex items-center">
-                <ActivityIcon className="mr-2 h-4 w-4" />
-                In Progress
-              </h2>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 6</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 6.
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 7</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 7.
-                </p>
-              </div>
-            </div>
-            <div className="w-72">
-              <h2 className="mb-4 text-sm font-medium text-gray-400 dark:text-gray-300 flex items-center">
-                <CheckIcon className="mr-2 h-4 w-4" />
-                Done
-              </h2>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 8</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 8.
-                </p>
-              </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm mb-4">
-                <h3 className="text-sm font-semibold mb-1">Task 9</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is a description for task 9.
-                </p>
-              </div>
-            </div>
+      <ProjectOutlined />
+      <span className="ml-2 font-bold">Kanban</span>
+      <div className="kanban">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetectionStrategy}
+          measuring={{
+            droppable: {
+              strategy: MeasuringStrategy.WhileDragging,
+            },
+          }}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <div className="kanban-container">
+            <SortableContext
+              items={containers}
+              strategy={horizontalListSortingStrategy}
+            >
+              {containers.map((containerId) => {
+                return (
+                  <SectionItem
+                    id={containerId}
+                    key={containerId}
+                    items={items[containerId]}
+                    name={
+                      columns.filter((c) => "column-" + c.id === containerId)[0]
+                        .name
+                    }
+                    data={data}
+                    isSortingContainer={isSortingContainer}
+                  />
+                );
+              })}
+            </SortableContext>
           </div>
-        </div>
+          <ClientOnlyPortal selector=".kanban">
+            <DragOverlay>
+              {activeId ? (
+                containers.includes(activeId) ? (
+                  <SectionItem
+                    id={activeId}
+                    items={items[activeId]}
+                    name={
+                      columns.filter((c) => "column-" + c.id === activeId)[0]
+                        .name
+                    }
+                    data={data}
+                    dragOverlay
+                  />
+                ) : (
+                  <FieldItem
+                    id={activeId}
+                    item={data.filter((d) => "task-" + d.id === activeId)[0]}
+                    dragOverlay
+                  />
+                )
+              ) : null}
+            </DragOverlay>
+          </ClientOnlyPortal>
+        </DndContext>
       </div>
     </LayoutOne>
   );
-};
-
-export default Kanban;
-
-const ActivityIcon = (props) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-  </svg>
-);
-
-const BackpackIcon = (props) => {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 20V10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" />
-      <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-      <path d="M8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5" />
-      <path d="M8 10h8" />
-      <path d="M8 18h8" />
-    </svg>
-  );
-};
-
-const CheckIcon = (props) => {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-};
-
-const KanbanIcon = (props) => {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 5v11" />
-      <path d="M12 5v6" />
-      <path d="M18 5v14" />
-    </svg>
-  );
-};
-
-const ListTodoIcon = (props) => {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="5" width="6" height="6" rx="1" />
-      <path d="m3 17 2 2 4-4" />
-      <path d="M13 6h8" />
-      <path d="M13 12h8" />
-      <path d="M13 18h8" />
-    </svg>
-  );
-};
+}

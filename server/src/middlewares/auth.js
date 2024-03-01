@@ -39,13 +39,13 @@ export const checkAuth = (req, res, next) => {
 
       const user = users[0];
       req.byUser = username;
-      req.secGroups = [];
+      req.secGrp = [];
       req.isAdmin = false;
 
-      const secGroups = user["secGrp"];
-      if (secGroups !== null || typeof secGroups === "string") {
-        req.secGroups = secGroups.split(",");
-        req.isAdmin = req.secGroups.includes("admin");
+      const secGrp = user["secGrp"];
+      if (secGrp !== null || typeof secGrp === "string") {
+        req.secGrp = secGrp.split(",");
+        req.isAdmin = req.secGrp.includes("admin");
       }
 
       next();
