@@ -83,3 +83,39 @@ export const createApp = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
+export const editApp = async (req, res) => {
+  try {
+    console.log(req.byUser, req.secGrp);
+    if (!req.secGrp?.includes("pl")) {
+      return res.status(403).send("User is not a PL");
+    }
+    console.log("hi");
+
+    const params = [
+      "App_Description",
+      "App_startDate",
+      "App_endDate",
+      "App_permit_Open",
+      "App_permit_toDoList",
+      "App_permit_Doing",
+      "App_permit_Done",
+      "App_Acronym",
+    ];
+    const queryParams = params.map((param) =>
+      req.body[param] ? `${req.body[param]}` : null
+    );
+
+    console.log(queryParams);
+    const editAppQry =
+      "UPDATE application SET App_Description = ?, App_startDate = ?, App_endDate = ?, App_permit_Open = ?, App_permit_toDoList = ?, App_permit_Doing = ?, App_permit_Done = ? WHERE App_Acronym = ?;";
+
+    console.log("editAppQry", editAppQry);
+    const [app] = await sql.query(editAppQry, queryParams);
+    console.log("created app", app);
+    res.status(200).json(app);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};

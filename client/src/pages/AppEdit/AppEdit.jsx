@@ -54,10 +54,11 @@ const AppEdit = () => {
     const App_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
     delete values["seDate"];
 
-    await axios.post(`/apt/editApp/${appName}`, {
+    await axios.post(`/apt/editApp`, {
       ...values,
       App_startDate,
       App_endDate,
+      App_Acronym: appName,
     });
   };
   const onFinishFailed = (errorInfo) => {
