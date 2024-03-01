@@ -1,9 +1,30 @@
 import axios from "axios";
-import { Button, Form, Input, Card } from "antd";
+import { Button, Form, Input, Card, message } from "antd";
 
-const CreateGroupForm = () => {
+const CreateGroupForm = ({ setoptions }) => {
+  const [form] = Form.useForm();
   const onFinish = async ({ groupname }) => {
-    const res = await axios.post("group/createGroup", { groupname });
+    try {
+      const res = await axios.post("group/createGroup", { groupname });
+      if (res.status >= 200 && res.status < 300) {
+        message.success(`Group '${groupname}' created successfully`);
+      }
+
+      const groupnameList = (await axios.get("group/allGroups")).data.map(
+        ({ groupname }) => ({
+          label: groupname,
+          value: groupname,
+        })
+      );
+
+      setoptions(groupnameList);
+      form.resetFields();
+    } catch (err) {
+      console.log(err);
+      if (err.response.data) {
+        message.error(err.response.data);
+      }
+    }
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -13,6 +34,7 @@ const CreateGroupForm = () => {
   return (
     <Card title="Create a new group" size="small" className="w-1/3 my-3 mr-5">
       <Form
+        form={form}
         name="createGroup"
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
@@ -34,12 +56,13 @@ const CreateGroupForm = () => {
         >
           <Input placeholder="admin" />
         </Form.Item>
-
-        <Form.Item className="flex items-end justify-center ">
-          <Button className="w-28" type="primary" htmlType="submit">
-            Create group
-          </Button>
-        </Form.Item>
+        <div className="mt-3">
+          <Form.Item className="">
+            <Button className="w-28" type="primary" htmlType="submit">
+              Create group
+            </Button>
+          </Form.Item>
+        </div>
       </Form>
     </Card>
   );

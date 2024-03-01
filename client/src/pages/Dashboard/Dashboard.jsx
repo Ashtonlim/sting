@@ -19,7 +19,7 @@ import CreateGroupForm from "./CreateGroupForm";
 
 const Dashboard = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
+  const [data, setdata] = useState([]);
   const [options, setoptions] = useState([]);
   const [editingKey, setEditingKey] = useState("");
 
@@ -29,7 +29,7 @@ const Dashboard = () => {
     const init = async () => {
       const { data } = await axios.get("/user/allUsers");
 
-      setData(
+      setdata(
         data.map((user) => ({
           ...user,
           secGrp: user.secGrp?.split(","),
@@ -63,10 +63,18 @@ const Dashboard = () => {
       password: {
         component: <Input.Password placeholder="input new password" />,
         rules: [
-          { min: 3, max: 20 },
+          { min: 8, max: 10 },
           {
-            pattern: "^[a-zA-Z0-9]+$",
-            message: "Only letters and numbers are allowed",
+            pattern: "^(?=.*[a-zA-Z]).+$",
+            message: "must have 1 alphabet",
+          },
+          {
+            pattern: "\\d",
+            message: "must have 1 number",
+          },
+          {
+            pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+            message: "must have 1 special character",
           },
         ],
       },
@@ -95,12 +103,15 @@ const Dashboard = () => {
         rules: [],
       },
     };
-
     return (
       <td {...restProps}>
         {editing ? (
           <Form.Item name={dataIndex} rules={inputMap[dataIndex]["rules"]}>
-            {inputMap[dataIndex]["component"]}
+            {dataIndex === "isActive" && record?.username === "admin" ? (
+              <Switch value={true} disabled={true} />
+            ) : (
+              inputMap[dataIndex]["component"]
+            )}
           </Form.Item>
         ) : (
           children
@@ -140,11 +151,11 @@ const Dashboard = () => {
         });
 
         const res = await axios.post("/user/admin/updateUser", row);
-        setData(newData);
+        setdata(newData);
       } else {
         newData.push(row);
       }
-      setData(newData);
+      setdata(newData);
       setEditingKey("");
     } catch (errInfo) {
       message.error(errInfo.response.data);
@@ -234,9 +245,13 @@ const Dashboard = () => {
 
   return (
     <LayoutOne>
-      <div className="flex justify-end">
-        <CreateGroupForm />
-        <CreateUserForm />
+      <div className="flex flex-col items-end">
+        <CreateGroupForm options={options} setoptions={setoptions} />
+        <CreateUserForm
+          options={options}
+          setoptions={setoptions}
+          setdata={setdata}
+        />
       </div>
       <Form form={form} component={false}>
         <Table

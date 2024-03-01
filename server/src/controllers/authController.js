@@ -1,33 +1,23 @@
-import { createUser, findById } from "../models/userModel.js";
-import { sg_findAll } from "../models/secGroups.js";
 import jwt from "jsonwebtoken";
-import { isAlphaNumeric } from "../utils.js";
 import bcrypt from "bcryptjs";
+import sql from "../config/db.js";
 
 const secret = process.env.JWTSECRET;
 const expiresIn = "1h";
-// if (!secret) {
-//   console.log("WARNING: Secret for JWT not found");
-//   throw new Error("Secret for JWT not found");
-// }
-
-// From spec sheet:
-// create a function that returns a value to indicate if a user is in a group.
 
 export const Checkgroup = async (userid, groupname) => {
-  // console.log(userid, groupname, "userid, groupname");
   try {
-    const users = await findById(userid);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${userid}';`;
+    const [users] = await sql.query(getUserByIdQry);
     if (users.length !== 1) {
-      console.log(users, "user not found");
       return false;
     }
-    const secGroups = users[0]["secGrp"];
-    if (secGroups === null || typeof secGroups !== "string") {
+    const secGrp = users[0]["secGrp"];
+    if (secGrp === null || typeof secGrp !== "string") {
       return false;
     }
 
-    return secGroups.split(",").includes(groupname);
+    return secGrp.split(",").includes(groupname);
   } catch (err) {
     throw new Error(err);
   }
@@ -35,13 +25,24 @@ export const Checkgroup = async (userid, groupname) => {
 
 export const verifyAccessGrp = async (req, res) => {
   try {
-    const { groupname } = req.body;
-    console.log(groupname);
+    const groupname = req.body?.groupname || "admin";
     if (!groupname) {
       return res.status(401).json("no groupname provided");
     }
-    const userIsInGroup = await Checkgroup(req.byUser, groupname);
-    return res.status(200).json(userIsInGroup);
+
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
+    const [users] = await sql.query(getUserByIdQry);
+
+    const secGrp = users[0]["secGrp"];
+    const isAdmin = await Checkgroup(req.byUser, "admin");
+    // console.log(isAdmin);
+
+    return res.status(200).json({
+      username: req.byUser,
+      isAdmin,
+      secGrp: secGrp?.split(","),
+      loggedIn: true,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -51,7 +52,7 @@ export const verifyAccessGrp = async (req, res) => {
 export const register = async (req, res) => {
   try {
     let { username, password, email, groups } = req.body;
-
+    // console.log(username, password, email, groups);
     // check submitted JWT is a valid admin
     const isAdmin = await Checkgroup(req.byUser, "admin");
 
@@ -61,79 +62,93 @@ export const register = async (req, res) => {
 
     // ==== check username ====
     // verify fits constraints
-    const meetsContraints =
-      isAlphaNumeric(username) && username.length >= 3 && username.length <= 20;
+    const usernameMeetsContraints =
+      new RegExp("^[a-zA-Z0-9]+$").test(username) &&
+      username.length >= 3 &&
+      username.length <= 20;
 
-    if (!meetsContraints) {
-      return res.status(401).json("Invalid user details.");
+    if (!usernameMeetsContraints) {
+      return res.status(401).json("Username is not valid");
     }
+
     // find if user already exists
-    let user = await findById(username);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
 
     // reject if user already exists
-    if (user.length >= 1) {
+    if (users.length >= 1) {
       return res.status(401).json("User already exists");
     }
 
-    // ==== check username ====
-
     // ==== check password ====
+    if (
+      new RegExp(
+        "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,10}$"
+      ).test(password)
+    ) {
+      return res.status(401).json("password is not valid");
+    }
 
     // create hash
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);
 
-    // ==== check password ====
-
     // ==== check email ====
-    if (typeof email !== "string" || !(email instanceof String)) {
-      console.log("change email to empty str");
+    if (typeof email !== "string") {
       email = null;
+    } else {
+      const checkIfEmailExistsQry = `SELECT * from accounts where email='${email}';`;
+      const [usersWithEmail] = await sql.query(checkIfEmailExistsQry);
+
+      if (usersWithEmail.length > 0) {
+        return res.status(401).json("Email already in use");
+      }
     }
-    // ==== check email ====
 
     // ==== check groups ====
-    if (!Array.isArray(groups) || !(groups instanceof Array)) {
-      console.log("change groups to empty arr");
+    if (!Array.isArray(groups)) {
       groups = null;
     }
 
     // if items provided
     if (groups) {
       // verify groups are valid
-      const allSecGroups = (await sg_findAll()).map((row) => row.groupname);
+      const findAllQry = `SELECT * FROM secGroups;`;
+      const [groups] = await sql.query(findAllQry);
+
+      const allSecGroups = groups.map((row) => row.groupname);
       const secGroupsSet = new Set(allSecGroups);
 
-      console.log(secGroupsSet);
-
       let invalidGrps = groups.filter((grp) => !secGroupsSet.has(grp));
-      console.log(invalidGrps, "invalidGrps");
 
       if (invalidGrps.length > 0) {
         return res
           .status(401)
           .json(
-            `${invalidGrps} group does not exists, please create them first`
+            `${invalidGrps} group(s) does not exists, please create them first`
           );
       }
     }
-    // ==== check groups ====
 
-    user = await createUser({
-      username,
-      password: hash,
-      email,
-      groups: groups?.join(","),
-    });
-
+    const createUserQry = `
+      INSERT INTO accounts (username, password, email, secGrp) values ('${username}', '${hash}', ${
+      email ? email : null
+    }, ${groups ? `'${groups?.join(",")}'` : null});
+    `;
+    const createdUser = await sql.query(createUserQry);
     const token = jwt.sign({ username }, secret, { expiresIn });
 
-    if (!token || !user) {
+    if (!token || !createdUser) {
       return res.status(401).json("failed to create user");
     }
 
-    res.status(200).json();
+    res.status(200).json({
+      token,
+      username,
+      isAdmin: groups?.includes("admin"),
+      secGrps: groups,
+    });
   } catch (err) {
     console.log(err, "error");
     res.status(500).json(err);
@@ -144,33 +159,35 @@ export const register = async (req, res) => {
 // can just prevent user from logging in
 export const login = async (req, res) => {
   const { username, password } = req.body;
+  // console.log(username, password);
+
   try {
-    // user.password is hash
-    const users = await findById(username);
-
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
     if (users.length !== 1) {
-      return res.status(401).json({ err: "No such user" });
+      return res.status(401).json("Invalid credentials");
     }
-
     // user should not be able to login if isActive is false
     if (!users[0].isActive) {
-      return res.status(401).json({ err: "User is disabled" });
+      return res.status(401).json("User is disabled");
     }
-
+    // console.log(password, users[0].password, "password, users[0].password");
     const isPwdCorrect = bcrypt.compareSync(password, users[0].password);
     if (!isPwdCorrect) {
-      return res.status(401).json({ err: "incorrect password" });
+      return res.status(401).json("Invalid credentials");
     }
 
     const token = jwt.sign({ username }, secret, { expiresIn: 60 * 60 });
-    res.cookie("jwt", token, {
-      // httpOnly: true, // cannot access cookie via js in client
-      // secure: true, // Only sent over HTTPS
-      maxAge: 3600000, // expiration milliseconds
-      // sameSite: "strict", // Restricts the cookie to be sent only with requests originating from the same site
-    });
 
-    res.status(200).json({ data: users[0].username });
+    let secGrp = users[0]["secGrp"];
+    secGrp = secGrp ? secGrp?.split(",") : null;
+
+    res.status(200).json({
+      token,
+      username,
+      isAdmin: secGrp?.includes("admin"),
+      secGrp,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json(err);

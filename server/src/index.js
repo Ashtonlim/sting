@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-// require("dotenv").config();
-// console.log(process.env);
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 
@@ -10,11 +8,11 @@ import cors from "cors";
 import auth from "./routes/auth.js";
 import user from "./routes/user.js";
 import group from "./routes/group.js";
+import apt from "./routes/apt.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "config", "dev.env") });
-console.log(`env: ${process.env.NODE_ENV}, user: ${process.env.MYUSER}`); // dev
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +21,7 @@ app.use(express.json());
 
 // allows CORS requests
 // app.use(cors());
+
 app.use(
   cors({
     // Access to XMLHttpRequest at 'http://localhost:3000/auth/login'
@@ -43,6 +42,7 @@ app.use(
 app.use("/auth", auth);
 app.use("/user", user);
 app.use("/group", group);
+app.use("/apt", apt);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -52,7 +52,9 @@ const start = async () => {
   try {
     /** App listening on port */
     app.listen(PORT, () => {
-      console.log(`Listening at http://localhost:${PORT}`);
+      console.log(
+        `Listening at http://localhost:${PORT}\nEnv: ${process.env.NODE_ENV} | sqlUser: ${process.env.MYUSER}`
+      );
     });
   } catch (err) {
     console.log(err);

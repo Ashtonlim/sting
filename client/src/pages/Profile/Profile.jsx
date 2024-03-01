@@ -7,10 +7,11 @@ import LayoutOne from "/src/components/LayoutOne";
 
 const Profile = () => {
   const [user, setUser] = useState({ username: "", email: "" });
+  const [form] = Form.useForm();
+
   useEffect(() => {
     const init = async () => {
       const res = await axios.get("user/user");
-      console.log(res.data);
       setUser(res.data);
     };
 
@@ -20,10 +21,16 @@ const Profile = () => {
   const onFinish = async (payload) => {
     try {
       const res = await axios.post("user/updateUser", payload);
-      console.log(res);
-      message.success("Credentials updated successfully!");
+
+      if (200 <= res.status && res.status < 300) {
+        if (payload.email) {
+          setUser({ ...user, ...payload });
+        }
+        message.success("Credentials updated successfully!");
+        form.resetFields();
+      }
     } catch (err) {
-      message.success(`Unable to update credentials! ${err}`);
+      message.error(`Unable to update credentials!`);
     }
   };
 
@@ -43,13 +50,18 @@ const Profile = () => {
             </div>
             <div>
               <div className="text-lg underline underline-offset-8">Email</div>{" "}
-              <div className="font-bold mt-1">{user.email}</div>
+              {typeof user.email === "string" && user.email ? (
+                <div className="font-bold mt-1">{user.email}</div>
+              ) : (
+                <div className="italic mt-1">No email</div>
+              )}
             </div>
           </Card>
         </div>
         <div className="text-left w-full ml-10">
           <Card title={`Update profile information`}>
             <Form
+              form={form}
               name="edit-user"
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}

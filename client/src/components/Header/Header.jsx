@@ -1,49 +1,33 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../pages/Login/authSlice";
-
+import { logout } from "/src/pages/Login/authSlice.js";
 import "./header.scss";
 
 const { VITE_APP_NAME } = import.meta.env;
 
 const LoggedInView = () => {
-  const [isAdmin, setisAdmin] = useState(false);
-  const loginState = useSelector((state) => state.auth.username);
+  const user = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const init = async () => {
-      const { data } = await axios.post("auth/verifyAccessGrp", {
-        groupname: "admin",
-      });
-      console.log("res", data);
-      setisAdmin(data);
-    };
-    init();
-  });
   const handleLogout = () => {
-    const res = dispatch(logout());
-    console.log("logout res", res);
+    dispatch(logout());
   };
-
-  if (loginState) {
+  // console.log("from header isadmin", state, state.isAdmin);
+  if (user.loggedIn) {
     return (
       <>
-        <li className="nav-item">
-          <Link to="/profile">Profile</Link>
-        </li>
-        {isAdmin && (
+        {user.isAdmin && (
           <li className="nav-item">
-            <Link to="/dashboard">user management</Link>
+            <Link to="/dashboard">User management</Link>
           </li>
         )}
         <li className="nav-item">
-          <Link onClick={handleLogout} to="/">
-            Logout
-          </Link>
+          <Link to="/profile">Profile</Link>
+        </li>
+        <li className="nav-item">
+          {/* Review: navigate() doesnt not work w Link onClick, why? */}
+          <a onClick={handleLogout}>Logout</a>
         </li>
       </>
     );

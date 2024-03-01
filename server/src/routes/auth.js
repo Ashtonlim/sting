@@ -4,16 +4,18 @@ import {
   login,
   verifyAccessGrp,
 } from "../controllers/authController.js";
-import { checkJWT } from "../middlewares/auth.js";
+import { checkAuth } from "../middlewares/auth.js";
 
 // import { sqlAllMultiLine } from "../models/db.js";
 // import bcrypt from "bcryptjs";
 
 const router = Router();
 
-router.post("/register", checkJWT, register);
+router.post("/register", checkAuth, register);
 router.post("/login", login);
-router.post("/verifyAccessGrp", checkJWT, verifyAccessGrp);
+router.post("/verifyAccessGrp", checkAuth, verifyAccessGrp);
+
+export default router;
 
 // review: please remove, rm endpoint as well
 // export const resetDB = () => {
@@ -30,16 +32,13 @@ router.post("/verifyAccessGrp", checkJWT, verifyAccessGrp);
 //                 CREATE DATABASE IF NOT EXISTS nodelogin DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 //                 USE nodelogin;
 //                 CREATE TABLE IF NOT EXISTS accounts (
-//                     id int(12) NOT NULL,
-//                     username varchar(20) NOT NULL,
+//                     username varchar(20) NOT NULL PRIMARY KEY,
 //                     password varchar(${maxHashLen}) NOT NULL,
-//                     email varchar(${maxEmailLen}),
+//                     email varchar(${maxEmailLen}) UNIQUE,
 //                     isActive BOOLEAN DEFAULT TRUE,
 //                     secGrp TEXT
 //                 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-//                 INSERT INTO accounts (id, username, password, email, secGrp) VALUES (1, 'admin', '${adminPwdHash}', 'admin@st.co', 'admin');
-//                 ALTER TABLE accounts ADD PRIMARY KEY (id);
-//                 ALTER TABLE accounts MODIFY id int(12) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+//                 INSERT INTO accounts (username, password, email, secGrp) VALUES ('admin', '${adminPwdHash}', 'admin@st.co', 'admin');
 //                 `;
 
 //   sqlAllMultiLine.query(QryString, (err, results) => {
@@ -49,5 +48,3 @@ router.post("/verifyAccessGrp", checkJWT, verifyAccessGrp);
 //   });
 // };
 // router.get("/reset", resetDB);
-
-export default router;

@@ -1,38 +1,39 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { Button, Form, Input, Select, message, Card } from "antd";
 
-const CreateUserForm = () => {
-  const [options, setoptions] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await axios.get("group/allGroups");
-      const groupnameList = data.map(({ groupname }) => ({
-        label: groupname,
-        value: groupname,
-      }));
-      setoptions(groupnameList);
-    };
-    fetchData();
-  }, []);
+const CreateUserForm = ({ options, setdata }) => {
+  const [form] = Form.useForm();
 
   const onFinish = async (credentials) => {
     try {
       const res = await axios.post("auth/register", credentials);
-      if (res.response.status >= 200 && res.response.status < 300) {
-        message.success("User created successfully");
+      if (res.status >= 200 && res.status < 300) {
+        message.success(`User '${credentials.username}' created successfully`);
       }
-    } catch (error) {
-      message.error(error.response.data);
+      const { data } = await axios.get("/user/allUsers");
+      setdata(
+        data.map((user) => ({
+          ...user,
+          secGrp: user.secGrp?.split(","),
+        }))
+      );
+      form.resetFields();
+    } catch (err) {
+      console.log(err);
+      message.error(err.response.data);
     }
   };
 
-  const onFinishFailed = (errorInfo) => {};
+  const onFinishFailed = (errorInfo) => {
+    message.error(errorInfo);
+  };
 
   return (
     <Card title="Create a new user" size="small" className="w-full my-3">
       <Form
+        form={form}
+        // wrapperCol={{ span: 24 }}
+        // style={{ width: "100%", marginRight: 0 }}
         name="createUser"
         initialValues={{
           remember: true,
@@ -70,7 +71,6 @@ const CreateUserForm = () => {
             },
 
             { min: 8, max: 10 },
-
             {
               pattern: "^(?=.*[a-zA-Z]).+$",
               message: "must have 1 alphabet",
@@ -109,12 +109,13 @@ const CreateUserForm = () => {
             options={options}
           />
         </Form.Item>
-
-        <Form.Item className="flex items-end justify-center">
-          <Button className="w-28" type="primary" htmlType="submit">
-            Create User
-          </Button>
-        </Form.Item>
+        <div className="mt-3">
+          <Form.Item>
+            <Button className="w-28" type="primary" htmlType="submit">
+              Create User
+            </Button>
+          </Form.Item>
+        </div>
       </Form>
     </Card>
   );

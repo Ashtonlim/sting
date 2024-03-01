@@ -1,27 +1,28 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import sql from "../models/db.js";
-import { findAll, findById, editUser } from "../models/userModel.js";
+import sql from "../config/db.js";
 
 const secret = process.env.JWTSECRET;
 
 export const getAllUsers = async (req, res) => {
+  if (!req.isAdmin) {
+    return res.status(403).send("User is not an admin");
+  }
+
   try {
-    const users = await findAll();
+    const getUserByIdQry = `SELECT username, email, isActive, secGrp FROM accounts;`;
+    const [users] = await sql.query(getUserByIdQry);
 
     res.status(200).json(users);
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
 
 export const getUser = async (req, res) => {
-  console.log(req.byUser);
-  const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
-
   try {
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${req.byUser}';`;
     const [users] = await sql.query(getUserByIdQry);
     if (users.length !== 1) {
       return res.status(404).send("User not found");
@@ -34,14 +35,14 @@ export const getUser = async (req, res) => {
 };
 
 export const adminUpdateUser = async (req, res) => {
+  if (!req.isAdmin) {
+    return res.status(403).send("User is not an admin");
+  }
   try {
     let { username, password, email, isActive, secGrp } = req.body;
 
     // admin cannot be deleted, check if admin
-    if (
-      req.username === "admin" &&
-      (isActive === false || !secGrp.includes("admin"))
-    ) {
+    if (req.username === "admin" && (!isActive || !secGrp.includes("admin"))) {
       return res
         .status(403)
         .send(
@@ -49,29 +50,54 @@ export const adminUpdateUser = async (req, res) => {
         );
     }
 
-    const users = await findById(username);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+    const [users] = await sql.query(getUserByIdQry);
 
     if (users.length !== 1) {
       return res.status(404).send("User not found");
     }
 
-    // password will not be updated if not provided
-    password = password
-      ? bcrypt.hashSync(password, bcrypt.genSaltSync(10))
-      : users[0].password;
+    const setIntoQry = [];
 
-    secGrp = secGrp ? secGrp.join(",") : secGrp;
+    // password will not be updated if not provided
+    // fix
+    // fix
+    // fix
+    // fix
+    // fix
+    // regex not working and sql statement wrong, doesnt include password, see query string output
+    if (
+      new RegExp(
+        "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,10}$"
+      ).test(password)
+    ) {
+      setIntoQry.push(
+        ` password=${bcrypt.hashSync(password, bcrypt.genSaltSync(10))}`
+      );
+    }
+
+    if (typeof email === "string" && email !== "") {
+      setIntoQry.push(` email='${email}'`);
+    }
+
+    setIntoQry.push(` isActive=${isActive ? 1 : 0}`);
+
+    if (Array.isArray(secGrp)) {
+      setIntoQry.push(
+        ` secGrp=${secGrp.length > 0 ? `'${secGrp.join(",")}'` : "NULL"}`
+      );
+    }
 
     // update user
-    await editUser({
-      username,
-      password,
-      email,
-      isActive,
-      secGrp,
-    });
+    const updateUserQry = `UPDATE accounts SET${setIntoQry.join(
+      ","
+    )} WHERE username='${username}';`;
 
-    res.status(200).json();
+    // console.log("query is", updateUserQry);
+    console.log("query is", updateUserQry);
+
+    await sql.query(updateUserQry);
+    res.status(200).json(`Updated user ${username}`);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -81,47 +107,41 @@ export const adminUpdateUser = async (req, res) => {
 // check this
 export const updateUser = async (req, res) => {
   try {
-    // admin cannot be deleted, check if admin
     let { password, email } = req.body;
-    console.log(password, email, req.byUser);
+
+    if (!password && !email) {
+      return res.status(400).json("No data to update");
+    }
+
     // get which user is requesting
     const username = req.byUser;
-    const user = await findById(username);
+    const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
 
-    if (user.length !== 1) {
+    const [users] = await sql.query(getUserByIdQry);
+
+    if (users.length !== 1) {
       return res.status(404).send("User not found");
     }
 
-    if (!password && !email) {
-      return res.status(400).send("No data to update");
-    }
-    console.log(typeof password !== "string");
     // ==== check password ====
-    if (typeof password !== "string") {
-      console.log("change password to empty str");
-      password = null;
-    }
-
-    if (password) {
-      // create hash
+    const setIntoQry = [];
+    let hash = "";
+    if (typeof password === "string" && password !== "") {
       const saltRounds = 10;
       const salt = bcrypt.genSaltSync(saltRounds);
       const hash = bcrypt.hashSync(password, salt);
+      setIntoQry.push(` password='${hash}'`);
     }
 
-    // ==== check password ====
-    console.log(email, typeof email !== "string");
     // ==== check email ====
-    if (typeof email !== "string") {
-      console.log("change email to empty str");
-      email = null;
+    if (typeof email === "string" && email !== "") {
+      setIntoQry.push(` email='${email}'`);
     }
-    // ==== check email ====
-    console.log("password", password, "email", email);
+
     // update user
-    const updateUserQry = `UPDATE accounts SET ${
-      password ? `password='${hash}', ` : ""
-    }${email ? `email='${email}' ` : ""}WHERE username='${username}';`;
+    const updateUserQry = `UPDATE accounts SET${setIntoQry.join(
+      ","
+    )} WHERE username='${username}';`;
 
     console.log("query is", updateUserQry);
     const updatedUser = await sql.query(updateUserQry);

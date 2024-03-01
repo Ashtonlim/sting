@@ -1,28 +1,32 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input, Card } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "./authSlice.js";
 import LayoutOne from "/src/components/LayoutOne";
-import { login } from "./authSlice";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = () => {
-  const loginState = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-  console.log("this is loginState", loginState);
+  useEffect(() => {
+    console.log("now in login, from:", from);
+    if (user.loggedIn) {
+      navigate(from);
+    }
+  }, []);
 
   const onFinish = async (credentials) => {
     try {
-      const { payload } = await dispatch(login(credentials));
-      console.log("dispatch payload", payload);
-
-      if (payload) {
-        navigate("/");
-      }
+      await dispatch(login(credentials));
+      navigate(from);
     } catch (err) {
-      message.error(err);
+      console.log(err);
     }
   };
 
@@ -31,70 +35,62 @@ const Login = () => {
   };
   return (
     <LayoutOne>
-      <div className="">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto ">
-          <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 className="text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl dark:text-white">
-                Login to TMS
-              </h1>
-              <Form
-                name="userLogin"
-                style={{ textColor: "white" }}
-                initialValues={{
-                  remember: true,
-                }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-                layout="vertical"
-              >
-                <Form.Item
-                  label="Username"
-                  name="username"
-                  style={{ color: "white" }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input your username!",
-                    },
-                  ]}
-                >
-                  <Input
-                    prefix={<UserOutlined className="site-form-item-icon" />}
-                    placeholder="Username"
-                  />
-                </Form.Item>
+      <div className="w-full flex justify-center">
+        <Card className="w-2/5">
+          <h1 className="text-2xl font-bold leading-tight tracking-tight md:text-4xl">
+            Login to TMS
+          </h1>
+          <Form
+            name="userLogin"
+            style={{ textColor: "white" }}
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
+            layout="vertical"
+          >
+            <Form.Item
+              label="Username"
+              name="username"
+              style={{ color: "white" }}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username!",
+                },
+              ]}
+            >
+              <Input
+                prefix={<UserOutlined className="site-form-item-icon" />}
+                placeholder="Username"
+              />
+            </Form.Item>
 
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input your password!",
-                    },
-                  ]}
-                >
-                  <Input.Password
-                    prefix={<LockOutlined className="site-form-item-icon" />}
-                    placeholder="Password"
-                  />
-                </Form.Item>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your password!",
+                },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined className="site-form-item-icon" />}
+                placeholder="Password"
+              />
+            </Form.Item>
 
-                <Form.Item>
-                  <Button
-                    className="w-full mt-2"
-                    type="primary"
-                    htmlType="submit"
-                  >
-                    Login
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          </div>
-        </div>
+            <Form.Item>
+              <Button className="w-full mt-2" type="primary" htmlType="submit">
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </div>
     </LayoutOne>
   );
