@@ -16,9 +16,7 @@ const AppEdit = () => {
   const [initFormVals, setinitFormVals] = useState({});
   const [form] = Form.useForm();
   const { appName } = useParams();
-  const now = dayjs();
-  console.log(now.format("YYYY-MM-DD"));
-  const dateFormat = "DD/MM/YYYY";
+
   useEffect(() => {
     console.log(appName);
     const init = async () => {
@@ -50,17 +48,17 @@ const AppEdit = () => {
     };
     init();
   }, []);
+
   const onFinish = async (values) => {
     const App_startDate = dayjs(values.seDate[0]["$d"]).format("YYYY-MM-DD");
     const App_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
     delete values["seDate"];
 
-    const res = await axios.post(`/apt/editApp/${appName}`, {
+    await axios.post(`/apt/editApp/${appName}`, {
       ...values,
       App_startDate,
       App_endDate,
     });
-    console.log(res);
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -82,18 +80,12 @@ const AppEdit = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
             initialValues={initFormVals}
+            layout="vertical"
           >
             {/* {console.log(initFormVals)} */}
-            <h1>{appName || "App Name Missing"}</h1>
+            <h2>{appName || "App Name Missing"}</h2>
             <Row>
-              <Col flex={3} className="mr-10">
-                <Form.Item
-                  label="Application Description"
-                  name="App_Description"
-                >
-                  <Input.TextArea showCount />
-                </Form.Item>
-
+              <Col className="mr-8 w-1/2">
                 <Form.Item
                   label="Start and End Date"
                   name="seDate"
@@ -101,39 +93,47 @@ const AppEdit = () => {
                 >
                   <RangePicker />
                 </Form.Item>
+                <Form.Item
+                  label="Application Description"
+                  name="App_Description"
+                >
+                  <Input.TextArea className="h-40" showCount />
+                </Form.Item>
               </Col>
-              <Col flex={2}>
+              <Col flex={2} className="mr-8">
                 <Form.Item label="Permit Create" name="App_permit_create">
                   <Select
-                    placeholder="Search to Select"
+                    placeholder="Give Create Permission to Group"
                     onChange={handleChange}
                     options={permitOptions}
                   />
                 </Form.Item>
                 <Form.Item label="Permit Open" name="App_permit_Open">
                   <Select
-                    placeholder="Search to Select"
+                    placeholder="Give Open Permission to Group"
                     onChange={handleChange}
                     options={permitOptions}
                   />
                 </Form.Item>
                 <Form.Item label="Permit Todo" name="App_permit_toDoList">
                   <Select
-                    placeholder="Search to Select"
+                    placeholder="Give Todo Permission to Group"
                     onChange={handleChange}
                     options={permitOptions}
                   />
                 </Form.Item>
+              </Col>
+              <Col flex={2} className="mr-8">
                 <Form.Item label="Permit Doing" name="App_permit_Doing">
                   <Select
-                    placeholder="Search to Select"
+                    placeholder="Give Doing Permission to Group"
                     onChange={handleChange}
                     options={permitOptions}
                   />
                 </Form.Item>
                 <Form.Item label="Permit Done" name="App_permit_Done">
                   <Select
-                    placeholder="Search to Select"
+                    placeholder="Give Done Permission to Group"
                     onChange={handleChange}
                     options={permitOptions}
                   />
@@ -141,8 +141,8 @@ const AppEdit = () => {
               </Col>
             </Row>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Edit
+              <Button className="float-right" type="primary" htmlType="submit">
+                Save Changes
               </Button>
             </Form.Item>
           </Form>

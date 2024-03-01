@@ -55,71 +55,81 @@ const AppCreate = () => {
 
   return (
     <LayoutOne>
-      <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+      <h2>Create A New Application</h2>
+      <Form
+        form={form}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        layout="vertical"
+      >
         <Row>
-          <Col flex={3} className="mr-10">
-            <Form.Item
-              label="Application Acronym"
-              name="App_Acronym"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the acronym for your App!",
-                },
-                { max: 20 },
-                {
-                  pattern: "^[a-zA-Z0-9]+$",
-                  message: "Only letters and numbers are allowed",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
+          <Col className="mr-8 w-1/2">
+            <Row>
+              <Form.Item
+                className="mr-8 w-2/5"
+                label="Application Acronym"
+                name="App_Acronym"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the acronym for your App!",
+                  },
+                  { max: 20 },
+                  {
+                    pattern: "^[a-zA-Z0-9]+$",
+                    message: "Only letters and numbers are allowed",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
+              <Form.Item
+                label="Start and End Date"
+                name="seDate"
+                rules={[{ required: true, message: "Dates are required" }]}
+              >
+                <RangePicker />
+              </Form.Item>
+            </Row>
             <Form.Item label="Application Description" name="App_Description">
-              <Input.TextArea showCount />
-            </Form.Item>
-
-            <Form.Item
-              label="Start and End Date"
-              name="seDate"
-              rules={[{ required: true, message: "Dates are required" }]}
-            >
-              <RangePicker />
+              <Input.TextArea className="h-40" showCount />
             </Form.Item>
           </Col>
-          <Col flex={2}>
+          <Col flex={2} className="mr-8">
             <Form.Item label="Permit Create" name="App_permit_create">
               <Select
-                placeholder="Search to Select"
+                placeholder="Give Create Permission to Group"
                 onChange={handleChange}
                 options={permitOptions}
               />
             </Form.Item>
             <Form.Item label="Permit Open" name="App_permit_Open">
               <Select
-                placeholder="Search to Select"
+                placeholder="Give Open Permission to Group"
                 onChange={handleChange}
                 options={permitOptions}
               />
             </Form.Item>
             <Form.Item label="Permit Todo" name="App_permit_toDoList">
               <Select
-                placeholder="Search to Select"
+                placeholder="Give Todo Permission to Group"
                 onChange={handleChange}
                 options={permitOptions}
               />
             </Form.Item>
+          </Col>
+          <Col flex={2}>
             <Form.Item label="Permit Doing" name="App_permit_Doing">
               <Select
-                placeholder="Search to Select"
+                placeholder="Give Doing Permission to Group"
                 onChange={handleChange}
                 options={permitOptions}
               />
             </Form.Item>
             <Form.Item label="Permit Done" name="App_permit_Done">
               <Select
-                placeholder="Search to Select"
+                placeholder="Give Done Permission to Group"
                 onChange={handleChange}
                 options={permitOptions}
               />
@@ -127,8 +137,8 @@ const AppCreate = () => {
           </Col>
         </Row>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
+          <Button className="float-right" type="primary" htmlType="submit">
+            Create Application
           </Button>
         </Form.Item>
       </Form>
