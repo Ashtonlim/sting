@@ -55,7 +55,7 @@ const App = () => {
           <Route path="Profile" element={<Profile />} />
           <Route path="Create-application" element={<AppCreate />} />
           <Route path="Edit-application/:appName" element={<AppEdit />} />
-          <Route path="Kanban/:id" element={<Kanban />} />
+          <Route path="Kanban/:appName" element={<Kanban />} />
         </Route>
 
         {/* <Route element={<OpenRoute />}>

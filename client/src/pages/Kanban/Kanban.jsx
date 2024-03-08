@@ -1,346 +1,159 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import {
-  closestCenter,
-  pointerWithin,
-  rectIntersection,
-  DndContext,
-  DragOverlay,
-  getFirstCollision,
-  MouseSensor,
-  TouchSensor,
-  KeyboardSensor,
-  useSensors,
-  useSensor,
-  MeasuringStrategy,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import update from "immutability-helper";
-import { SectionItem, FieldItem } from "./TasksItem.jsx";
-import ClientOnlyPortal from "./ClientOnlyPortal.jsx";
-import { ProjectOutlined } from "@ant-design/icons";
-
-import { tasks, columns } from "./fakeData.js";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Button, Row, Modal, Form, Input, DatePicker, Table } from "antd";
+import { Link } from "react-router-dom";
 import LayoutOne from "/src/components/LayoutOne";
-import "./Kanban.scss";
 
-export default function Kanban() {
-  const [data, setData] = useState(null);
-  const [items, setItems] = useState({});
-  const [containers, setContainers] = useState([]);
-  const [activeId, setActiveId] = useState(null);
-  const lastOverId = useRef(null);
-  const recentlyMovedToNewContainer = useRef(false);
-  const isSortingContainer = activeId ? containers.includes(activeId) : false;
+import * as dayjs from "dayjs";
+dayjs().format();
 
-  useEffect(() => {
-    if (tasks) {
-      setData(tasks);
-      let cols = {};
-      columns.sort((a, b) => a.order - b.order);
-      columns.forEach((c) => {
-        cols["column-" + c.id] = [];
-      });
-      tasks.forEach((d) => {
-        if (!("column-" + d.col_id in cols)) {
-          cols["column-" + d.col_id] = [];
-        }
-        cols["column-" + d.col_id].push("task-" + d.id);
-      });
-      setItems(cols);
-      setContainers(Object.keys(cols));
-    }
-  }, [tasks, columns]);
+const { RangePicker } = DatePicker;
 
-  const moveBetweenContainers = useCallback(
-    (activeContainer, overContainer, active, over, overId) => {
-      const activeItems = items[activeContainer];
-      const overItems = items[overContainer];
-      const overIndex = overItems.indexOf(overId);
-      const activeIndex = activeItems.indexOf(active.id);
+const taskStates = ["Open", "Todo", "Doing", "Done", "Closed"];
 
-      let newIndex;
-
-      if (overId in items) {
-        newIndex = overItems.length + 1;
-      } else {
-        const isBelowOverItem =
-          over &&
-          active.rect?.current?.translated &&
-          active.rect?.current?.translated.top >=
-            over.rect?.top + over.rect?.height;
-
-        const modifier = isBelowOverItem ? 1 : 0;
-
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-      }
-      recentlyMovedToNewContainer.current = true;
-
-      setItems(
-        update(items, {
-          [activeContainer]: {
-            $splice: [[activeIndex, 1]],
-          },
-          [overContainer]: {
-            $splice: [[newIndex, 0, active.id]],
-            //$splice: [[newIndex, 0, items[activeContainer][activeIndex]],
-          },
-        })
-      );
-    },
-    [items]
-  );
-
-  /**
-   * Custom collision detection strategy optimized for multiple containers
-   *
-   * - First, find any droppable containers intersecting with the pointer.
-   * - If there are none, find intersecting containers with the active draggable.
-   * - If there are no intersecting containers, return the last matched intersection
-   *
-   */
-  const collisionDetectionStrategy = useCallback(
-    (args) => {
-      if (activeId && activeId in items) {
-        return closestCenter({
-          ...args,
-          droppableContainers: args.droppableContainers.filter(
-            (container) => container.id in items
-          ),
-        });
-      }
-
-      // Start by finding any intersecting droppable
-      const pointerIntersections = pointerWithin(args);
-      const intersections =
-        pointerIntersections.length > 0
-          ? // If there are droppables intersecting with the pointer, return those
-            pointerIntersections
-          : rectIntersection(args);
-      let overId = getFirstCollision(intersections, "id");
-
-      if (overId !== null) {
-        if (overId in items) {
-          const containerItems = items[overId];
-
-          // If a container is matched and it contains items (columns 'A', 'B', 'C')
-          if (containerItems.length > 0) {
-            // Return the closest droppable within that container
-            overId = closestCenter({
-              ...args,
-              droppableContainers: args.droppableContainers.filter(
-                (container) =>
-                  container.id !== overId &&
-                  containerItems.includes(container.id)
-              ),
-            })[0]?.id;
-          }
-        }
-
-        lastOverId.current = overId;
-
-        return [{ id: overId }];
-      }
-
-      // When a draggable item moves to a new container, the layout may shift
-      // and the `overId` may become `null`. We manually set the cached `lastOverId`
-      // to the id of the draggable item that was moved to the new container, otherwise
-      // the previous `overId` will be returned which can cause items to incorrectly shift positions
-      if (recentlyMovedToNewContainer.current) {
-        lastOverId.current = activeId;
-      }
-
-      // If no droppable is matched, return the last match
-      return lastOverId.current ? [{ id: lastOverId.current }] : [];
-    },
-    [activeId, items]
-  );
-
-  const [clonedItems, setClonedItems] = useState(null);
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        //distance: 5,
-        delay: 100,
-        tolerance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        distance: 5,
-        delay: 100,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      KeyboardSensor: {
-        distance: 5,
-        delay: 100,
-        tolerance: 5,
-      },
-    })
-  );
-
-  const findContainer = (id) => {
-    if (id in items) return id;
-    return containers.find((key) => items[key].includes(id));
-  };
-
-  function handleDragStart({ active }) {
-    setActiveId(active.id);
-    setClonedItems(items);
-  }
-
-  function handleDragOver({ active, over }) {
-    const overId = over?.id;
-
-    if (!overId || active.id in items) return;
-
-    const overContainer = findContainer(overId);
-    const activeContainer = findContainer(active.id);
-
-    if (!overContainer || !activeContainer) return;
-
-    if (activeContainer !== overContainer) {
-      moveBetweenContainers(
-        activeContainer,
-        overContainer,
-        active,
-        over,
-        overId
-      );
-    }
-  }
-
-  function handleDragEnd({ active, over }) {
-    if (!over) {
-      setActiveId(null);
-      return;
-    }
-
-    if (active.id in items && over?.id) {
-      setContainers((containers) => {
-        const activeIndex = containers.indexOf(active.id);
-        const overIndex = containers.indexOf(over.id);
-
-        return arrayMove(containers, activeIndex, overIndex);
-      });
-    }
-
-    const activeContainer = findContainer(active.id);
-
-    if (!activeContainer) {
-      setActiveId(null);
-      return;
-    }
-
-    const overContainer = findContainer(over.id);
-
-    if (overContainer) {
-      const activeIndex = items[activeContainer].indexOf(active.id);
-      const overIndex = items[overContainer].indexOf(over.id);
-
-      if (activeIndex !== overIndex) {
-        setItems((items) => ({
-          ...items,
-          [overContainer]: arrayMove(
-            items[overContainer],
-            activeIndex,
-            overIndex
-          ),
-        }));
-      }
-    }
-
-    setActiveId(null);
-  }
-
-  const handleDragCancel = () => {
-    if (clonedItems) {
-      // Reset items to their original state in case items have been
-      // Dragged across containers
-      setItems(clonedItems);
-    }
-
-    setActiveId(null);
-    setClonedItems(null);
-  };
+const Kanban = () => {
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
+  const { appName } = useParams();
+  const now = dayjs();
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      recentlyMovedToNewContainer.current = false;
-    });
-  }, [items]);
+    const init = async () => {
+      const { data } = await axios.get("/apt/allApps");
+      console.log(data);
+      setappData(data);
+    };
+    init();
+  }, []);
+
+  const onFinish = async (values) => {
+    console.log("Success:", values);
+  };
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
 
   return (
-    <LayoutOne>
-      <ProjectOutlined />
-      <span className="ml-2 font-bold">Kanban</span>
-      <div className="kanban">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={collisionDetectionStrategy}
-          measuring={{
-            droppable: {
-              strategy: MeasuringStrategy.WhileDragging,
-            },
-          }}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
+    <LayoutOne width={24}>
+      <div className="px-4">
+        <Modal
+          title="Plans"
+          centered
+          open={open}
+          onOk={() => setOpen(false)}
+          width={1000}
         >
-          <div className="kanban-container">
-            <SortableContext
-              items={containers}
-              strategy={horizontalListSortingStrategy}
+          <Form
+            form={form}
+            name="createPlan"
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            layout="inline"
+          >
+            <Form.Item
+              label="MVP name"
+              name="plan_name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username!",
+                },
+                { max: 20 },
+                {
+                  pattern: "^[a-zA-Z0-9]+$",
+                  message: "Only letters and numbers are allowed",
+                },
+              ]}
             >
-              {containers.map((containerId) => {
-                return (
-                  <SectionItem
-                    id={containerId}
-                    key={containerId}
-                    items={items[containerId]}
-                    name={
-                      columns.filter((c) => "column-" + c.id === containerId)[0]
-                        .name
-                    }
-                    data={data}
-                    isSortingContainer={isSortingContainer}
-                  />
-                );
-              })}
-            </SortableContext>
+              <Input placeholder="Dev01" />
+            </Form.Item>
+
+            <Form.Item
+              label="Start and End Date"
+              name="seDate"
+              rules={[{ required: true, message: "Dates are required" }]}
+            >
+              <RangePicker />
+            </Form.Item>
+
+            <Form.Item>
+              <Button className="w-28" type="primary" htmlType="submit">
+                Create Plan
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <Table columns={columns} dataSource={appData} />
+        </Modal>
+        <div className="mb-2 flex flex-row justify-between w-full">
+          <span className="font-bold text-xl">
+            {appName || "Missing App Name"}
+          </span>
+          <div>
+            <Button
+              onClick={() => setOpen(true)}
+              type="primary"
+              className="mr-2"
+            >
+              View Plans
+            </Button>
+
+            <Button type="primary" style={{ background: "green" }} className="">
+              Create Task
+            </Button>
           </div>
-          <ClientOnlyPortal selector=".kanban">
-            <DragOverlay>
-              {activeId ? (
-                containers.includes(activeId) ? (
-                  <SectionItem
-                    id={activeId}
-                    items={items[activeId]}
-                    name={
-                      columns.filter((c) => "column-" + c.id === activeId)[0]
-                        .name
-                    }
-                    data={data}
-                    dragOverlay
-                  />
-                ) : (
-                  <FieldItem
-                    id={activeId}
-                    item={data.filter((d) => "task-" + d.id === activeId)[0]}
-                    dragOverlay
-                  />
-                )
-              ) : null}
-            </DragOverlay>
-          </ClientOnlyPortal>
-        </DndContext>
+        </div>
+
+        <div className="flex flex-row justify-between">
+          {taskStates.map((stateName) => (
+            <div
+              key={stateName}
+              // className={`w-1/${taskStates.length}`}
+              style={{ width: "19%" }}
+            >
+              <span className="">{stateName}</span>
+              <div
+                style={{ minHeight: "300px" }}
+                className={`my-2 block max-w-sm p-6 bg-slate-100 border border-gray-200 rounded-lg shadow hover:bg-slate-200 `}
+              >
+                tasks
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </LayoutOne>
   );
-}
+};
+
+const columns = [
+  {
+    title: "App Acronym (View Kanban)",
+    dataIndex: "App_Acronym",
+    key: "App_Acronym",
+    render: (text) => text,
+  },
+  {
+    title: "Start Date",
+    dataIndex: "App_startDate",
+    key: "App_startDate",
+    render: (date) => dayjs(date).format("YYYY-MM-DD"),
+  },
+  {
+    title: "End Date",
+    dataIndex: "App_endDate",
+    key: "App_endDate",
+    render: (date) => dayjs(date).format("YYYY-MM-DD"),
+  },
+  {
+    title: "Edit",
+    dataIndex: "operation",
+    render: (_, record) => (
+      <Link to={`/edit-application/${record.App_Acronym}`}>
+        <Button>View / Edit</Button>
+      </Link>
+    ),
+  },
+];
+
+export default Kanban;
