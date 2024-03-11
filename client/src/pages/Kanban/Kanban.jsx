@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button, Row, Modal, Form, Input, DatePicker, Table } from "antd";
@@ -13,23 +14,38 @@ const taskStates = ["Open", "Todo", "Doing", "Done", "Closed"];
 
 const Kanban = () => {
   const [open, setOpen] = useState(false);
+  const [appData, setappData] = useState([]);
   const [form] = Form.useForm();
   const { appName } = useParams();
   const now = dayjs();
 
   useEffect(() => {
     const init = async () => {
-      const { data } = await axios.get("/apt/allApps");
+      const { data } = await axios.get("/apt/allPlans");
       console.log(data);
       setappData(data);
     };
     init();
   }, []);
 
-  const onFinish = async (values) => {
+  const onCreatePlan = async (values) => {
     console.log("Success:", values);
+    const Plan_startDate = dayjs(values.seDate[0]["$d"]).format("YYYY-MM-DD");
+    const Plan_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
+    delete values["seDate"];
+
+    const res = await axios.post("/apt/createApp", {
+      ...values,
+      Plan_startDate,
+      Plan_endDate,
+      Plan_app_Acronym: appName,
+    });
+    console.log(res);
+    console.log("Success:", values);
+    console.log("start and end:", App_startDate, App_endDate);
   };
-  const onFinishFailed = (errorInfo) => {
+
+  const onCreatePlanFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
@@ -44,15 +60,16 @@ const Kanban = () => {
           width={1000}
         >
           <Form
+            className="my-4"
             form={form}
             name="createPlan"
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
+            onFinish={onCreatePlan}
+            onFinishFailed={onCreatePlanFailed}
             layout="inline"
           >
             <Form.Item
               label="MVP name"
-              name="plan_name"
+              name="Plan_MVP_name"
               rules={[
                 {
                   required: true,

@@ -65,7 +65,7 @@ const App = () => {
         <Route
           path="login"
           element={
-            user.status != "succeeded" ? (
+            user.status === "idle" || user.status === "loading" ? (
               <Loading />
             ) : user.loggedIn ? (
               <Navigate to="/" />
@@ -100,7 +100,7 @@ const PrivateRoute = () => {
   // once succeeded, res will then be updated in redux state
   // check if user is logged in
   // ensures route is always authenticated by server
-  return user.status != "succeeded" ? (
+  return user.status === "idle" || user.status === "loading" ? (
     <Loading />
   ) : user.loggedIn ? (
     <Outlet />
@@ -124,7 +124,7 @@ const AdminRoute = () => {
     }
   }, [dispatch]);
 
-  return user.status != "succeeded" ? (
+  return user.status === "idle" || user.status === "loading" ? (
     <Loading />
   ) : user.loggedIn ? (
     user.isAdmin ? (

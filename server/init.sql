@@ -1,3 +1,8 @@
+select * from application
+
+
+
+
 
 DROP DATABASE IF EXISTS nodelogin;
 
