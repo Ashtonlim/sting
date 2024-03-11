@@ -50,6 +50,21 @@ export const getAllTasks = async (req, res) => {
   }
 };
 
+export const getTask = async (req, res) => {
+  try {
+    const geTaskQry = `SELECT * FROM task WHERE Task_id = '${req.params.taskId}';`;
+    const [task] = await sql.query(geTaskQry);
+    console.log(task);
+    if (task.length !== 1) {
+      return res.status(404).send("task not found or multiple tasks found");
+    }
+
+    res.status(200).json(task[0]);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 export const createApp = async (req, res) => {
   try {
     console.log(req.byUser, req.secGrp);
@@ -127,6 +142,8 @@ export const createTask = async (req, res) => {
     //   return res.status(403).send("User is not a PL, only PL can create tasks");
     // }
 
+    req.byUser = "ash";
+
     if (!req.byUser) {
       res.status(401).send("Requesting user's credentials not found");
     }
@@ -193,6 +210,7 @@ export const editTask = async (req, res) => {
       "Task_add_notes",
       "Task_id",
       "Task_plan",
+      "Promote",
     ];
 
     req.body["Task_notes"] =

@@ -18,6 +18,7 @@ import Login from "./pages/Login/Login";
 import Kanban from "./pages/Kanban/Kanban";
 import AppCreate from "./pages/AppCreate/AppCreate";
 import AppEdit from "./pages/AppEdit/AppEdit";
+import TaskEdit from "./pages/TaskEdit/TaskEdit";
 import Loading from "./pages/Loading/";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
@@ -55,6 +56,9 @@ const App = () => {
           <Route path="Profile" element={<Profile />} />
           <Route path="Create-application" element={<AppCreate />} />
           <Route path="Edit-application/:appName" element={<AppEdit />} />
+          <Route path="Create-application" element={<AppCreate />} />
+          <Route path="Edit-task/:taskId" element={<TaskEdit />} />
+
           <Route path="Kanban/:appName" element={<Kanban />} />
         </Route>
 
