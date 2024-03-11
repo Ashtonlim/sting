@@ -119,3 +119,99 @@ export const editApp = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
+export const createTask = async (req, res) => {
+  try {
+    // console.log(req.byUser, req.secGrp);
+    // if (!req.secGrp?.includes("pl")) {
+    //   return res.status(403).send("User is not a PL, only PL can create tasks");
+    // }
+
+    if (!req.byUser) {
+      res.status(401).send("Requesting user's credentials not found");
+    }
+
+    console.log(req.body);
+    const app_Acr = req.body["Task_app_Acronym"];
+    const params = [
+      "Task_name",
+      "Task_description",
+      "Task_notes",
+      "Task_id",
+      "Task_plan",
+      "Task_app_Acronym",
+      "Task_state",
+      "Task_creator",
+      "Task_owner",
+      "Task_createDate",
+    ];
+
+    // get running no
+    const getAppQry =
+      "SELECT App_Rnumber FROM application WHERE App_Acronym = ?";
+    const [app] = await sql.query(getAppQry, [app_Acr]);
+
+    if (app.length !== 1) {
+      res.status(401).send("App not found");
+    }
+
+    // create task ID [App_Acronym]_[App_Rnumber].
+    req.body["Task_id"] = `${app_Acr}_${app[0].App_Rnumber}`;
+
+    req.body["Task_creator"] = req.byUser;
+    req.body["Task_createDate"] = new Date().toISOString().slice(0, 10);
+    req.body["Task_state"] = "Open";
+    req.body["Task_owner"] = "PM";
+
+    const queryParams = params.map((param) =>
+      req.body[param] ? `${req.body[param]}` : null
+    );
+    // res.status(200).json({ queryParams });
+
+    // console.log(queryParams);
+    const addAppQry =
+      "INSERT INTO Task (Task_name, Task_description, Task_notes, Task_id, Task_plan, Task_app_Acronym, Task_state, Task_creator, Task_owner, Task_createDate) VALUES (?,?,?,?,?,?,?,?,?,?);";
+    const [iAppRes] = await sql.query(addAppQry, queryParams);
+    // console.log("created app", iAppRes);
+    res.status(200).json(iAppRes);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+export const editTask = async (req, res) => {
+  try {
+    // console.log(req.byUser, req.secGrp);
+    if (!req.secGrp?.includes("pl")) {
+      return res.status(403).send("User is not a PL");
+    }
+
+    const params = [
+      "Task_description",
+      "Task_notes",
+      "Task_add_notes",
+      "Task_id",
+      "Task_plan",
+    ];
+
+    req.body["Task_notes"] =
+      req.body["Task_notes"] + req.body["Task_add_notes"];
+
+    const queryParams = params.map((param) =>
+      req.body[param] ? `${req.body[param]}` : null
+    );
+
+    console.log(queryParams);
+    const editTaskQry =
+      "UPDATE task SET Task_description = ?, Task_notes = ?, Task_plan = ? WHERE Task_id = ?;";
+
+    console.log("editAppQry", editTaskQry);
+    const [app] = await sql.query(editTaskQry, queryParams);
+    console.log("created app", app);
+    res.status(200).json(app);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};

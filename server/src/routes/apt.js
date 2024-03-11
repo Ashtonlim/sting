@@ -7,6 +7,8 @@ import {
   getAllTasks,
   createApp,
   editApp,
+  createTask,
+  editTask,
 } from "../controllers/aptController.js";
 const router = Router();
 
@@ -16,5 +18,7 @@ router.get("/allPlans", checkAuth, getAllPlans);
 router.get("/allTasks", checkAuth, getAllTasks);
 router.post("/createApp", checkAuth, createApp);
 router.post("/editApp", checkAuth, editApp);
+router.post("/createTask", createTask);
+router.post("/editTask", editTask);
 
 export default router;
