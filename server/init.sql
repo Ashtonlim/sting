@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS Task (
     Task_plan VARCHAR(20),
     Task_app_Acronym VARCHAR(20),
     Task_state ENUM ('open', 'todo', 'doing', 'done', 'closed') NOT NULL DEFAULT 'open',
-    Task_creator VARCHAR(20),
-    Task_owner VARCHAR(20),
-    Task_createDate DATE,
+    Task_creator VARCHAR(20) NOT NULL,
+    Task_owner VARCHAR(20) ,
+    Task_createDate DATE NOT NULL,
     CONSTRAINT ck_task
     PRIMARY KEY (Task_id, Task_app_Acronym)
 );

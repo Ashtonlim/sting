@@ -28,7 +28,7 @@ const Kanban = () => {
     init();
   }, []);
 
-  const onCreatePlan = async (values) => {
+  const onFinish = async (values) => {
     console.log("Success:", values);
     const Plan_startDate = dayjs(values.seDate[0]["$d"]).format("YYYY-MM-DD");
     const Plan_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
@@ -42,10 +42,10 @@ const Kanban = () => {
     });
     console.log(res);
     console.log("Success:", values);
-    console.log("start and end:", App_startDate, App_endDate);
+    // console.log("start and end:", Plan_startDate, Plan_endDate);
   };
 
-  const onCreatePlanFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
@@ -63,8 +63,8 @@ const Kanban = () => {
             className="my-4"
             form={form}
             name="createPlan"
-            onFinish={onCreatePlan}
-            onFinishFailed={onCreatePlanFailed}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
             layout="inline"
           >
             <Form.Item
