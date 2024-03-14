@@ -1,6 +1,5 @@
-select * from application
 
-
+select * from application;
 
 
 
@@ -39,13 +38,14 @@ CREATE TABLE IF NOT EXISTS Application (
 );
 
 CREATE TABLE IF NOT EXISTS Plan (
-    Plan_MVP_name VARCHAR(20),
+    Plan_MVP_name VARCHAR(255),
     Plan_startDate DATE NOT NULL,
     Plan_endDate DATE NOT NULL,
     Plan_app_Acronym VARCHAR(20),
     CONSTRAINT ck_plan
     PRIMARY KEY (Plan_MVP_name, Plan_app_Acronym)
 );
+
 
 CREATE TABLE IF NOT EXISTS Task (
     Task_name VARCHAR(20),
@@ -62,18 +62,6 @@ CREATE TABLE IF NOT EXISTS Task (
     PRIMARY KEY (Task_id, Task_app_Acronym)
 );
 
-
--- Table: Task 
--- Task_name 
--- Task_description 
--- Task_notes 
--- Task_id  <App_Acronym>_<App_Rnumber> 
--- Task_plan 
--- Task_app_Acronym 
--- Task_state 
--- Task_creator 
--- Task_owner 
--- Task_createDate 
 
 CREATE TABLE IF NOT EXISTS secGroups (
     groupname VARCHAR(20) PRIMARY KEY
