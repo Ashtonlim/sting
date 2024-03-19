@@ -27,6 +27,15 @@ axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
 
+// axios.interceptors.response.use(
+//   (res) => {
+//     console.log("axios interceptors", res);
+//   },
+//   (err) => {
+//     console.log(err);
+//   }
+// );
+
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
   const user = useSelector((state) => state.auth);

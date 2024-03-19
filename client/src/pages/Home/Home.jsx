@@ -31,7 +31,7 @@ const Home = () => {
       </Link>
 
       {appData.length > 0 ? (
-        <Table columns={columns} dataSource={appData} />
+        <Table rowKey="App_Acronym" columns={columns} dataSource={appData} />
       ) : (
         <h3>
           No Applications to view, create one{" "}
@@ -73,6 +73,7 @@ const columns = [
   {
     title: "Edit",
     dataIndex: "operation",
+    key: "operation",
     render: (_, record) => (
       <Link to={`/edit-application/${record.App_Acronym}`}>
         <Button>View / Edit</Button>

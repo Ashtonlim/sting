@@ -38,26 +38,28 @@ const CreateGroupForm = ({ setoptions }) => {
         name="createGroup"
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
-        layout="inline"
       >
-        <Form.Item
-          label="Group Name"
-          name="groupname"
-          rules={[
-            {
-              required: true,
-              message: "Group requires a name",
-            },
-            {
-              pattern: "^[a-zA-Z0-9]+$",
-              message: "Only letters and numbers are allowed",
-            },
-          ]}
-        >
-          <Input placeholder="admin" />
-        </Form.Item>
+        <div>
+          <Form.Item
+            style={{ width: "100%", display: "block" }}
+            label="Group Name"
+            name="groupname"
+            rules={[
+              {
+                required: true,
+                message: "Group requires a name",
+              },
+              {
+                pattern: "^[a-zA-Z0-9]+$",
+                message: "Only letters and numbers are allowed",
+              },
+            ]}
+          >
+            <Input placeholder="admin" />
+          </Form.Item>
+        </div>
         <div className="mt-3">
-          <Form.Item className="">
+          <Form.Item className="float-right block">
             <Button className="w-28" type="primary" htmlType="submit">
               Create group
             </Button>
