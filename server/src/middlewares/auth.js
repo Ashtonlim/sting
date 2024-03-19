@@ -28,6 +28,7 @@ export const checkAuth = (req, res, next) => {
 
     try {
       const getUserByIdQry = `SELECT * FROM accounts WHERE username='${username}';`;
+
       const [users] = await sql.query(getUserByIdQry);
       if (users.length !== 1) {
         return res.status(401).json({
@@ -38,6 +39,14 @@ export const checkAuth = (req, res, next) => {
       }
 
       const user = users[0];
+      // check if user is active
+      if (user.isActive == 0) {
+        return res.status(401).json({
+          err: "User is not active",
+          loggedIn: false,
+          isAdmin: false,
+        });
+      }
       req.byUser = username;
       req.secGrp = [];
       req.isAdmin = false;

@@ -166,22 +166,26 @@ const Dashboard = () => {
     {
       title: "Username",
       dataIndex: "username",
+      key: "username",
     },
     {
       title: "Password",
       dataIndex: "password",
+      key: "password",
+
       render: (_, { password }) => "********",
       editable: true,
     },
     {
       title: "Email",
       dataIndex: "email",
+      key: "email",
       editable: true,
     },
     {
       title: "Group",
-      key: "secGrp",
       dataIndex: "secGrp",
+      key: "secGrp",
       width: "20%",
       render: (_, { secGrp }) => (
         <div>
@@ -196,6 +200,7 @@ const Dashboard = () => {
       title: "Active Status",
       width: "10%",
       dataIndex: "isActive",
+      key: "secGrp",
       render: (isActive) => <Switch value={isActive} disabled={true} />,
       editable: true,
     },
@@ -245,7 +250,7 @@ const Dashboard = () => {
 
   return (
     <LayoutOne>
-      <div className="flex flex-col items-end">
+      <div className="flex flex-row items-end">
         <CreateGroupForm options={options} setoptions={setoptions} />
         <CreateUserForm
           options={options}

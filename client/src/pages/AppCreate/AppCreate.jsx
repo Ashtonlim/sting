@@ -31,19 +31,19 @@ const AppCreate = () => {
     init();
   }, []);
   const onFinish = async (values) => {
-    console.log(values);
-    // const App_startDate = dayjs(values.seDate[0]["$d"]).format("YYYY-MM-DD");
-    // const App_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
-    // delete values["seDate"];
+    // console.log(values);
+    const App_startDate = dayjs(values.seDate[0]["$d"]).format("YYYY-MM-DD");
+    const App_endDate = dayjs(values.seDate[1]["$d"]).format("YYYY-MM-DD");
+    delete values["seDate"];
 
-    // const res = await axios.post("/apt/createApp", {
-    //   ...values,
-    //   App_startDate,
-    //   App_endDate,
-    // });
-    // console.log(res);
-    // console.log("Success:", values);
-    // console.log("start and end:", App_startDate, App_endDate);
+    const res = await axios.post("/apt/createApp", {
+      ...values,
+      App_startDate,
+      App_endDate,
+    });
+    console.log(res);
+    console.log("Success:", values);
+    console.log("start and end:", App_startDate, App_endDate);
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);

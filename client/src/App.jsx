@@ -18,6 +18,7 @@ import Login from "./pages/Login/Login";
 import Kanban from "./pages/Kanban/Kanban";
 import AppCreate from "./pages/AppCreate/AppCreate";
 import AppEdit from "./pages/AppEdit/AppEdit";
+import TaskEdit from "./pages/TaskEdit/TaskEdit";
 import Loading from "./pages/Loading/";
 import { useSelector, useDispatch } from "react-redux";
 import { checkUser } from "./pages/Login/authSlice";
@@ -25,6 +26,15 @@ import { checkUser } from "./pages/Login/authSlice";
 axios.defaults.baseURL = import.meta.env.VITE_APP_BE_BASE_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get("jwt")}`;
+
+// axios.interceptors.response.use(
+//   (res) => {
+//     console.log("axios interceptors", res);
+//   },
+//   (err) => {
+//     console.log(err);
+//   }
+// );
 
 // https://reactrouter.com/en/main/router-components/browser-router
 const App = () => {
@@ -55,7 +65,10 @@ const App = () => {
           <Route path="Profile" element={<Profile />} />
           <Route path="Create-application" element={<AppCreate />} />
           <Route path="Edit-application/:appName" element={<AppEdit />} />
-          <Route path="Kanban/:id" element={<Kanban />} />
+          <Route path="Create-application" element={<AppCreate />} />
+          <Route path="Edit-task/:taskId" element={<TaskEdit />} />
+
+          <Route path="Kanban/:appName" element={<Kanban />} />
         </Route>
 
         {/* <Route element={<OpenRoute />}>
@@ -65,7 +78,7 @@ const App = () => {
         <Route
           path="login"
           element={
-            user.status != "succeeded" ? (
+            user.status === "idle" || user.status === "loading" ? (
               <Loading />
             ) : user.loggedIn ? (
               <Navigate to="/" />
@@ -100,7 +113,7 @@ const PrivateRoute = () => {
   // once succeeded, res will then be updated in redux state
   // check if user is logged in
   // ensures route is always authenticated by server
-  return user.status != "succeeded" ? (
+  return user.status === "idle" || user.status === "loading" ? (
     <Loading />
   ) : user.loggedIn ? (
     <Outlet />
@@ -124,7 +137,7 @@ const AdminRoute = () => {
     }
   }, [dispatch]);
 
-  return user.status != "succeeded" ? (
+  return user.status === "idle" || user.status === "loading" ? (
     <Loading />
   ) : user.loggedIn ? (
     user.isAdmin ? (

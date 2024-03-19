@@ -41,75 +41,84 @@ const CreateUserForm = ({ options, setdata }) => {
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
-        layout="inline"
       >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[
-            {
-              required: true,
-              message: "Please input your username!",
-            },
-            { min: 3, max: 20 },
-            {
-              pattern: "^[a-zA-Z0-9]+$",
-              message: "Only letters and numbers are allowed",
-            },
-          ]}
-        >
-          <Input placeholder="Dev01" />
-        </Form.Item>
+        <div className="flex flex-row">
+          <div className="mr-3">
+            <Form.Item
+              label="Username"
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username!",
+                },
+                { min: 3, max: 20 },
+                {
+                  pattern: "^[a-zA-Z0-9]+$",
+                  message: "Only letters and numbers are allowed",
+                },
+              ]}
+            >
+              <Input placeholder="Dev01" />
+            </Form.Item>
+          </div>
 
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
+          <div className="mr-3">
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your password!",
+                },
 
-            { min: 8, max: 10 },
-            {
-              pattern: "^(?=.*[a-zA-Z]).+$",
-              message: "must have 1 alphabet",
-            },
-            {
-              pattern: "\\d",
-              message: "must have 1 number",
-            },
-            {
-              pattern: "^(?=.*[^a-zA-Z0-9]).+$",
-              message: "must have 1 special character",
-            },
-          ]}
-        >
-          <Input.Password placeholder="A secure password" />
-        </Form.Item>
+                // { min: 8, max: 10 },
+                // {
+                //   pattern: "^(?=.*[a-zA-Z]).+$",
+                //   message: "must have 1 alphabet",
+                // },
+                // {
+                //   pattern: "\\d",
+                //   message: "must have 1 number",
+                // },
+                // {
+                //   pattern: "^(?=.*[^a-zA-Z0-9]).+$",
+                //   message: "must have 1 special character",
+                // },
+              ]}
+            >
+              <Input.Password placeholder="A secure password" />
+            </Form.Item>
+          </div>
 
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            {
-              type: "email",
-              message: "Please enter a valid email!",
-            },
-          ]}
-        >
-          <Input placeholder="admin@st.com" />
-        </Form.Item>
+          <div className="mr-3">
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                {
+                  type: "email",
+                  message: "Please enter a valid email!",
+                },
+              ]}
+            >
+              <Input placeholder="admin@st.com" />
+            </Form.Item>
+          </div>
 
-        <Form.Item label="Groups" name="groups">
-          <Select
-            style={{ minWidth: "200px" }}
-            mode="multiple"
-            placeholder="Please select"
-            options={options}
-          />
-        </Form.Item>
-        <div className="mt-3">
+          <div>
+            <Form.Item label="Groups" name="groups">
+              <Select
+                style={{ minWidth: "200px" }}
+                mode="multiple"
+                placeholder="Please select"
+                options={options}
+              />
+            </Form.Item>
+          </div>
+        </div>
+        <div className="floar-right my-5">
           <Form.Item>
             <Button className="w-28" type="primary" htmlType="submit">
               Create User
