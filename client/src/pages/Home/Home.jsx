@@ -11,7 +11,6 @@ dayjs().format();
 
 const Home = () => {
   const [appData, setappData] = useState([]);
-  const now = dayjs();
 
   useEffect(() => {
     const init = async () => {
