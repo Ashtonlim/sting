@@ -22,6 +22,28 @@ Disadvantages:
 1. Lesser control over user session (cannot terminate session anytime).
 2. More complex to implement.
 
+### Notes
+
+ooad | microservices arch desgin
+peering - point to point peering
+
+1. iam
+   req and proj pitfalls
+   data modelling
+   reusability components
+
+2. workflow sys
+   req and proj pitfalls
+   data modelling
+   ux and testing
+
+3. restful api
+   security
+   method signature
+
+4. containerization
+   build and run app container img docker engine / kubernetes
+
 <!-- Review again if non trivial to implement. -->
 
 <!-- JWTs and refresh tokens are used to handle auth.
